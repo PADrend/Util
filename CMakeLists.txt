@@ -288,9 +288,7 @@ set_package_properties(ZLIB PROPERTIES
 feature_summary(DESCRIPTION "The following packages have been found:" WHAT PACKAGES_FOUND)
 feature_summary(DESCRIPTION "The following packages have *not* been found:" WHAT PACKAGES_NOT_FOUND)
 
-if(IS_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/tests)
-	add_subdirectory(tests)
-endif()
+add_subdirectory(tests)
 
 # Install the header files
 file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Concurrency/*.h")
