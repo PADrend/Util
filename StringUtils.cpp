@@ -240,7 +240,7 @@ bool nextLine(const char * subject,int & cursor) {
 
 //! (static)
 void stepWhitespaces(const char * subject, int & cursor) {
-	while (isspace(subject[cursor]) && !subject[cursor]==0 ) {
+	while(isspace(subject[cursor]) && subject[cursor] != '\0') {
 		++cursor;
 	}
 }
