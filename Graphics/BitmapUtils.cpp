@@ -12,15 +12,14 @@
 #include "Bitmap.h"
 #include "PixelAccessor.h"
 #include "../Macros.h"
-#include "../IO/FileName.h"
-#include "../IO/FileUtils.h"
 
 #ifdef UTIL_HAVE_LIB_SDL2
 #include <SDL.h>
 #endif /* UTIL_HAVE_LIB_SDL2 */
 
-#include <algorithm>
 #include <cmath>
+#include <stdexcept>
+#include <vector>
 
 namespace Util {
 

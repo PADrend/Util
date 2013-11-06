@@ -11,8 +11,10 @@
 #ifndef UTIL_UPDATABLEHEAP_H_
 #define UTIL_UPDATABLEHEAP_H_
 
+#include <cstddef>
 #include <limits>
 #include <list>
+#include <utility>
 
 namespace Util {
 

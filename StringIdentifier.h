@@ -11,8 +11,10 @@
 #ifndef STRINGIDENTIFIER_H_
 #define STRINGIDENTIFIER_H_
 
-#include <string>
+#include <cstddef>
 #include <cstdint>
+#include <string>
+#include <unordered_map>
 
 namespace Util {
 

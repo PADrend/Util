@@ -12,11 +12,8 @@
 #include "Concurrency/Concurrency.h"
 #include "Concurrency/Lock.h"
 #include "Concurrency/Mutex.h"
-#include <functional>
-#include <map>
 #include <memory>
 #include <sstream>
-#include <utility>
 #include <unordered_map>
 
 namespace Util {

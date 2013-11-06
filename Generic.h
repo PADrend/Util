@@ -10,8 +10,9 @@
 #define UTIL_GENERIC_H
 
 #include <memory>
-#include <stdexcept>
 #include <type_traits>
+#include <typeinfo>
+#include <utility>
 
 namespace Util {
 

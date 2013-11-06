@@ -11,10 +11,16 @@
 #ifndef OBJECTEXTENSION_H_INCLUDED
 #define OBJECTEXTENSION_H_INCLUDED
 
-#include <utility>
+#include "AttributeProvider.h"
+#include "GenericAttribute.h"
+#include "StringIdentifier.h"
+#include <memory>
 #include <stdexcept>
+#include <string>
+#include <type_traits>
+#include <utility>
 
-namespace Util{
+namespace Util {
 
 /*! ObjectExtensions can be used to dynamically extend objects inheriting from AttributeProvider
 	with data and functionality at runtime. Internally, it is a unified interface

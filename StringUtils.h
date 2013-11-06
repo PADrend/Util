@@ -12,6 +12,7 @@
 #define STRINGUTILS_H
 
 #include <cstddef>
+#include <cstdint>
 #include <deque>
 #include <sstream>
 #include <string>

@@ -9,6 +9,9 @@
 #include "EmbeddedFont.h"
 #include "Bitmap.h"
 #include "FontRenderer.h"
+#include "PixelFormat.h"
+#include <algorithm>
+#include <cstdint>
 
 namespace Util {
 namespace EmbeddedFont {

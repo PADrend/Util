@@ -12,6 +12,7 @@
 #define BITMAPUTILS_H_
 
 #include "../References.h"
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <vector>
@@ -23,7 +24,6 @@ struct SDL_Surface;
 namespace Util {
 class Bitmap;
 class Color4f;
-class FileName;
 class PixelAccessor;
 class PixelFormat;
 

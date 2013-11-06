@@ -9,11 +9,8 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "MicroXML.h"
-#include "IO/FileName.h"
-#include "IO/FileUtils.h"
 #include "StringUtils.h"
 #include "Macros.h"
-#include "Utils.h"
 #include <cctype>
 #include <cstdint>
 #include <cstddef>

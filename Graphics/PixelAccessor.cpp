@@ -11,7 +11,6 @@
 #include "PixelAccessor.h"
 #include "../Macros.h"
 #include <algorithm>
-#include <cstddef>
 
 namespace Util {
 

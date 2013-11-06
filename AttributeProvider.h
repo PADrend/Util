@@ -12,10 +12,8 @@
 #define ATTRIBUTEPROVIDER_H
 
 #include "GenericAttribute.h"
-#include <cstddef>
+#include "StringIdentifier.h"
 #include <memory>
-#include <cstdint>
-#include <string>
 
 namespace Util {
 

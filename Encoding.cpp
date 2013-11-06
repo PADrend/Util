@@ -11,6 +11,7 @@
 #include "Encoding.h"
 #include "Macros.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <vector>

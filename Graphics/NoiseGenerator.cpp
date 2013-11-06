@@ -9,10 +9,9 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "NoiseGenerator.h"
-#include <algorithm>
 #include <cmath>
-#include <cstdlib>
 #include <random>
+#include <utility>
 
 namespace Util {
 

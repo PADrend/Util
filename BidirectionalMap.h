@@ -11,9 +11,11 @@
 #ifndef BIDIRECTIONALUNORDEREDMAP_H
 #define BIDIRECTIONALUNORDEREDMAP_H
 
+#include <algorithm>
+#include <cstddef>
+#include <functional>
 #include <unordered_map>
-
-#include "References.h"
+#include <utility>
 
 namespace Util {
 

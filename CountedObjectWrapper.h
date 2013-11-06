@@ -12,6 +12,7 @@
 #define COUNTED_OBJECT_WRAPPER_H
 
 #include "ReferenceCounter.h"
+#include <utility>
 
 namespace Util {
 

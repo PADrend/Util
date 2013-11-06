@@ -18,9 +18,10 @@
 #include <deque>
 #include <memory>
 #include <string>
+#include <stdexcept>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
-#include <stdexcept>
 
 namespace Util{
 class BoolAttribute;

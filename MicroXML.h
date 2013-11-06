@@ -18,8 +18,6 @@
 
 namespace Util {
 
-class FileName;
-
 /***
  ** MicroXML
  ** @description Very simple XML-Parser

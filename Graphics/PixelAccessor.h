@@ -13,6 +13,7 @@
 
 #include "Bitmap.h"
 #include "Color.h"
+#include "PixelFormat.h"
 #include "../Macros.h"
 #include "../ReferenceCounter.h"
 #include "../References.h"
