@@ -160,7 +160,7 @@ bool StreamerPNG::saveBitmap(Bitmap * bitmap, std::ostream & output) {
 		colorType = PNG_COLOR_TYPE_GRAY;
 		transforms = PNG_TRANSFORM_IDENTITY;
 	} else if(pixelFormat == PixelFormat::MONO_FLOAT) {
-		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, PixelFormat::MONO);
+		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(*bitmap, PixelFormat::MONO);
 		return saveBitmap(tmp.get(), output);
 	} else {
 		WARN("Unable to save PNG file. Unsupported color type.");

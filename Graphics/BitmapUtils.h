@@ -67,7 +67,7 @@ class BitmapUtils {
 		 * @param newFormat the Pixelformat into which the bitmap schould be converted
 		 * @return a new bitmap of the specified format with the content of the given bitmap
 		 */
-		static Bitmap * convertBitmap(const Reference<Bitmap> & source, const PixelFormat & newFormat);
+		static Bitmap * convertBitmap(const Bitmap & source, const PixelFormat & newFormat);
 
 		/*! Create a black/transparent - white bitmap with the given format based on a bitmask given
 			as raw data. This is used for storing bitmap-font-data directly in a source file.	*/

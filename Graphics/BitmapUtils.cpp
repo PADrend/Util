@@ -184,13 +184,13 @@ Bitmap * BitmapUtils::combineInterleaved(const PixelFormat & targetFormat, const
 }
 
 
-Bitmap * BitmapUtils::convertBitmap(const Reference<Bitmap> & source, const PixelFormat & newFormat){
-	const uint32_t width = source->getWidth();
-	const uint32_t height = source->getHeight();
+Bitmap * BitmapUtils::convertBitmap(const Bitmap & source, const PixelFormat & newFormat) {
+	const uint32_t width = source.getWidth();
+	const uint32_t height = source.getHeight();
 
 	Reference<Bitmap> target(new Bitmap(width,height,newFormat));
 	{
-		Reference<PixelAccessor> reader( PixelAccessor::create(source.get()));
+		Reference<PixelAccessor> reader( PixelAccessor::create(const_cast<Bitmap *>(&source)));
 		Reference<PixelAccessor> writer( PixelAccessor::create(target.get()));
 		for(uint32_t y = 0;y<height;++y )
 			for(uint32_t x = 0;x<width;++x )

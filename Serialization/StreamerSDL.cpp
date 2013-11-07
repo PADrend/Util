@@ -66,7 +66,7 @@ bool StreamerSDL::saveBitmap(Bitmap * bitmap, std::ostream & output) {
 		return false;
 	}
 	if(bitmap->getPixelFormat() == PixelFormat::MONO_FLOAT) {
-		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, PixelFormat::MONO);
+		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(*bitmap, PixelFormat::MONO);
 		return saveBitmap(tmp.get(), output);
 	}
 	SDL_Surface * surface = BitmapUtils::createSDLSurfaceFromBitmap(bitmap);
