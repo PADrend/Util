@@ -52,7 +52,7 @@ class WindowSDL : public Window {
 		std::deque<Event> fetchEvents() override;
 
 		//! Set an image that is shown as the window's icon.
-		void setIcon(const Reference<Bitmap> & icon) override;
+		void setIcon(const Bitmap & icon) override;
 
 		//! Read text from the clipboard.
 		std::string getClipboardText() const override;

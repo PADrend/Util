@@ -77,24 +77,24 @@ void WindowX11Data::fixWindowSize(int width, int height) {
 	XFree(sizeHints);
 }
 
-void WindowX11Data::setWindowIcon(const Reference<Bitmap> & icon) {
+void WindowX11Data::setWindowIcon(const Bitmap & icon) {
 	Atom _NET_WM_ICON = XInternAtom(display, "_NET_WM_ICON", False);
 	Atom CARDINAL = XInternAtom(display, "CARDINAL", False);
 	if (_NET_WM_ICON == None || CARDINAL == None) {
 		return;
 	}
 
-	auto pa = PixelAccessor::create(icon.get());
+	auto pa = PixelAccessor::create(const_cast<Bitmap *>(&icon));
 
-	const size_t dataSize = 2 + (icon->getWidth() * icon->getHeight());
+	const size_t dataSize = 2 + (icon.getWidth() * icon.getHeight());
 	std::vector<long> data;
 	data.reserve(dataSize);
 
-	data.push_back(icon->getWidth());
-	data.push_back(icon->getHeight());
+	data.push_back(icon.getWidth());
+	data.push_back(icon.getHeight());
 
-	for (uint_fast32_t y = 0; y < icon->getHeight(); ++y) {
-		for (uint_fast32_t  x = 0; x < icon->getWidth(); ++x) {
+	for (uint_fast32_t y = 0; y < icon.getHeight(); ++y) {
+		for (uint_fast32_t  x = 0; x < icon.getWidth(); ++x) {
 			const auto color = pa->readColor4ub(x, y);
 			// Change the format to ARGB
 			long outColor = 0;

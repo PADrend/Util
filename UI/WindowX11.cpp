@@ -490,7 +490,7 @@ std::deque<Event> WindowX11::fetchEvents() {
 	return events;
 }
 
-void WindowX11::setIcon(const Reference<Bitmap> & icon) {
+void WindowX11::setIcon(const Bitmap & icon) {
 	x11Data->setWindowIcon(icon);
 }
 

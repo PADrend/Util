@@ -88,7 +88,7 @@ class Window {
 		virtual void ungrabInput() = 0;
 
 		//! Set an image that is shown as the window's icon.
-		virtual void setIcon(const Reference<Bitmap> & icon) = 0;
+		virtual void setIcon(const Bitmap & icon) = 0;
 
 		/**
 		 * Read text from the clipboard.

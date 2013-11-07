@@ -57,7 +57,7 @@ struct WindowX11Data {
 	void fixWindowSize(int width, int height);
 
 	//! Assign an icon to the window.
-	void setWindowIcon(const Reference<Bitmap> & icon);
+	void setWindowIcon(const Bitmap & icon);
 };
 
 }
