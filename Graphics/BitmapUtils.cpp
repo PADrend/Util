@@ -130,7 +130,7 @@ SDL_Surface * createSDLSurfaceFromBitmap(const Bitmap & bitmap) {
 #endif /* UTIL_HAVE_LIB_SDL2 */
 
 Reference<Bitmap> blendTogether(const PixelFormat & targetFormat, 
-											 const std::vector<Reference<Bitmap>> & sources) {
+								const std::vector<Reference<Bitmap>> & sources) {
 	if(sources.empty()){
 		throw std::invalid_argument("blendTogether: 'sources' may not be empty.");
 	}
@@ -163,7 +163,7 @@ Reference<Bitmap> blendTogether(const PixelFormat & targetFormat,
 }
 
 Reference<Bitmap> combineInterleaved(const PixelFormat & targetFormat, 
-												  const std::vector<Reference<Bitmap>> & sourceBitmaps) {
+									 const std::vector<Reference<Bitmap>> & sourceBitmaps) {
 	if(sourceBitmaps.empty()){
 		throw std::invalid_argument("blendTogether: 'sources' may not be empty.");
 	}
@@ -190,7 +190,7 @@ Reference<Bitmap> combineInterleaved(const PixelFormat & targetFormat,
 }
 
 Reference<Bitmap> convertBitmap(const Bitmap & source, 
-											 const PixelFormat & newFormat) {
+								const PixelFormat & newFormat) {
 	const uint32_t width = source.getWidth();
 	const uint32_t height = source.getHeight();
 
@@ -219,10 +219,10 @@ void alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op) {
 }
 
 Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
-													   const uint32_t height,
-													   const PixelFormat & format,
-													   const size_t dataSize,
-													   const uint8_t * data) {
+										  const uint32_t height,
+										  const PixelFormat & format,
+										  const size_t dataSize,
+										  const uint8_t * data) {
 	if(width*height!=dataSize*8 || width%8!=0){
 		throw std::invalid_argument("createBitmapFromBitMask: Illegal bitmap size.");
 	}
