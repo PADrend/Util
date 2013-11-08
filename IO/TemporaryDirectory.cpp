@@ -16,6 +16,7 @@
 #include "../Utils.h"
 #include <stdexcept>
 #include <cstdint>
+#include <cstdlib>
 #include <string>
 
 namespace Util {
