@@ -30,7 +30,7 @@ namespace Util {
 
 #if defined(UTIL_HAVE_LIB_SDL2)
 
-Bitmap * StreamerSDL::loadBitmap(std::istream & input) {
+Reference<Bitmap> StreamerSDL::loadBitmap(std::istream & input) {
 	// Save the bitmap to a file temporarily.
 	static TemporaryDirectory tempDir("StreamerSDL");
 
@@ -53,12 +53,12 @@ Bitmap * StreamerSDL::loadBitmap(std::istream & input) {
 		FileUtils::remove(fileName);
 		return nullptr;
 	}
-	Bitmap * bitmap = BitmapUtils::createBitmapFromSDLSurface(surface);
+	auto bitmap = BitmapUtils::createBitmapFromSDLSurface(surface);
 	SDL_FreeSurface(surface);
 
 	FileUtils::remove(fileName);
 
-	return bitmap;
+	return std::move(bitmap);
 }
 
 bool StreamerSDL::saveBitmap(Bitmap * bitmap, std::ostream & output) {

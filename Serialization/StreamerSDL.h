@@ -12,6 +12,7 @@
 #define UTIL_STREAMERSDL_H_
 
 #include "AbstractBitmapStreamer.h"
+#include "../References.h"
 #include <istream>
 #include <ostream>
 #include <cstdint>
@@ -35,7 +36,7 @@ class StreamerSDL : public AbstractBitmapStreamer {
 		virtual ~StreamerSDL() {
 		}
 
-		Bitmap * loadBitmap(std::istream & input) override;
+		Reference<Bitmap> loadBitmap(std::istream & input) override;
 		bool saveBitmap(Bitmap * bitmap, std::ostream & output) override;
 
 		static bool init();

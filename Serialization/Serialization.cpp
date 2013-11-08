@@ -11,6 +11,7 @@
 #include "Serialization.h"
 #include "AbstractBitmapStreamer.h"
 #include "../Factory/Factory.h"
+#include "../Graphics/Bitmap.h"
 #include "../IO/FileName.h"
 #include "../IO/FileUtils.h"
 #include "../Macros.h"
@@ -62,8 +63,8 @@ Bitmap * loadBitmap(const FileName & url) {
 		WARN("Error opening stream for reading. Path: " + url.toString());
 		return nullptr;
 	}
-	Bitmap * bitmap = loader->loadBitmap(*stream);
-	return bitmap;
+	auto bitmap = loader->loadBitmap(*stream);
+	return bitmap.detachAndDecrease();
 }
 
 Bitmap * loadBitmap(const std::string & extension, const std::string & data) {
@@ -73,8 +74,8 @@ Bitmap * loadBitmap(const std::string & extension, const std::string & data) {
 		return nullptr;
 	}
 	std::istringstream stream(data);
-	Bitmap * bitmap = loader->loadBitmap(stream);
-	return bitmap;
+	auto bitmap = loader->loadBitmap(stream);
+	return bitmap.detachAndDecrease();
 }
 
 bool saveBitmap(Bitmap * bitmap, const FileName & url) {

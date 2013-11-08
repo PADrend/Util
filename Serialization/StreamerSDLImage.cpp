@@ -11,6 +11,7 @@
 #include "StreamerSDLImage.h"
 #include "Serialization.h"
 #include "../Factory/Factory.h"
+#include "../Graphics/Bitmap.h"
 #include "../Graphics/BitmapUtils.h"
 #include "../Macros.h"
 #include <cstddef>
@@ -24,7 +25,7 @@ namespace Util {
 
 #if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
 
-Bitmap * StreamerSDLImage::loadBitmap(std::istream & input) {
+Reference<Bitmap> StreamerSDLImage::loadBitmap(std::istream & input) {
 	input.seekg(0, std::ios::end);
 	std::streampos size = input.tellg();
 	input.seekg(0, std::ios::beg);
@@ -37,9 +38,9 @@ Bitmap * StreamerSDLImage::loadBitmap(std::istream & input) {
 		WARN(std::string("Could not create image. ") + IMG_GetError());
 		return nullptr;
 	}
-	Bitmap * bitmap = BitmapUtils::createBitmapFromSDLSurface(surface);
+	auto bitmap = BitmapUtils::createBitmapFromSDLSurface(surface);
 	SDL_FreeSurface(surface);
-	return bitmap;
+	return std::move(bitmap);
 }
 
 #endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */

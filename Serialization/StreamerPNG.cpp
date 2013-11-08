@@ -25,7 +25,7 @@ namespace Util {
 
 #ifdef UTIL_HAVE_LIB_PNG
 
-Bitmap * StreamerPNG::loadBitmap(std::istream & input) {
+Reference<Bitmap> StreamerPNG::loadBitmap(std::istream & input) {
 	char header[8];
 	input.read(header, 8);
 	const int is_png = !png_sig_cmp(reinterpret_cast<png_byte *>(header), 0, 8);
@@ -115,7 +115,7 @@ Bitmap * StreamerPNG::loadBitmap(std::istream & input) {
 	}
 
 	// Create the bitmap to store the data.
-	auto bitmap = new Bitmap(width, height, pixelFormat);
+	Reference<Bitmap> bitmap = new Bitmap(width, height, pixelFormat);
 
 	auto row_pointers = new png_bytep[height];
 	const uint8_t bytes = pixelFormat.getBytesPerPixel();
@@ -132,7 +132,7 @@ Bitmap * StreamerPNG::loadBitmap(std::istream & input) {
 	png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
 	delete [] row_pointers;
 
-	return bitmap;
+	return std::move(bitmap);
 }
 
 bool StreamerPNG::saveBitmap(Bitmap * bitmap, std::ostream & output) {

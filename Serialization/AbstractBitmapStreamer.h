@@ -13,6 +13,7 @@
 
 #include "AbstractStreamer.h"
 #include "../Macros.h"
+#include "../References.h"
 #include <istream>
 #include <ostream>
 #include <cstdint>
@@ -38,10 +39,7 @@ class AbstractBitmapStreamer : public AbstractStreamer {
 		 * @param input Use the data from the stream beginning at the preset position.
 		 * @return Bitmap object. The caller is responsible for the memory deallocation.
 		 */
-		virtual Bitmap * loadBitmap(std::istream & /*input*/) {
-			WARN("Unsupported call for loading a single bitmap.");
-			return nullptr;
-		}
+		virtual Reference<Bitmap> loadBitmap(std::istream & /*input*/) = 0;
 
 		/**
 		 * Save a bitmap to the given stream.

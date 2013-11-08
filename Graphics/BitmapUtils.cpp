@@ -12,6 +12,7 @@
 #include "Bitmap.h"
 #include "PixelAccessor.h"
 #include "../Macros.h"
+#include "../References.h"
 
 #ifdef UTIL_HAVE_LIB_SDL2
 #include <SDL.h>
@@ -24,11 +25,13 @@
 namespace Util {
 
 #ifdef UTIL_HAVE_LIB_SDL2
-Bitmap * BitmapUtils::createBitmapFromSDLSurface(SDL_Surface * surface) {
+Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface) {
 	SDL_PixelFormat * sdlFormat = surface->format;
 	const uint8_t & bytes = sdlFormat->BytesPerPixel;
 
-	auto bitmap = new Bitmap(static_cast<uint32_t>(surface->w), static_cast<uint32_t>(surface->h), bytes > 3 ? PixelFormat::RGBA : PixelFormat::RGB);
+	Reference<Bitmap> bitmap(new Bitmap(static_cast<uint32_t>(surface->w), 
+										static_cast<uint32_t>(surface->h), 
+										bytes > 3 ? PixelFormat::RGBA : PixelFormat::RGB));
 
 	SDL_LockSurface(surface);
 
@@ -81,7 +84,7 @@ Bitmap * BitmapUtils::createBitmapFromSDLSurface(SDL_Surface * surface) {
 
 	SDL_UnlockSurface(surface);
 
-	return bitmap;
+	return std::move(bitmap);
 }
 
 SDL_Surface * BitmapUtils::createSDLSurfaceFromBitmap(Bitmap * bitmap) {

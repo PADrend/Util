@@ -76,7 +76,7 @@ class BitmapUtils {
 
 #ifdef UTIL_HAVE_LIB_SDL2
 		//! Conversion between Bitmap and SDL_Surface
-		static Bitmap * createBitmapFromSDLSurface(SDL_Surface * surface);
+Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface);
 		//! Conversion between SDL_Surface and Bitmap
 		static SDL_Surface * createSDLSurfaceFromBitmap(Bitmap * bitmap);
 #endif /* UTIL_HAVE_LIB_SDL2 */

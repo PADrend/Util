@@ -12,6 +12,7 @@
 #define UTIL_STREAMERPNG_H_
 
 #include "AbstractBitmapStreamer.h"
+#include "../References.h"
 #include <istream>
 #include <ostream>
 #include <cstdint>
@@ -28,7 +29,7 @@ class StreamerPNG : public AbstractBitmapStreamer {
 		virtual ~StreamerPNG() {
 		}
 
-		Bitmap * loadBitmap(std::istream & input) override;
+		Reference<Bitmap> loadBitmap(std::istream & input) override;
 		bool saveBitmap(Bitmap * bitmap, std::ostream & output) override;
 
 		static bool init();
