@@ -48,7 +48,7 @@ class AbstractBitmapStreamer : public AbstractStreamer {
 		 * @param output Use the stream for writing beginning at the preset position.
 		 * @return @c true if successful, @c false otherwise.
 		 */
-		virtual bool saveBitmap(Bitmap * /*bitmap*/, std::ostream & /*output*/) {
+		virtual bool saveBitmap(const Bitmap & /*bitmap*/, std::ostream & /*output*/) {
 			WARN("Unsupported call for saving a single bitmap.");
 			return false;
 		}

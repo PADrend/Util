@@ -37,7 +37,7 @@ class StreamerSDL : public AbstractBitmapStreamer {
 		}
 
 		Reference<Bitmap> loadBitmap(std::istream & input) override;
-		bool saveBitmap(Bitmap * bitmap, std::ostream & output) override;
+		bool saveBitmap(const Bitmap & bitmap, std::ostream & output) override;
 
 		static bool init();
 };

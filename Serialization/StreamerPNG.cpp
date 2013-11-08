@@ -135,15 +135,11 @@ Reference<Bitmap> StreamerPNG::loadBitmap(std::istream & input) {
 	return std::move(bitmap);
 }
 
-bool StreamerPNG::saveBitmap(Bitmap * bitmap, std::ostream & output) {
-	if (bitmap == nullptr) {
-		return false;
-	}
-
+bool StreamerPNG::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 	volatile int colorType = 0; // volatile is needed because of the setjmp later on.
 	volatile int transforms = 0;
 
-	const PixelFormat & pixelFormat = bitmap->getPixelFormat();
+	const PixelFormat & pixelFormat = bitmap.getPixelFormat();
 	if(pixelFormat == PixelFormat::RGBA) {
 		colorType = PNG_COLOR_TYPE_RGB_ALPHA;
 		transforms = PNG_TRANSFORM_IDENTITY;
@@ -160,8 +156,8 @@ bool StreamerPNG::saveBitmap(Bitmap * bitmap, std::ostream & output) {
 		colorType = PNG_COLOR_TYPE_GRAY;
 		transforms = PNG_TRANSFORM_IDENTITY;
 	} else if(pixelFormat == PixelFormat::MONO_FLOAT) {
-		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(*bitmap, PixelFormat::MONO);
-		return saveBitmap(tmp.get(), output);
+		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, PixelFormat::MONO);
+		return saveBitmap(*tmp.get(), output);
 	} else {
 		WARN("Unable to save PNG file. Unsupported color type.");
 		return false;
@@ -196,17 +192,17 @@ bool StreamerPNG::saveBitmap(Bitmap * bitmap, std::ostream & output) {
 
 	png_set_write_fn(png_ptr, reinterpret_cast<png_voidp>(&output), PNGFunctions::writeData, PNGFunctions::flushData);
 
-	const uint32_t width = bitmap->getWidth();
-	const uint32_t height = bitmap->getHeight();
+	const uint32_t width = bitmap.getWidth();
+	const uint32_t height = bitmap.getHeight();
 
 	png_set_IHDR(png_ptr, info_ptr, width, height, 8, colorType, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
 	// Write the image.
-	auto  row_pointers = new png_bytep[height];
+	auto row_pointers = new png_bytep[height];
 	const uint8_t bytes = pixelFormat.getBytesPerPixel();
 	for (uint_fast32_t row = 0; row < height; ++row) {
 		// Take over rows in the same order.
-		row_pointers[row] = reinterpret_cast<png_bytep>(bitmap->data() + row * width * bytes);
+		row_pointers[row] = reinterpret_cast<png_bytep>(const_cast<uint8_t *>(bitmap.data()) + row * width * bytes);
 	}
 	png_set_rows(png_ptr, info_ptr, row_pointers);
 

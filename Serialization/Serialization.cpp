@@ -76,7 +76,7 @@ Reference<Bitmap> loadBitmap(const std::string & extension, const std::string & 
 	return std::move(loader->loadBitmap(stream));
 }
 
-bool saveBitmap(Bitmap * bitmap, const FileName & url) {
+bool saveBitmap(const Bitmap & bitmap, const FileName & url) {
 	std::unique_ptr<AbstractBitmapStreamer> saver(getSaverFactory().create(toLower(url.getEnding())));
 	if (saver.get() == nullptr) {
 		WARN("No saver available.");
@@ -87,14 +87,14 @@ bool saveBitmap(Bitmap * bitmap, const FileName & url) {
 		WARN("Error opening stream for writing. Path: " + url.toString());
 		return false;
 	}
-	if (!bitmap || !saver->saveBitmap(bitmap, *stream)) {
-		WARN(std::string("Saving failed.").append(bitmap ? "" : " Bitmap was null."));
+	if (!saver->saveBitmap(bitmap, *stream)) {
+		WARN(std::string("Saving failed."));
 		return false;
 	}
 	return true;
 }
 
-bool saveBitmap(Bitmap * bitmap, const std::string & extension, std::ostream & output) {
+bool saveBitmap(const Bitmap & bitmap, const std::string & extension, std::ostream & output) {
 	std::unique_ptr<AbstractBitmapStreamer> saver(getSaverFactory().create(toLower(extension)));
 	if (saver.get() == nullptr) {
 		WARN("No saver available.");

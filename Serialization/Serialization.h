@@ -59,7 +59,7 @@ Reference<Bitmap> loadBitmap(const std::string & extension, const std::string & 
  * @param file Address to the file that shall be written.
  * @return @c true if successful, @c false otherwise.
  */
-bool saveBitmap(Bitmap * bitmap, const FileName & url);
+bool saveBitmap(const Bitmap & bitmap, const FileName & url);
 
 /**
  * Write a single bitmap to the given stream.
@@ -70,7 +70,7 @@ bool saveBitmap(Bitmap * bitmap, const FileName & url);
  * @param output Stream to which the data shall be written.
  * @return @c true if successful, @c false otherwise.
  */
-bool saveBitmap(Bitmap * bitmap, const std::string & extension, std::ostream & output);
+bool saveBitmap(const Bitmap & bitmap, const std::string & extension, std::ostream & output);
 
 /**
  * Register a new streamer for the given file extension that supports loading of bitmaps.

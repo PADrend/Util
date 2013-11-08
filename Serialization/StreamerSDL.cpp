@@ -61,15 +61,12 @@ Reference<Bitmap> StreamerSDL::loadBitmap(std::istream & input) {
 	return std::move(bitmap);
 }
 
-bool StreamerSDL::saveBitmap(Bitmap * bitmap, std::ostream & output) {
-	if (bitmap == nullptr) {
-		return false;
+bool StreamerSDL::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
+	if(bitmap.getPixelFormat() == PixelFormat::MONO_FLOAT) {
+		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, PixelFormat::MONO);
+		return saveBitmap(*tmp.get(), output);
 	}
-	if(bitmap->getPixelFormat() == PixelFormat::MONO_FLOAT) {
-		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(*bitmap, PixelFormat::MONO);
-		return saveBitmap(tmp.get(), output);
-	}
-	SDL_Surface * surface = BitmapUtils::createSDLSurfaceFromBitmap(*bitmap);
+	SDL_Surface * surface = BitmapUtils::createSDLSurfaceFromBitmap(bitmap);
 	if (surface == nullptr) {
 		return false;
 	}
