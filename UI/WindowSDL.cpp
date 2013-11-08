@@ -518,7 +518,8 @@ std::deque<Event> WindowSDL::fetchEvents() {
 }
 
 void WindowSDL::setIcon(const Bitmap & icon) {
-	SDL_SetWindowIcon(sdlWindow, BitmapUtils::createSDLSurfaceFromBitmap(const_cast<Bitmap *>(&icon)));
+	// FIXME: The SDL_Surface is never freed.
+	SDL_SetWindowIcon(sdlWindow, BitmapUtils::createSDLSurfaceFromBitmap(icon));
 }
 
 std::string WindowSDL::getClipboardText() const {

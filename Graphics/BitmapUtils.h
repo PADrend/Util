@@ -87,7 +87,7 @@ Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
 //! Conversion between Bitmap and SDL_Surface
 Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface);
 //! Conversion between SDL_Surface and Bitmap
-SDL_Surface * createSDLSurfaceFromBitmap(Bitmap * bitmap);
+SDL_Surface * createSDLSurfaceFromBitmap(const Bitmap & bitmap);
 #endif /* UTIL_HAVE_LIB_SDL2 */
 
 }

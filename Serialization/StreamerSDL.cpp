@@ -69,7 +69,7 @@ bool StreamerSDL::saveBitmap(Bitmap * bitmap, std::ostream & output) {
 		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(*bitmap, PixelFormat::MONO);
 		return saveBitmap(tmp.get(), output);
 	}
-	SDL_Surface * surface = BitmapUtils::createSDLSurfaceFromBitmap(bitmap);
+	SDL_Surface * surface = BitmapUtils::createSDLSurfaceFromBitmap(*bitmap);
 	if (surface == nullptr) {
 		return false;
 	}

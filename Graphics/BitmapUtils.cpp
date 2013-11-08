@@ -88,13 +88,13 @@ Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface) {
 	return std::move(bitmap);
 }
 
-SDL_Surface * createSDLSurfaceFromBitmap(Bitmap * bitmap) {
+SDL_Surface * createSDLSurfaceFromBitmap(const Bitmap & bitmap) {
 	uint32_t rMask=0x00;
 	uint32_t gMask=0x00;
 	uint32_t bMask=0x00;
 	uint32_t aMask=0x00;
 
-	const PixelFormat & f=bitmap->getPixelFormat();
+	const PixelFormat & f = bitmap.getPixelFormat();
 	if(f==PixelFormat::RGBA){ /// \note assumes little endianess!!!
 		rMask = 0x000000ff;
 		gMask = 0x0000ff00;
@@ -121,8 +121,11 @@ SDL_Surface * createSDLSurfaceFromBitmap(Bitmap * bitmap) {
 	}
 
 	int depth = 8 * f.getBytesPerPixel();
-	int pitch = static_cast<int>(bitmap->getWidth()) * f.getBytesPerPixel();
-	return SDL_CreateRGBSurfaceFrom(bitmap->data(), static_cast<int>(bitmap->getWidth()), static_cast<int>(bitmap->getHeight()), depth, pitch, rMask, gMask, bMask, aMask);
+	int pitch = static_cast<int>(bitmap.getWidth()) * f.getBytesPerPixel();
+	return SDL_CreateRGBSurfaceFrom(const_cast<void *>(reinterpret_cast<const void *>(bitmap.data())), 
+									static_cast<int>(bitmap.getWidth()), 
+									static_cast<int>(bitmap.getHeight()), 
+									depth, pitch, rMask, gMask, bMask, aMask);
 }
 #endif /* UTIL_HAVE_LIB_SDL2 */
 
