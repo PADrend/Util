@@ -21,6 +21,7 @@
 #include <cassert>
 #include <cerrno>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <memory>
 #include <vector>
