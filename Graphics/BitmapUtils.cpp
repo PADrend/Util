@@ -23,6 +23,7 @@
 #include <vector>
 
 namespace Util {
+namespace BitmapUtils {
 
 #ifdef UTIL_HAVE_LIB_SDL2
 Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface) {
@@ -87,7 +88,7 @@ Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface) {
 	return std::move(bitmap);
 }
 
-SDL_Surface * BitmapUtils::createSDLSurfaceFromBitmap(Bitmap * bitmap) {
+SDL_Surface * createSDLSurfaceFromBitmap(Bitmap * bitmap) {
 	uint32_t rMask=0x00;
 	uint32_t gMask=0x00;
 	uint32_t bMask=0x00;
@@ -125,12 +126,10 @@ SDL_Surface * BitmapUtils::createSDLSurfaceFromBitmap(Bitmap * bitmap) {
 }
 #endif /* UTIL_HAVE_LIB_SDL2 */
 
-
-//! (static)
-Reference<Bitmap> BitmapUtils::blendTogether(const PixelFormat & targetFormat, 
+Reference<Bitmap> blendTogether(const PixelFormat & targetFormat, 
 											 const std::vector<Reference<Bitmap>> & sources) {
 	if(sources.empty()){
-		throw std::invalid_argument("BitmapUtils::blendTogether: 'sources' may not be empty.");
+		throw std::invalid_argument("blendTogether: 'sources' may not be empty.");
 	}
 
 	const uint32_t width = sources.front()->getWidth();
@@ -160,11 +159,10 @@ Reference<Bitmap> BitmapUtils::blendTogether(const PixelFormat & targetFormat,
 	return std::move(target);
 }
 
-//! (static)
-Reference<Bitmap> BitmapUtils::combineInterleaved(const PixelFormat & targetFormat, 
+Reference<Bitmap> combineInterleaved(const PixelFormat & targetFormat, 
 												  const std::vector<Reference<Bitmap>> & sourceBitmaps) {
 	if(sourceBitmaps.empty()){
-		throw std::invalid_argument("BitmapUtils::blendTogether: 'sources' may not be empty.");
+		throw std::invalid_argument("blendTogether: 'sources' may not be empty.");
 	}
 
 	const uint32_t count = std::sqrt(sourceBitmaps.size());
@@ -188,8 +186,7 @@ Reference<Bitmap> BitmapUtils::combineInterleaved(const PixelFormat & targetForm
 	return std::move(targetBitmap);
 }
 
-
-Reference<Bitmap> BitmapUtils::convertBitmap(const Bitmap & source, 
+Reference<Bitmap> convertBitmap(const Bitmap & source, 
 											 const PixelFormat & newFormat) {
 	const uint32_t width = source.getWidth();
 	const uint32_t height = source.getHeight();
@@ -205,7 +202,7 @@ Reference<Bitmap> BitmapUtils::convertBitmap(const Bitmap & source,
 	return std::move(target);
 }
 
-void BitmapUtils::alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op) {
+void alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op) {
 	const uint32_t width = bitmap.getWidth();
 	const uint32_t height = bitmap.getHeight();
 	Reference<PixelAccessor> pixels = PixelAccessor::create(&bitmap);
@@ -218,14 +215,13 @@ void BitmapUtils::alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op
 	}
 }
 
-//! (static)
-Reference<Bitmap> BitmapUtils::createBitmapFromBitMask(const uint32_t width,
+Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
 													   const uint32_t height,
 													   const PixelFormat & format,
 													   const size_t dataSize,
 													   const uint8_t * data) {
 	if(width*height!=dataSize*8 || width%8!=0){
-		throw std::invalid_argument("BitmapUtils::createBitmapFromBitMask: Illegal bitmap size.");
+		throw std::invalid_argument("createBitmapFromBitMask: Illegal bitmap size.");
 	}
 	Reference<Bitmap> target(new Bitmap(width,height,format));
 	{
@@ -249,3 +245,5 @@ Reference<Bitmap> BitmapUtils::createBitmapFromBitMask(const uint32_t width,
 }
 
 }
+}
+
