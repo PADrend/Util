@@ -11,6 +11,7 @@
 #ifndef UTIL_SERIALIZATION_H
 #define UTIL_SERIALIZATION_H
 
+#include "../References.h"
 #include <functional>
 #include <ostream>
 #include <string>
@@ -38,7 +39,7 @@ namespace Serialization {
  * @param file Address to the file containing the bitmap data.
  * @return A single bitmap.
  */
-Bitmap * loadBitmap(const FileName & url);
+Reference<Bitmap> loadBitmap(const FileName & url);
 
 /**
  * Create a single bitmap from the given data.
@@ -48,7 +49,7 @@ Bitmap * loadBitmap(const FileName & url);
  * @param data Bitmap data.
  * @return A single bitmap.
  */
-Bitmap * loadBitmap(const std::string & extension, const std::string & data);
+Reference<Bitmap> loadBitmap(const std::string & extension, const std::string & data);
 
 /**
  * Write a single bitmap to the given address.

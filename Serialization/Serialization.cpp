@@ -52,7 +52,7 @@ static std::string toLower(const std::string & extension) {
 	return lowerExtension;
 }
 
-Bitmap * loadBitmap(const FileName & url) {
+Reference<Bitmap> loadBitmap(const FileName & url) {
 	std::unique_ptr<AbstractBitmapStreamer> loader(getLoaderFactory().create(toLower(url.getEnding())));
 	if (loader.get() == nullptr) {
 		WARN("No loader available.");
@@ -63,19 +63,17 @@ Bitmap * loadBitmap(const FileName & url) {
 		WARN("Error opening stream for reading. Path: " + url.toString());
 		return nullptr;
 	}
-	auto bitmap = loader->loadBitmap(*stream);
-	return bitmap.detachAndDecrease();
+	return std::move(loader->loadBitmap(*stream));
 }
 
-Bitmap * loadBitmap(const std::string & extension, const std::string & data) {
+Reference<Bitmap> loadBitmap(const std::string & extension, const std::string & data) {
 	std::unique_ptr<AbstractBitmapStreamer> loader(getLoaderFactory().create(toLower(extension)));
 	if (loader.get() == nullptr) {
 		WARN("No loader available.");
 		return nullptr;
 	}
 	std::istringstream stream(data);
-	auto bitmap = loader->loadBitmap(stream);
-	return bitmap.detachAndDecrease();
+	return std::move(loader->loadBitmap(stream));
 }
 
 bool saveBitmap(Bitmap * bitmap, const FileName & url) {
