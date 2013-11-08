@@ -9,6 +9,7 @@
 #ifndef UTIL_GRAPHICS_EMBEDDEDFONT_H
 #define UTIL_GRAPHICS_EMBEDDEDFONT_H
 
+#include "../References.h"
 #include <utility>
 
 namespace Util {
@@ -31,7 +32,7 @@ namespace EmbeddedFont {
  * @see Util::FontRenderer::createGlyphBitmap for a description of the return
  * value
  */
-std::pair<Bitmap *, FontInfo> getFont();
+std::pair<Reference<Bitmap>, FontInfo> getFont();
 
 }
 }

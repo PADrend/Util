@@ -9,6 +9,7 @@
 #ifndef UTIL_GRAPHICS_FONTRENDERER_H
 #define UTIL_GRAPHICS_FONTRENDERER_H
 
+#include "../References.h"
 #include <memory>
 #include <string>
 #include <utility>
@@ -66,7 +67,7 @@ class FontRenderer {
 		 * @param text Text to render
 		 * @return Bitmap containing the rendered text
 		 */
-		Bitmap * renderText(unsigned int size, const std::u32string & text);
+		Reference<Bitmap> renderText(unsigned int size, const std::u32string & text);
 
 		/**
 		 * Render the given characters into a bitmap. Create a map from the
@@ -78,8 +79,8 @@ class FontRenderer {
 		 * containing metrics of the font together with a mapping from the
 		 * characters to their glyph information.
 		 */
-		std::pair<Bitmap *, FontInfo> createGlyphBitmap(unsigned int size,
-														const std::u32string & chars);
+		std::pair<Reference<Bitmap>, FontInfo> createGlyphBitmap(unsigned int size,
+																 const std::u32string & chars);
 };
 
 }

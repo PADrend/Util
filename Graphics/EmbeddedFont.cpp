@@ -16,7 +16,7 @@
 namespace Util {
 namespace EmbeddedFont {
 
-std::pair<Bitmap *, FontInfo> getFont() {
+std::pair<Reference<Bitmap>, FontInfo> getFont() {
 	FontInfo fontInfo{
 		11, // ascender
 		-2, // descender
@@ -505,7 +505,7 @@ std::pair<Bitmap *, FontInfo> getFont() {
 	Reference<Bitmap> bitmap = new Bitmap(width, height,PixelFormat::MONO);
 	std::copy(std::begin(data), std::end(data), bitmap->data());
 
-	return std::make_pair(bitmap.detachAndDecrease(), fontInfo);
+	return std::make_pair(std::move(bitmap), fontInfo);
 }
 
 }

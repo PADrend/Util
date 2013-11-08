@@ -108,7 +108,7 @@ static std::tuple<int, int, int> calculateRenderSizes(const FT_Face & face, cons
 	return std::make_tuple(width, maxAboveBaseline + maxBelowBaseline, maxAboveBaseline);
 }
 
-Bitmap * FontRenderer::renderText(unsigned int size, const std::u32string & text) {
+Reference<Bitmap> FontRenderer::renderText(unsigned int size, const std::u32string & text) {
 	const auto sizeError = FT_Set_Pixel_Sizes(impl->face, size, size);
 	if(sizeError) {
 		throw std::runtime_error("Cannot set font size.");
@@ -144,7 +144,7 @@ Bitmap * FontRenderer::renderText(unsigned int size, const std::u32string & text
 		}
 		// accessor goes out of scope here
 	}
-	return bitmap.detachAndDecrease();
+	return std::move(bitmap);
 }
 
 /**
@@ -172,7 +172,7 @@ static std::pair<int, int> calculateGlyphSizes(const FT_Face & face, const std::
 	return std::make_pair(width, height);
 }
 
-std::pair<Bitmap *, FontInfo> FontRenderer::createGlyphBitmap(unsigned int size, const std::u32string & chars) {
+std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned int size, const std::u32string & chars) {
 	const auto sizeError = FT_Set_Pixel_Sizes(impl->face, size, size);
 	if(sizeError) {
 		throw std::runtime_error("Cannot set font size.");
@@ -207,9 +207,9 @@ std::pair<Bitmap *, FontInfo> FontRenderer::createGlyphBitmap(unsigned int size,
 			}
 
 			drawBitmap(slot->bitmap, 
-					*accessor.get(), 
-					static_cast<uint32_t>(cursorX), 
-					static_cast<uint32_t>(cursorY));
+					   *accessor.get(), 
+					   static_cast<uint32_t>(cursorX), 
+					   static_cast<uint32_t>(cursorY));
 
 			GlyphInfo info;
 			info.position = std::make_pair(cursorX, cursorY);
@@ -222,7 +222,7 @@ std::pair<Bitmap *, FontInfo> FontRenderer::createGlyphBitmap(unsigned int size,
 		}
 		// accessor goes out of scope here
 	}
-	return std::make_pair(bitmap.detachAndDecrease(), fontInfo);
+	return std::make_pair(std::move(bitmap), fontInfo);
 }
 
 #else /* defined(UTIL_HAVE_LIB_FREETYPE) */
@@ -232,12 +232,13 @@ struct FontRenderer::Implementation {
 FontRenderer::FontRenderer(const std::string &) : impl() {
 }
 FontRenderer::~FontRenderer() = default;
-Bitmap * FontRenderer::renderText(unsigned int, const std::u32string &) {
+Reference<Bitmap> FontRenderer::renderText(unsigned int, 
+										   const std::u32string &) {
 	WARN("Build Util with FreeType to enable FontRenderer.");
 	return nullptr;
 }
-std::pair<Bitmap *, FontInfo> FontRenderer::createGlyphBitmap(unsigned int,
-															  const std::u32string &) {
+std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned int,
+																	   const std::u32string &) {
 	WARN("Build Util with FreeType to enable FontRenderer.");
 	return std::make_pair(nullptr, FontInfo());
 }
