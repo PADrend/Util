@@ -40,7 +40,9 @@ void PixelAccessor::doFill(uint32_t x,uint32_t y,uint32_t width,uint32_t height,
 //! PixelAccessorUb ---|> PixelAccessor
 class PixelAccessorUb : public PixelAccessor{
 	public:
-		PixelAccessorUb(Bitmap * bitmap) : PixelAccessor(bitmap){}
+		PixelAccessorUb(Reference<Bitmap> bitmap) : 
+			PixelAccessor(std::move(bitmap)) {
+		}
 		virtual ~PixelAccessorUb(){}
 
 	private:
@@ -111,7 +113,9 @@ class PixelAccessorUb : public PixelAccessor{
 //! PixelAccessor4ub ---|> PixelAccessor
 class PixelAccessor4ub : public PixelAccessor{
 	public:
-		PixelAccessor4ub(Bitmap * bitmap) : PixelAccessor(bitmap){}
+		PixelAccessor4ub(Reference<Bitmap> bitmap) : 
+			PixelAccessor(std::move(bitmap)) {
+		}
 		virtual ~PixelAccessor4ub(){}
 
 	private:
@@ -197,7 +201,9 @@ class PixelAccessor4ub : public PixelAccessor{
 class PixelAccessorF : public PixelAccessor{
 
 	public:
-		PixelAccessorF(Bitmap * bitmap) : PixelAccessor(bitmap){}
+		PixelAccessorF(Reference<Bitmap> bitmap) : 
+			PixelAccessor(std::move(bitmap)) {
+		}
 		virtual ~PixelAccessorF(){}
 
 	private:
@@ -269,15 +275,15 @@ class PixelAccessorF : public PixelAccessor{
 // -----------------------------------------------------------------------------------
 
 //! (static)
-Reference<PixelAccessor> PixelAccessor::create(Bitmap * bitmap){
-	if(bitmap==nullptr){
+Reference<PixelAccessor> PixelAccessor::create(Reference<Bitmap> bitmap) {
+	if(bitmap.isNull()) {
 		return nullptr;
 	} else if(bitmap->getPixelFormat().getBytesPerComponent()==1 && bitmap->getPixelFormat().getNumComponents()==4){ // 4 bytes
-		return new PixelAccessor4ub(bitmap);
+		return new PixelAccessor4ub(std::move(bitmap));
 	} else if(bitmap->getPixelFormat().getBytesPerComponent()==1 ){ // x bytes
-		return new PixelAccessorUb(bitmap);
+		return new PixelAccessorUb(std::move(bitmap));
 	} else if(bitmap->getPixelFormat().getBytesPerComponent()==4){ // floats
-		return new PixelAccessorF(bitmap);
+		return new PixelAccessorF(std::move(bitmap));
 	} else{
 		WARN("There is no implemented PixelAccessor available for this bitmap format.");
 		return nullptr;

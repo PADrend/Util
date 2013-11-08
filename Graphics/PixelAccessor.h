@@ -34,19 +34,22 @@ class PixelAccessor : public ReferenceCounter<PixelAccessor> {
 		bool checkRange(uint32_t x,uint32_t y)const				{	return x<myBitmap->getWidth() && y<myBitmap->getHeight();	}
 		bool crop(uint32_t & x,uint32_t & y,uint32_t & width,uint32_t & height)const;
 
-		PixelAccessor(Bitmap * bitmap) : ReferenceCounter_t(),myBitmap(bitmap)		{	}
+		PixelAccessor(Reference<Bitmap> bitmap) : 
+			ReferenceCounter_t(), 
+			myBitmap(std::move(bitmap)) {
+		}
 	public:
 		/*! Create a PixelAccessor for the given bitmap. According to the format of the Bitmap,
 			an appropriate Accesor-type is chosen. If no accessor is available due to an unsupported
 			format, nullptr is returned.	*/
-		static Reference<PixelAccessor> create(Bitmap * bitmap);
+		static Reference<PixelAccessor> create(Reference<Bitmap> bitmap);
 
-		virtual ~PixelAccessor() 								{	}
+		virtual ~PixelAccessor() 						{	}
 
 		const PixelFormat& getPixelFormat()const		{	return myBitmap->getPixelFormat();	}
-		Bitmap * getBitmap()const								{	return myBitmap.get();	}
-		uint32_t getWidth()const								{	return myBitmap->getWidth();	}
-		uint32_t getHeight()const								{	return myBitmap->getHeight();	}
+		const Reference<Bitmap> & getBitmap() const		{	return myBitmap;					}
+		uint32_t getWidth()const						{	return myBitmap->getWidth();		}
+		uint32_t getHeight()const						{	return myBitmap->getHeight();		}
 
 		inline Color4f readColor4f(uint32_t x,uint32_t y)const;
 		inline Color4ub readColor4ub(uint32_t x,uint32_t y)const;
