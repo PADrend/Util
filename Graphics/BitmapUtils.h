@@ -51,13 +51,15 @@ class BitmapUtils {
 
 
 		/*! Blend all given images into one having the given format. */
-		static Bitmap * blendTogether(const PixelFormat & targetFormat, const std::vector<Reference<Bitmap> > & sources );
+		static Reference<Bitmap> blendTogether(const PixelFormat & targetFormat, 
+											   const std::vector<Reference<Bitmap> > & sources);
 		
 		/*!
 		 * Combines all given images into one having the given format.
 		 * \note first pixel of first bitmap, first pixel of second bitmap, etc...
 		 */
-		static Bitmap * combineInterleaved(const PixelFormat & targetFormat, const std::vector<Reference<Bitmap> > & sources );
+		static Reference<Bitmap> combineInterleaved(const PixelFormat & targetFormat, 
+													const std::vector<Reference<Bitmap> > & sources);
 
 		/**
 		 * internal method, used for saving images which are in a format that
@@ -67,12 +69,16 @@ class BitmapUtils {
 		 * @param newFormat the Pixelformat into which the bitmap schould be converted
 		 * @return a new bitmap of the specified format with the content of the given bitmap
 		 */
-		static Bitmap * convertBitmap(const Bitmap & source, const PixelFormat & newFormat);
+		static Reference<Bitmap> convertBitmap(const Bitmap & source, 
+											   const PixelFormat & newFormat);
 
 		/*! Create a black/transparent - white bitmap with the given format based on a bitmask given
 			as raw data. This is used for storing bitmap-font-data directly in a source file.	*/
-		static Bitmap * createBitmapFromBitMask(const uint32_t width,const uint32_t height,
-												const PixelFormat & format,const size_t dataSize,const uint8_t * data);
+		static Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
+														 const uint32_t height,
+														 const PixelFormat & format,
+														 const size_t dataSize,
+														 const uint8_t * data);
 
 #ifdef UTIL_HAVE_LIB_SDL2
 		//! Conversion between Bitmap and SDL_Surface

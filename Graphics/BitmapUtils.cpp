@@ -127,7 +127,8 @@ SDL_Surface * BitmapUtils::createSDLSurfaceFromBitmap(Bitmap * bitmap) {
 
 
 //! (static)
-Bitmap * BitmapUtils::blendTogether(const PixelFormat & targetFormat, const std::vector<Reference<Bitmap>> & sources) {
+Reference<Bitmap> BitmapUtils::blendTogether(const PixelFormat & targetFormat, 
+											 const std::vector<Reference<Bitmap>> & sources) {
 	if(sources.empty()){
 		throw std::invalid_argument("BitmapUtils::blendTogether: 'sources' may not be empty.");
 	}
@@ -156,11 +157,12 @@ Bitmap * BitmapUtils::blendTogether(const PixelFormat & targetFormat, const std:
 				writer->writeColor(x,y,(*(pixel++)) * scale );
 	}
 
-	return target.detachAndDecrease();
+	return std::move(target);
 }
 
 //! (static)
-Bitmap * BitmapUtils::combineInterleaved(const PixelFormat & targetFormat, const std::vector<Reference<Bitmap>> & sourceBitmaps) {
+Reference<Bitmap> BitmapUtils::combineInterleaved(const PixelFormat & targetFormat, 
+												  const std::vector<Reference<Bitmap>> & sourceBitmaps) {
 	if(sourceBitmaps.empty()){
 		throw std::invalid_argument("BitmapUtils::blendTogether: 'sources' may not be empty.");
 	}
@@ -183,11 +185,12 @@ Bitmap * BitmapUtils::combineInterleaved(const PixelFormat & targetFormat, const
 				target->writeColor(x,y,sources[(y%count)*count+(x%count)]->readColor4f(x/count,y/count));
 			}
 	}
-	return targetBitmap.detachAndDecrease();
+	return std::move(targetBitmap);
 }
 
 
-Bitmap * BitmapUtils::convertBitmap(const Bitmap & source, const PixelFormat & newFormat) {
+Reference<Bitmap> BitmapUtils::convertBitmap(const Bitmap & source, 
+											 const PixelFormat & newFormat) {
 	const uint32_t width = source.getWidth();
 	const uint32_t height = source.getHeight();
 
@@ -199,7 +202,7 @@ Bitmap * BitmapUtils::convertBitmap(const Bitmap & source, const PixelFormat & n
 			for(uint32_t x = 0;x<width;++x )
 				writer->writeColor(x,y,reader->readColor4f(x,y));
 	}
-	return target.detachAndDecrease();
+	return std::move(target);
 }
 
 void BitmapUtils::alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op) {
@@ -216,14 +219,15 @@ void BitmapUtils::alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op
 }
 
 //! (static)
-Bitmap * BitmapUtils::createBitmapFromBitMask(const uint32_t width,const uint32_t height,
-												const PixelFormat & format,const size_t dataSize,const uint8_t * data){
-
+Reference<Bitmap> BitmapUtils::createBitmapFromBitMask(const uint32_t width,
+													   const uint32_t height,
+													   const PixelFormat & format,
+													   const size_t dataSize,
+													   const uint8_t * data) {
 	if(width*height!=dataSize*8 || width%8!=0){
 		throw std::invalid_argument("BitmapUtils::createBitmapFromBitMask: Illegal bitmap size.");
 	}
 	Reference<Bitmap> target(new Bitmap(width,height,format));
-	
 	{
 		Reference<PixelAccessor> writer( PixelAccessor::create(target.get()));
 		//	const Color4ub black(0,0,0,0);
@@ -241,9 +245,7 @@ Bitmap * BitmapUtils::createBitmapFromBitMask(const uint32_t width,const uint32_
 		}
 		
 	}
-	
-	return target.detachAndDecrease();
-												
+	return std::move(target);
 }
 
 }
