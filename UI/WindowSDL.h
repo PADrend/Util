@@ -14,6 +14,7 @@
 #define WINDOWSDL_H_
 
 #include "Window.h"
+#include <memory>
 
 struct SDL_Cursor;
 struct SDL_Window;
@@ -65,10 +66,10 @@ class WindowSDL : public Window {
 		WindowSDL(const Properties & properties);
 
 		//! Allow access to constructor from factory.
-		friend Window * createWindow(const Properties & properties);
+		friend std::unique_ptr<Window> createWindow(const Properties & properties);
 
 		//! ---|> Window
-		void doSetCursor(Cursor * cursor) override;
+		void doSetCursor(const Cursor * cursor) override;
 		//! ---|> Window
 		void doHideCursor() override;
 

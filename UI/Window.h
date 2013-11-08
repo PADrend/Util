@@ -14,6 +14,7 @@
 #include "Event.h"
 #include "../References.h"
 #include <deque>
+#include <memory>
 #include <string>
 
 namespace Util {
@@ -117,7 +118,7 @@ class Window {
 		}
 
 		//! Allow access to members from factory.
-		friend Window * createWindow(const Properties & properties);
+		friend std::unique_ptr<Window> createWindow(const Properties & properties);
 
 	private:
 
@@ -132,7 +133,7 @@ class Window {
 	// @{
 	public:
 		//!	Get the current cursor.
-		Cursor * getCursor()const{
+		const std::shared_ptr<Cursor> & getCursor()const{
 			return activeCursor;
 		}
 		//! Hide the cursor.
@@ -144,26 +145,26 @@ class Window {
 		}
 		/*! Set the given cursor inside the window (only takes effect, when the cursor is visible)
 			\note if _cursor is nullptr, the system's default cursor is enabled. */
-		void setCursor(Cursor * _cursor){
-			activeCursor = _cursor;
+		void setCursor(std::shared_ptr<Cursor> _cursor){
+			activeCursor = std::move(_cursor);
 			if(!cursorHidden)
-				doSetCursor(activeCursor);
+				doSetCursor(activeCursor.get());
 		}
 		//! Show the cursor.
 		void showCursor(){
 			if(cursorHidden){
 				cursorHidden=false;
-				doSetCursor(getCursor());
+				doSetCursor(activeCursor.get());
 			}
 		}
 		//! Set the cursor to the given location inside the window.
 		virtual void warpCursor(int x, int y) = 0;
 	private:
 		virtual void doHideCursor() = 0;
-		virtual void doSetCursor(Cursor * _cursor) = 0;
+		virtual void doSetCursor(const Cursor * _cursor) = 0;
 
 		bool cursorHidden;
-		Cursor * activeCursor;
+		std::shared_ptr<Cursor> activeCursor;
 	// @}
 		
 };

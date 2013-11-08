@@ -46,7 +46,7 @@ class SplashScreenX11 : public SplashScreen {
 		SplashScreenX11(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
 
 		//! Allow access to constructor from factory.
-		friend SplashScreen * createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
+		friend std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
 
 	private:
 		//! Structure used to decouple declaration and definition of attributes.

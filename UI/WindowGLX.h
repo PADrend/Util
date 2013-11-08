@@ -41,7 +41,7 @@ class WindowGLX : public WindowX11 {
 		WindowGLX(const Properties & properties);
 
 		//! Allow access to constructor from factory.
-		friend Window * createWindow(const Properties & properties);
+		friend std::unique_ptr<Window> createWindow(const Properties & properties);
 
 	private:
 		//! Structure used to decouple declaration and definition of attributes.

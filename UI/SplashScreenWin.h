@@ -21,6 +21,7 @@
 
 #include "SplashScreen.h"
 #include "../References.h"
+#include <memory>
 
 namespace Util {
 namespace UI {
@@ -50,7 +51,7 @@ class SplashScreenWin : public SplashScreen {
 		SplashScreenWin(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
 
 		//! Allow access to constructor from factory.
-		friend SplashScreen * createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
+		friend std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
 
 	private:
 		Reference<Bitmap> splashImage;

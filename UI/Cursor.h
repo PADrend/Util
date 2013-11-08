@@ -11,6 +11,7 @@
 #define UTIL_CURSOR_H
 
 #include "../References.h"
+#include <memory>
 
 namespace Util {
 class Bitmap;
@@ -34,7 +35,7 @@ class Cursor {
 		Cursor(const Reference<Bitmap> & image, unsigned int hotSpotX, unsigned int hotSpotY);
 
 		//! Allow access to members from factory.
-		friend Cursor * createCursor(const Reference<Bitmap> & image, unsigned int hotSpotX, unsigned int hotSpotY);
+		friend std::unique_ptr<Cursor> createCursor(const Reference<Bitmap> & image, unsigned int hotSpotX, unsigned int hotSpotY);
 	public:
 		Cursor(const Cursor &) = delete;
 		Cursor(Cursor &&) = delete;

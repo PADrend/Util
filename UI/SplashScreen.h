@@ -64,7 +64,7 @@ class SplashScreen : public Concurrency::UserThread {
 		SplashScreen();
 
 		//! Allow access to members from factory.
-		friend SplashScreen * createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
+		friend std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
 
 	private:
 		SplashScreen(const SplashScreen &) = delete;

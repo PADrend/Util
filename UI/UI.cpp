@@ -33,11 +33,11 @@
 namespace Util {
 namespace UI {
 
-Cursor * createCursor(const Reference<Bitmap> & image, unsigned int hotSpotX, unsigned int hotSpotY) {
-	return new Cursor(image, hotSpotX, hotSpotY);
+std::unique_ptr<Cursor> createCursor(const Reference<Bitmap> & image, unsigned int hotSpotX, unsigned int hotSpotY) {
+	return std::unique_ptr<Cursor>(new Cursor(image, hotSpotX, hotSpotY));
 }
 
-SplashScreen * createSplashScreen(const std::string & splashTitle __attribute__((unused)), const Reference<Bitmap> & splashImage __attribute__((unused))) {
+std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle __attribute__((unused)), const Reference<Bitmap> & splashImage __attribute__((unused))) {
 	std::unique_ptr<SplashScreen> splash;
 #if defined(UTIL_HAVE_LIB_X11)
 	splash.reset(new SplashScreenX11(splashTitle, splashImage));
@@ -48,10 +48,10 @@ SplashScreen * createSplashScreen(const std::string & splashTitle __attribute__(
 		WARN("Creating splash screen failed. " + splash->errorMessage);
 		splash.reset();
 	}
-	return splash.release();
+	return splash;
 }
 
-Window * createWindow(const Window::Properties & properties) {
+std::unique_ptr<Window> createWindow(const Window::Properties & properties) {
 	std::unique_ptr<Window> window;
 	try {
 #if defined(UTIL_HAVE_LIB_X11) and defined(UTIL_HAVE_LIB_GLX) and defined(UTIL_HAVE_GLX_GETPROCADDRESSARB)
@@ -67,7 +67,7 @@ Window * createWindow(const Window::Properties & properties) {
 		WARN(std::string("Creating window failed. ") + exception.what());
 		window.reset();
 	}
-	return window.release();
+	return window;
 }
 
 }

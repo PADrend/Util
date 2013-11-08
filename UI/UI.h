@@ -14,6 +14,7 @@
 #include "Cursor.h"
 #include "SplashScreen.h"
 #include "Window.h"
+#include <memory>
 #include <string>
 
 namespace Util {
@@ -28,7 +29,7 @@ namespace UI {
  * @param hotSpotY Vertical coordinate of the hot spot of the cursor
  * @return Object of preferred Cursor implementation. If no implementation was found or an error occurred, @c nullptr will be returned.
  */
-Cursor * createCursor(const Reference<Bitmap> & image, unsigned int hotSpotX, unsigned int hotSpotY);
+std::unique_ptr<Cursor> createCursor(const Reference<Bitmap> & image, unsigned int hotSpotX, unsigned int hotSpotY);
 
 /**
  * Factory function to create a new SplashScreen.
@@ -39,7 +40,7 @@ Cursor * createCursor(const Reference<Bitmap> & image, unsigned int hotSpotX, un
  * The bitmap is not copied and the pointer has to stay valid for the time the splash screen is displayed.
  * @return Object of preferred SplashScreen implementation. If no implementation was found or an error occurred, @c nullptr will be returned.
  */
-SplashScreen * createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
+std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
 
 /**
  * Factory function to create a new Window.
@@ -48,7 +49,7 @@ SplashScreen * createSplashScreen(const std::string & splashTitle, const Referen
  * @param properties @see Window.h.
  * @return Object of preferred Window implementation. If no implementation was found or an error occurred, @c nullptr will be returned.
  */
-Window * createWindow(const Window::Properties & properties);
+std::unique_ptr<Window> createWindow(const Window::Properties & properties);
 
 }
 }

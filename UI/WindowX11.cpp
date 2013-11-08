@@ -316,7 +316,7 @@ WindowX11::WindowX11(const Window::Properties & properties) :
 
 WindowX11::~WindowX11() = default;
 
-void WindowX11::doSetCursor(UI::Cursor * cursor) {
+void WindowX11::doSetCursor(const UI::Cursor * cursor) {
 	if(x11Data->cursor != None) {
 		XFreeCursor(x11Data->display, x11Data->cursor);
 		x11Data->cursor = None;
@@ -338,7 +338,7 @@ void WindowX11::doHideCursor() {
 		bitmap->data()[1] = 0;
 		bitmap->data()[2] = 0;
 		bitmap->data()[3] = 0;
-		hiddenCursor.reset(createCursor(bitmap, 0, 0));
+		hiddenCursor = createCursor(bitmap, 0, 0);
 	}
 	doSetCursor(hiddenCursor.get());
 }

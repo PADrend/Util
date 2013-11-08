@@ -328,7 +328,7 @@ int32_t WindowSDL::getSwapInterval() const {
 }
 
 //! ---|> Window
-void WindowSDL::doSetCursor(Cursor * cursor) {
+void WindowSDL::doSetCursor(const Cursor * cursor) {
 	static SDL_Cursor * systemCursor = SDL_GetCursor();
 	if(sdlCursor != nullptr) {
 		SDL_FreeCursor(sdlCursor);
@@ -351,7 +351,7 @@ void WindowSDL::doHideCursor() {
 		bitmap->data()[1] = 0;
 		bitmap->data()[2] = 0;
 		bitmap->data()[3] = 0;
-		hiddenCursor.reset(createCursor(bitmap, 0, 0));
+		hiddenCursor = createCursor(bitmap, 0, 0);
 	}
 	doSetCursor(hiddenCursor.get());
 }

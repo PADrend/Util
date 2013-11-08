@@ -59,7 +59,7 @@ class WindowX11 : public Window {
 
 	private:
 		//! Show the given cursor inside the window.
-		void doSetCursor(UI::Cursor * cursor) override;
+		void doSetCursor(const UI::Cursor * cursor) override;
 
 		//! Hide the cursor inside the window.
 		void doHideCursor() override;
