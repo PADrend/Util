@@ -58,7 +58,7 @@ struct FileUtils {
 	 * Return an output stream (or nullptr on failure) for appending to a file.
 	 * The stream's position indicator is set to the end of the stream before.
 	 */
-	static std::ostream * openForAppending(const FileName & fileName);
+	static std::unique_ptr<std::ostream> openForAppending(const FileName & fileName);
 // @}
 
 // -------------------------------------------------------------------

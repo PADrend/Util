@@ -133,13 +133,12 @@ std::unique_ptr<std::ostream> FSProvider::openForWriting(const FileName & filena
 }
 
 //! ---|> AbstractFSProvider
-std::ostream * FSProvider::openForAppending(const FileName & filename) {
-	std::ofstream * stream = new std::ofstream(filename.getPath().c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::app);
+std::unique_ptr<std::ostream> FSProvider::openForAppending(const FileName & filename) {
+	std::unique_ptr<std::ostream> stream(new std::ofstream(filename.getPath().c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::app));
 	if(!stream->good()) {
-		delete stream;
 		return nullptr;
 	}
-	return stream;
+	return std::move(stream);
 }
 
 //! ---|> AbstractFSProvider

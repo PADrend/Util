@@ -38,7 +38,7 @@ class FSProvider : public AbstractFSProvider {
 		std::iostream * open(const FileName & filename) override;
 		std::unique_ptr<std::istream> openForReading(const FileName & filename) override;
 		std::unique_ptr<std::ostream> openForWriting(const FileName & filename) override;
-		std::ostream * openForAppending(const FileName & filename) override;
+		std::unique_ptr<std::ostream> openForAppending(const FileName & filename) override;
 
 		status_t makeDir(const FileName &) override;
 		status_t makeDirRecursive(const FileName &) override;

@@ -156,10 +156,10 @@ std::unique_ptr<std::ostream> FileUtils::openForWriting(const FileName & fileNam
 }
 
 //! (static)
-std::ostream * FileUtils::openForAppending(const FileName & fileName) {
+std::unique_ptr<std::ostream> FileUtils::openForAppending(const FileName & fileName) {
 	AbstractFSProvider * provider = getFSProvider(fileName);
-	std::ostream * stream = provider->openForAppending(fileName);
-	if(stream != nullptr) {
+	auto stream = provider->openForAppending(fileName);
+	if(stream) {
 		return stream;
 	}
 	// Alternative path: Try to build a stream that will write the file on destruction.
@@ -187,7 +187,7 @@ std::ostream * FileUtils::openForAppending(const FileName & fileName) {
 		return nullptr;
 	}
 
-	return new AppendStream(provider, fileName, std::string(data.begin(), data.end()));
+	return std::unique_ptr<std::ostream>(new AppendStream(provider, fileName, std::string(data.begin(), data.end())));
 }
 
 // ----------------------------------------------
