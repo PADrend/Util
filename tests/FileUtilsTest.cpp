@@ -68,8 +68,8 @@ static void testFileSystem(const Util::FileName & directory) {
 	}
 
 	{ // openForAppending
-		std::unique_ptr<std::ostream> out(FileUtils::openForAppending(filename));
-		CPPUNIT_ASSERT(out.get() != nullptr);
+		auto out = FileUtils::openForAppending(filename);
+		CPPUNIT_ASSERT(out);
 
 		std::string app="Appended:Foo";
 		*out << app;
