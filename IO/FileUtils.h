@@ -53,7 +53,7 @@ struct FileUtils {
 	 * Return an output stream (or nullptr on failure) for writing to a file.
 	 * The file is truncated: Any current content is discarded, assuming a length of zero on opening.
 	 */
-	static std::ostream * openForWriting(const FileName & fileName);
+	static std::unique_ptr<std::ostream> openForWriting(const FileName & fileName);
 	/**
 	 * Return an output stream (or nullptr on failure) for appending to a file.
 	 * The stream's position indicator is set to the end of the stream before.

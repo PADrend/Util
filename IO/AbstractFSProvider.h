@@ -53,7 +53,7 @@ public:
 
 	virtual std::iostream * open(const FileName & )             {   return nullptr;    }
 	virtual std::unique_ptr<std::istream> openForReading(const FileName & )    {   return nullptr;    }
-	virtual std::ostream * openForWriting(const FileName & )    {   return nullptr;    }
+	virtual std::unique_ptr<std::ostream> openForWriting(const FileName & )    {   return nullptr;    }
 	virtual std::ostream * openForAppending(const FileName & )  {   return nullptr;    }
 
 	/*! If some kind of internal caching is used, all data should be written to disk
