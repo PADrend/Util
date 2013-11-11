@@ -69,10 +69,10 @@ void FileUtils::flush(const FileName & path) {
 }
 
 //! (static)
-std::iostream * FileUtils::open(const FileName & fileName){
+std::unique_ptr<std::iostream> FileUtils::open(const FileName & fileName){
 	AbstractFSProvider * provider = getFSProvider(fileName);
-	std::iostream * stream = provider->open(fileName);
-	if(stream != nullptr) {
+	std::unique_ptr<std::iostream> stream(provider->open(fileName));
+	if(stream) {
 		return stream;
 	}
 	// Alternative path: Try to read the file, and build a stream from it that will write the file on destruction.
@@ -100,7 +100,7 @@ std::iostream * FileUtils::open(const FileName & fileName){
 		return nullptr;
 	}
 
-	return new InOutStream(provider, fileName, std::string(data.begin(), data.end()));
+	return std::unique_ptr<std::iostream>(new InOutStream(provider, fileName, std::string(data.begin(), data.end())));
 }
 
 //! (static)

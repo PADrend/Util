@@ -35,7 +35,7 @@ class FSProvider : public AbstractFSProvider {
 		status_t readFile(const FileName & file, std::vector<uint8_t> & data) override;
 		status_t writeFile(const FileName &, const std::vector<uint8_t> & data, bool overwrite) override;
 
-		std::iostream * open(const FileName & filename) override;
+		std::unique_ptr<std::iostream> open(const FileName & filename) override;
 		std::unique_ptr<std::istream> openForReading(const FileName & filename) override;
 		std::unique_ptr<std::ostream> openForWriting(const FileName & filename) override;
 		std::unique_ptr<std::ostream> openForAppending(const FileName & filename) override;

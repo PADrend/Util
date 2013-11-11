@@ -105,13 +105,12 @@ AbstractFSProvider::status_t FSProvider::dir(const FileName &path, std::list<Fil
 }
 
 //! ---|> AbstractFSProvider
-std::iostream * FSProvider::open(const FileName & filename) {
-	std::fstream * stream = new std::fstream(filename.getPath().c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::binary);
+std::unique_ptr<std::iostream> FSProvider::open(const FileName & filename) {
+	std::unique_ptr<std::iostream> stream(new std::fstream(filename.getPath().c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::binary));
 	if(!stream->good()) {
-		delete stream;
 		return nullptr;
 	}
-	return stream;
+	return std::move(stream);
 }
 
 //! ---|> AbstractFSProvider

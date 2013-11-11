@@ -51,7 +51,7 @@ public:
 	virtual status_t readFile(const FileName &, std::vector<uint8_t> & /*data*/)                              {   return UNSUPPORTED; }
 	virtual status_t writeFile(const FileName &, const std::vector<uint8_t> & /*data*/, bool /*overwrite*/)   {   return UNSUPPORTED; }
 
-	virtual std::iostream * open(const FileName & )             {   return nullptr;    }
+	virtual std::unique_ptr<std::iostream> open(const FileName & )             {   return nullptr;    }
 	virtual std::unique_ptr<std::istream> openForReading(const FileName & )    {   return nullptr;    }
 	virtual std::unique_ptr<std::ostream> openForWriting(const FileName & )    {   return nullptr;    }
 	virtual std::unique_ptr<std::ostream> openForAppending(const FileName & )  {   return nullptr;    }
