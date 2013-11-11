@@ -81,8 +81,8 @@ static void testFileSystem(const Util::FileName & directory) {
 	}
 
 	{ // open
-		std::unique_ptr<std::iostream> io(FileUtils::open(filename));
-		CPPUNIT_ASSERT(io.get() != nullptr);
+		auto io = FileUtils::open(filename);
+		CPPUNIT_ASSERT(io);
 
 		char c = static_cast<char> (io->get());
 		io->seekp(0);
