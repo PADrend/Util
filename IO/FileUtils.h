@@ -16,6 +16,7 @@
 #include <functional>
 #include <iosfwd>
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -47,7 +48,7 @@ struct FileUtils {
 	//! Return an input and output stream (or nullptr on failure) for reading from and writing to a file.
 	static std::iostream * open(const FileName & fileName);
 	//! Return an input stream (or nullptr on failure) for reading from a file.
-	static std::istream * openForReading(const FileName & fileName);
+	static std::unique_ptr<std::istream> openForReading(const FileName & fileName);
 	/**
 	 * Return an output stream (or nullptr on failure) for writing to a file.
 	 * The file is truncated: Any current content is discarded, assuming a length of zero on opening.

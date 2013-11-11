@@ -104,11 +104,11 @@ std::iostream * FileUtils::open(const FileName & fileName){
 }
 
 //! (static)
-std::istream * FileUtils::openForReading(const FileName & fileName){
+std::unique_ptr<std::istream> FileUtils::openForReading(const FileName & fileName) {
 	AbstractFSProvider * provider = getFSProvider(fileName);
-	std::istream * stream = provider->openForReading(fileName);
-	if(stream != nullptr) {
-		return stream;
+	auto stream = provider->openForReading(fileName);
+	if(stream) {
+		return std::move(stream);
 	}
 
 	// Check if file reading is supported.
@@ -117,7 +117,8 @@ std::istream * FileUtils::openForReading(const FileName & fileName){
 		return nullptr;
 	}
 
-	return new std::istringstream(std::string(data.begin(), data.end()), std::ios_base::in | std::ios_base::binary);
+	return std::unique_ptr<std::istream>(new std::istringstream(std::string(data.begin(), data.end()), 
+																std::ios_base::in | std::ios_base::binary));
 }
 
 //! (static)

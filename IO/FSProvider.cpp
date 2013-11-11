@@ -115,13 +115,12 @@ std::iostream * FSProvider::open(const FileName & filename) {
 }
 
 //! ---|> AbstractFSProvider
-std::istream * FSProvider::openForReading(const FileName & filename) {
-	std::ifstream * stream = new std::ifstream(filename.getPath().c_str(), std::ios_base::in | std::ios_base::binary);
+std::unique_ptr<std::istream> FSProvider::openForReading(const FileName & filename) {
+	std::unique_ptr<std::istream> stream(new std::ifstream(filename.getPath().c_str(), std::ios_base::in | std::ios_base::binary));
 	if(!stream->good()) {
-		delete stream;
 		return nullptr;
 	}
-	return stream;
+	return std::move(stream);
 }
 
 //! ---|> AbstractFSProvider
