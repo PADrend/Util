@@ -55,8 +55,8 @@ static void testFileSystem(const Util::FileName & directory) {
 	}
 
 	{ // openForReading
-		std::unique_ptr<std::istream> in(FileUtils::openForReading(filename));
-		CPPUNIT_ASSERT(in.get() != nullptr);
+		auto in = FileUtils::openForReading(filename);
+		CPPUNIT_ASSERT(in);
 
 		std::string s2;
 		while(in->good()){

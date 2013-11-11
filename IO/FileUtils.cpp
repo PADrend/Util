@@ -392,8 +392,8 @@ bool FileUtils::copyFile(const FileName & source, const FileName & dest) {
 	AbstractFSProvider * inputProvider = getFSProvider(source);
 	AbstractFSProvider * outputProvider = getFSProvider(dest);
 
-	std::unique_ptr<std::istream> inputStream(inputProvider->openForReading(source));
-	if (inputStream.get() == nullptr) {
+	auto inputStream = inputProvider->openForReading(source);
+	if (!inputStream) {
 		WARN("Unable to get a stream for reading.");
 		return false;
 	}

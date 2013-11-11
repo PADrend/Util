@@ -58,8 +58,8 @@ Reference<Bitmap> loadBitmap(const FileName & url) {
 		WARN("No loader available.");
 		return nullptr;
 	}
-	std::unique_ptr<std::istream> stream(FileUtils::openForReading(url));
-	if(stream.get() == nullptr) {
+	auto stream = FileUtils::openForReading(url);
+	if(!stream) {
 		WARN("Error opening stream for reading. Path: " + url.toString());
 		return nullptr;
 	}
