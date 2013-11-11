@@ -82,8 +82,8 @@ bool saveBitmap(const Bitmap & bitmap, const FileName & url) {
 		WARN("No saver available.");
 		return false;
 	}
-	std::unique_ptr<std::ostream> stream(FileUtils::openForWriting(url));
-	if(stream.get() == nullptr) {
+	auto stream = FileUtils::openForWriting(url);
+	if(!stream) {
 		WARN("Error opening stream for writing. Path: " + url.toString());
 		return false;
 	}

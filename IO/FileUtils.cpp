@@ -397,8 +397,8 @@ bool FileUtils::copyFile(const FileName & source, const FileName & dest) {
 		WARN("Unable to get a stream for reading.");
 		return false;
 	}
-	std::unique_ptr<std::ostream> outputStream(outputProvider->openForWriting(dest));
-	if (outputStream.get() == nullptr) {
+	auto outputStream = outputProvider->openForWriting(dest);
+	if (!outputStream) {
 		WARN("Unable to get a stream for writing.");
 		return false;
 	}

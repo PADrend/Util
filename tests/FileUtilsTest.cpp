@@ -30,8 +30,8 @@ static void testFileSystem(const Util::FileName & directory) {
 	std::string s("Hello world, foo bar. It is now " + Utils::createTimeStamp() + '\n');
 
 	{   // openForWriting
-		std::unique_ptr<std::ostream> outs(FileUtils::openForWriting(filename));
-		CPPUNIT_ASSERT(outs.get() != nullptr);
+		auto outs = FileUtils::openForWriting(filename);
+		CPPUNIT_ASSERT(outs);
 		*outs << s;
 		CPPUNIT_ASSERT(outs->good());
 	}
