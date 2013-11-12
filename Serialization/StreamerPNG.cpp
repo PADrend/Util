@@ -16,6 +16,7 @@
 #include "../Macros.h"
 #include "../References.h"
 #include <cstddef>
+#include <vector>
 
 #ifdef UTIL_HAVE_LIB_PNG
 #include <png.h>
@@ -198,18 +199,18 @@ bool StreamerPNG::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 	png_set_IHDR(png_ptr, info_ptr, width, height, 8, colorType, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
 	// Write the image.
-	auto row_pointers = new png_bytep[height];
+	std::vector<png_bytep> row_pointers;
+	row_pointers.reserve(height);
 	const uint8_t bytes = pixelFormat.getBytesPerPixel();
 	for (uint_fast32_t row = 0; row < height; ++row) {
 		// Take over rows in the same order.
-		row_pointers[row] = reinterpret_cast<png_bytep>(const_cast<uint8_t *>(bitmap.data()) + row * width * bytes);
+		row_pointers.push_back(reinterpret_cast<png_bytep>(const_cast<uint8_t *>(bitmap.data()) + row * width * bytes));
 	}
-	png_set_rows(png_ptr, info_ptr, row_pointers);
+	png_set_rows(png_ptr, info_ptr, row_pointers.data());
 
 	png_write_png(png_ptr, info_ptr, transforms, nullptr);
 
 	// Clean up.
-	delete[] row_pointers;
 	png_destroy_write_struct(&png_ptr, &info_ptr);
 
 	return true;
