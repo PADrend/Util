@@ -30,7 +30,7 @@ void output(output_priority_t priority, const std::string & message) {
 			androidPriority = ANDROID_LOG_ERROR;
 			break;
 	}
-	__android_log_print(androidPriority, "MobileRendering", "%s", message.c_str());
+	__android_log_print(androidPriority, "UtilMobile", "%s", message.c_str());
 #else
 	std::string type;
 	switch(priority) {
