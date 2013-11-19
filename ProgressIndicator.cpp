@@ -11,11 +11,12 @@
 #include "ProgressIndicator.h"
 #include "Timer.h"
 #include <iostream>
+#include <utility>
 
 namespace Util {
 
 ProgressIndicator::ProgressIndicator(std::string description, uint32_t totalSteps, double updateInterval) :
-	textOutput(description), stepsTotal(totalSteps), stepsFinished(0), interval(updateInterval) {
+	textOutput(std::move(description)), stepsTotal(totalSteps), stepsFinished(0), interval(updateInterval) {
 	// print progress state the first time
 	std::cout << textOutput << ":   0.0%";
 	std::cout.flush();

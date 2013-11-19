@@ -17,8 +17,8 @@
 
 namespace Util {
 
-Bitmap::Bitmap(const uint32_t _width,const uint32_t _height,const PixelFormat & _pixelFormat) :
-		pixelFormat(_pixelFormat), width(_width), height(_height), pixelData(pixelFormat.getBytesPerPixel() * width * height) {
+Bitmap::Bitmap(const uint32_t _width,const uint32_t _height,PixelFormat  _pixelFormat) :
+		pixelFormat(std::move(_pixelFormat)), width(_width), height(_height), pixelData(pixelFormat.getBytesPerPixel() * width * height) {
 }
 
 Bitmap::Bitmap(const uint32_t _width,const uint32_t _height,size_t rawDataSize) :

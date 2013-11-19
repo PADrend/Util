@@ -339,8 +339,8 @@ void ZIPProvider::decomposeURL(const FileName & url,
 	}
 }
 
-ZIPProvider::ZIPHandle::ZIPHandle(const FileName & _archiveRoot, zip * archive) :
-	archiveRoot(_archiveRoot), handle(archive), tempStore(), dataWritten(false) {
+ZIPProvider::ZIPHandle::ZIPHandle(FileName  _archiveRoot, zip * archive) :
+	archiveRoot(std::move(_archiveRoot)), handle(archive), tempStore(), dataWritten(false) {
 }
 
 ZIPProvider::ZIPHandle::~ZIPHandle() {

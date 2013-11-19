@@ -385,7 +385,7 @@ class BoolAttribute:public GenericAttribute{
 		int toInt() const override					{	return data?1:0;	}
 		bool toBool() const override					{	return data;	 }
 		unsigned int toUnsignedInt() const override	{	return data?1:0;	}
-		bool operator==(const GenericAttribute & other)const{
+		bool operator==(const GenericAttribute & other)const override{
 			return _defaultIsEqual(this,&other);
 		}
 	private:

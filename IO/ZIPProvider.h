@@ -61,7 +61,7 @@ class ZIPProvider : public AbstractFSProvider {
 		/*! Internal representation of an opened ZIP archive. */
 		class ZIPHandle {
 			public:
-				explicit ZIPHandle(const FileName & _archiveRoot, zip * archive);
+				explicit ZIPHandle(FileName  _archiveRoot, zip * archive);
 				~ZIPHandle();
 
 			public:

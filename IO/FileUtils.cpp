@@ -82,8 +82,8 @@ std::unique_ptr<std::iostream> FileUtils::open(const FileName & fileName){
 			FileName fileName;
 
 		public:
-			InOutStream(AbstractFSProvider * _provider, const FileName & _fileName, const std::string & initialContent) :
-					std::stringstream(initialContent, std::ios_base::in | std::ios_base::out | std::ios_base::binary), provider(_provider), fileName(_fileName) {
+			InOutStream(AbstractFSProvider * _provider, FileName  _fileName, const std::string & initialContent) :
+					std::stringstream(initialContent, std::ios_base::in | std::ios_base::out | std::ios_base::binary), provider(_provider), fileName(std::move(_fileName)) {
 			}
 			virtual ~InOutStream() {
 				const std::string stringData = str();
@@ -135,8 +135,8 @@ std::unique_ptr<std::ostream> FileUtils::openForWriting(const FileName & fileNam
 			FileName fileName;
 
 		public:
-			OutStream(AbstractFSProvider * _provider, const FileName & _fileName) :
-					std::ostringstream(std::ios_base::out | std::ios_base::binary | std::ios_base::trunc), provider(_provider), fileName(_fileName) {
+			OutStream(AbstractFSProvider * _provider, FileName  _fileName) :
+					std::ostringstream(std::ios_base::out | std::ios_base::binary | std::ios_base::trunc), provider(_provider), fileName(std::move(_fileName)) {
 			}
 			virtual ~OutStream() {
 				const std::string stringData = str();
@@ -169,8 +169,8 @@ std::unique_ptr<std::ostream> FileUtils::openForAppending(const FileName & fileN
 			FileName fileName;
 
 		public:
-			AppendStream(AbstractFSProvider * _provider, const FileName & _fileName, const std::string & initialContent) :
-					std::ostringstream(initialContent, std::ios_base::out | std::ios_base::binary | std::ios_base::app), provider(_provider), fileName(_fileName) {
+			AppendStream(AbstractFSProvider * _provider, FileName  _fileName, const std::string & initialContent) :
+					std::ostringstream(initialContent, std::ios_base::out | std::ios_base::binary | std::ios_base::app), provider(_provider), fileName(std::move(_fileName)) {
 			}
 			virtual ~AppendStream() {
 				const std::string stringData = str();

@@ -32,7 +32,7 @@ class Cursor {
 		unsigned int _hotSpotY;
 
 		//! Store the data of a new cursor.
-		Cursor(const Reference<Bitmap> & image, unsigned int hotSpotX, unsigned int hotSpotY);
+		Cursor(Reference<Bitmap>  image, unsigned int hotSpotX, unsigned int hotSpotY);
 
 		//! Allow access to members from factory.
 		friend std::unique_ptr<Cursor> createCursor(const Reference<Bitmap> & image, unsigned int hotSpotX, unsigned int hotSpotY);

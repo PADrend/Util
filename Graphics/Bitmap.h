@@ -38,7 +38,7 @@ namespace Util {
 class Bitmap : public ReferenceCounter<Bitmap> {
 	public:
 		//! Create a new bitmap.
-		explicit Bitmap(const uint32_t width=0,const uint32_t height=0,const PixelFormat & pixelFormat = PixelFormat::RGBA);
+		explicit Bitmap(const uint32_t width=0,const uint32_t height=0,PixelFormat  pixelFormat = PixelFormat::RGBA);
 
 		/*! Create a new bitmap which containing only raw data. A direct pixel access is not possible.
 			\note This can e.g. be used to store compressed textures */

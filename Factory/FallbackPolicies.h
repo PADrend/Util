@@ -36,7 +36,7 @@ class ExceptionFallback {
 			private:
 				IdentifierType id;
 			public:
-				Exception(const IdentifierType & unknownId) : id(unknownId) {
+				Exception(IdentifierType  unknownId) : id(std::move(unknownId)) {
 				}
 				virtual ~Exception() noexcept {
 				}

@@ -107,7 +107,7 @@ COMPILER_WARN_POP
 //! C++ wrapper for archive
 class Archive {
 	public:
-		Archive(const std::string & archivePath) : archiveFileName(archivePath), entries() {
+		Archive(std::string  archivePath) : archiveFileName(std::move(archivePath)), entries() {
 			// Open archive for reading only.
 			if (!FileUtils::isFile(FileName(archiveFileName))) {
 				throw std::runtime_error("Archive file " + archiveFileName + " does not exist");
