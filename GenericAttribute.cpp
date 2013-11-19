@@ -56,7 +56,7 @@ bool GenericAttributeMap::unsetValue(const StringIdentifier & key) {
 }
 
 
-void GenericAttributeMap::setString(const StringIdentifier &  key, const std::string & value) {
+void GenericAttributeMap::setString(const StringIdentifier & key, const std::string & value) {
 	setValue(key, GenericAttribute::createString(value));
 }
 

@@ -78,7 +78,7 @@ class AttributeProvider {
 			else 
 				unsetAttribute(key);
 		}
-		bool unsetAttribute(const StringIdentifier &  key) {
+		bool unsetAttribute(const StringIdentifier & key) {
 			return _attributes && _attributes->unsetValue(key);
 		}
 

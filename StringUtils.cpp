@@ -81,7 +81,7 @@ std::string replaceMultiple(const std::string &subject,int replaceCount,const st
 
 	unsigned int cursor=0;
 
-	size_t  len=subject.length();
+	size_t len=subject.length();
 	auto findLen = new size_t[replaceCount];
 	auto pos = new size_t[replaceCount];
 	for (int i=0;i<replaceCount;i++) {
@@ -145,7 +145,7 @@ std::string replaceMultiple(const std::string &subject,const std::deque<keyValue
 
 	size_t cursor=0;
 
-	size_t  len=subject.length();
+	size_t len=subject.length();
 	auto findLen = new size_t[replaceCount];
 	auto pos = new size_t[replaceCount];
 

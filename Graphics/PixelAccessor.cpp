@@ -56,10 +56,10 @@ class PixelAccessorUb : public PixelAccessor{
 			const uint8_t * const p = _ptr<uint8_t>(x,y);
 			const PixelFormat & f=getPixelFormat();
 			return Color4ub(
-						f.getByteOffset_r()==PixelFormat::NONE  ? 0 : *( p + f.getByteOffset_r() ),
-						f.getByteOffset_g()==PixelFormat::NONE  ? 0 : *( p + f.getByteOffset_g() ),
-						f.getByteOffset_b()==PixelFormat::NONE  ? 0 : *( p + f.getByteOffset_b() ),
-						f.getByteOffset_a()==PixelFormat::NONE  ? 255 : *( p + f.getByteOffset_a() ));
+						f.getByteOffset_r()==PixelFormat::NONE ? 0 : *( p + f.getByteOffset_r() ),
+						f.getByteOffset_g()==PixelFormat::NONE ? 0 : *( p + f.getByteOffset_g() ),
+						f.getByteOffset_b()==PixelFormat::NONE ? 0 : *( p + f.getByteOffset_b() ),
+						f.getByteOffset_a()==PixelFormat::NONE ? 255 : *( p + f.getByteOffset_a() ));
 		}
 
 		//! ---|> PixelAccessor
@@ -84,13 +84,13 @@ class PixelAccessorUb : public PixelAccessor{
 			uint8_t * p = _ptr<uint8_t>(x,y);
 			const PixelFormat & f=getPixelFormat();
 
-			if(f.getByteOffset_r()!=PixelFormat::NONE  )
+			if(f.getByteOffset_r()!=PixelFormat::NONE )
 				*( p + f.getByteOffset_r() ) = c.getR();
-			if(f.getByteOffset_g()!=PixelFormat::NONE  )
+			if(f.getByteOffset_g()!=PixelFormat::NONE )
 				*( p + f.getByteOffset_g() ) = c.getG();
-			if(f.getByteOffset_b()!=PixelFormat::NONE  )
+			if(f.getByteOffset_b()!=PixelFormat::NONE )
 				*( p + f.getByteOffset_b() ) = c.getB();
-			if(f.getByteOffset_a()!=PixelFormat::NONE  )
+			if(f.getByteOffset_a()!=PixelFormat::NONE )
 				*( p + f.getByteOffset_a() ) = c.getA();
 		}
 
@@ -213,10 +213,10 @@ class PixelAccessorF : public PixelAccessor{
 			const PixelFormat & f=getPixelFormat();
 
 			return Color4f(
-						f.getByteOffset_r()==PixelFormat::NONE  ? 0.0f : *reinterpret_cast<const float*>( p + f.getByteOffset_r() ),
-						f.getByteOffset_g()==PixelFormat::NONE  ? 0.0f : *reinterpret_cast<const float*>( p + f.getByteOffset_g() ),
-						f.getByteOffset_b()==PixelFormat::NONE  ? 0.0f : *reinterpret_cast<const float*>( p + f.getByteOffset_b() ),
-						f.getByteOffset_a()==PixelFormat::NONE  ? 1.0f : *reinterpret_cast<const float*>( p + f.getByteOffset_a() ));
+						f.getByteOffset_r()==PixelFormat::NONE ? 0.0f : *reinterpret_cast<const float*>( p + f.getByteOffset_r() ),
+						f.getByteOffset_g()==PixelFormat::NONE ? 0.0f : *reinterpret_cast<const float*>( p + f.getByteOffset_g() ),
+						f.getByteOffset_b()==PixelFormat::NONE ? 0.0f : *reinterpret_cast<const float*>( p + f.getByteOffset_b() ),
+						f.getByteOffset_a()==PixelFormat::NONE ? 1.0f : *reinterpret_cast<const float*>( p + f.getByteOffset_a() ));
 		}
 
 		//! ---|> PixelAccessor
@@ -241,13 +241,13 @@ class PixelAccessorF : public PixelAccessor{
 			uint8_t * p = _ptr<uint8_t>(x,y);
 			const PixelFormat & f=getPixelFormat();
 
-			if(f.getByteOffset_r()!=PixelFormat::NONE  )
+			if(f.getByteOffset_r()!=PixelFormat::NONE )
 				*reinterpret_cast<float*>( p + f.getByteOffset_r() ) = c.getR();
-			if(f.getByteOffset_g()!=PixelFormat::NONE  )
+			if(f.getByteOffset_g()!=PixelFormat::NONE )
 				*reinterpret_cast<float*>( p + f.getByteOffset_g() ) = c.getG();
-			if(f.getByteOffset_b()!=PixelFormat::NONE  )
+			if(f.getByteOffset_b()!=PixelFormat::NONE )
 				*reinterpret_cast<float*>( p + f.getByteOffset_b() ) = c.getB();
-			if(f.getByteOffset_a()!=PixelFormat::NONE  )
+			if(f.getByteOffset_a()!=PixelFormat::NONE )
 				*reinterpret_cast<float*>( p + f.getByteOffset_a() ) = c.getA();
 		}
 

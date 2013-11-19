@@ -13,7 +13,7 @@
 namespace Util {
 namespace UI {
 
-Cursor::Cursor(Reference<Bitmap>  image, unsigned int hotSpotX, unsigned int hotSpotY) :
+Cursor::Cursor(Reference<Bitmap> image, unsigned int hotSpotX, unsigned int hotSpotY) :
 	_image(std::move(image)), _hotSpotX(hotSpotX), _hotSpotY(hotSpotY) {
 }
 

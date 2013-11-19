@@ -94,7 +94,7 @@ void WindowX11Data::setWindowIcon(const Bitmap & icon) {
 	data.push_back(icon.getHeight());
 
 	for (uint_fast32_t y = 0; y < icon.getHeight(); ++y) {
-		for (uint_fast32_t  x = 0; x < icon.getWidth(); ++x) {
+		for (uint_fast32_t x = 0; x < icon.getWidth(); ++x) {
 			const auto color = pa->readColor4ub(x, y);
 			// Change the format to ARGB
 			long outColor = 0;

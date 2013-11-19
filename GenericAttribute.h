@@ -224,7 +224,7 @@ class WrapperAttribute : public GenericAttribute	{
 
 		//! Forwarding constructor
 		template<typename firstArg_t, typename ...args, 
-					typename = typename	std::enable_if<!std::is_convertible<firstArg_t, const attr_t&>::value && !std::is_convertible<firstArg_t,  attr_t&&>::value>::type> //  exclude copy and move constructors
+					typename = typename	std::enable_if<!std::is_convertible<firstArg_t, const attr_t&>::value && !std::is_convertible<firstArg_t, attr_t&&>::value>::type> // exclude copy and move constructors
 		explicit WrapperAttribute(firstArg_t && param1, args&&... params) : 
 			GenericAttribute(), data(std::forward<firstArg_t>(param1),std::forward<args>(params)...) {}
 

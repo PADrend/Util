@@ -244,7 +244,7 @@ static ::Cursor convertBitmapToX11Cursor(Display * display, ::Window window, con
 	unsigned int sumBgG = 0;
 	unsigned int sumBgB = 0;
 	for (uint_fast32_t y = 0; y < image->getHeight(); ++y) {
-		for (uint_fast32_t  x = 0; x < image->getWidth(); ++x) {
+		for (uint_fast32_t x = 0; x < image->getWidth(); ++x) {
 			const auto color = pa->readColor4ub(x, y);
 			if (color.getA() > 25) {
 				mask[y * width_bytes + x / 8] |= (0x01 << (x % 8));

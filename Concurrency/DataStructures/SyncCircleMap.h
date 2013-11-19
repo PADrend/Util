@@ -72,7 +72,7 @@ class SyncCircleMap {
 			auto actual = map.lower_bound(lastExtracted);
 			if(actual == map.end())
 				actual = map.begin();
-			if(actual->first ==  lastExtracted) {
+			if(actual->first == lastExtracted) {
 				std::advance(actual, 1);
 				if(actual == map.end())
 					actual = map.begin();
