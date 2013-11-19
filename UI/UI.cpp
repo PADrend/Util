@@ -9,6 +9,7 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "UI.h"
+#include "../Graphics/Bitmap.h"
 #include "../Macros.h"
 #include <exception>
 #include <memory>
