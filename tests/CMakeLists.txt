@@ -21,6 +21,7 @@ if(UTIL_BUILD_TESTS)
 		GenericConversionTest.cpp
 		GenericTest.cpp
 		NetworkTest.cpp
+		RegistryTest.cpp
 		StringUtilsTest.cpp
 		TimerTest.cpp
 		TriStateTest.cpp
