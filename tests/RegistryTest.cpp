@@ -109,39 +109,39 @@ void RegistryTest::testFunctions() {
 		auto handleB = funcRegistry.registerElement(functionIncr);
 		auto handleC = funcRegistry.registerElement(functionAddThree);
 		auto handleD = funcRegistry.registerElement(functionDouble);
-		// (((0 * 2) + 1) + 3) * 2 = 8
-		for(auto & func : funcRegistry.getElements()) {
+		// (((0 * 2) + 3) + 1) * 2 = 8
+		for(const auto & func : funcRegistry.getElements()) {
 			func();
 		}
 		CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(8), counter);
 
 		funcRegistry.unregisterElement(std::move(handleC));
 		// ((8 * 2) + 1) * 2 = 34
-		for(auto & func : funcRegistry.getElements()) {
+		for(const auto & func : funcRegistry.getElements()) {
 			func();
 		}
 		CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(34), counter);
 
 		funcRegistry.unregisterElement(std::move(handleA));
-		// (34 + 1) * 2 = 70
-		for(auto & func : funcRegistry.getElements()) {
+		// (34 * 2) + 1 = 69
+		for(const auto & func : funcRegistry.getElements()) {
 			func();
 		}
-		CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(70), counter);
+		CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(69), counter);
 
 		funcRegistry.unregisterElement(std::move(handleB));
-		// 70 * 2 = 140
-		for(auto & func : funcRegistry.getElements()) {
+		// 69 * 2 = 138
+		for(const auto & func : funcRegistry.getElements()) {
 			func();
 		}
-		CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(140), counter);
+		CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(138), counter);
 
 		funcRegistry.unregisterElement(std::move(handleD));
-		// 140 = 140
-		for(auto & func : funcRegistry.getElements()) {
+		// 138 = 138
+		for(const auto & func : funcRegistry.getElements()) {
 			func();
 		}
-		CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(140), counter);
+		CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(138), counter);
 		CPPUNIT_ASSERT(funcRegistry.getElements().empty());
 	}
 }

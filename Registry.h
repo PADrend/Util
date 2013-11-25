@@ -79,7 +79,7 @@ class Registry {
 		 * is required to unregister the element.
 		 */
 		handle_t registerElement(element_t element) {
-			return handle_t(container.insert(container.end(), 
+			return handle_t(container.insert(container.begin(), 
 											 std::move(element)));
 		}
 
