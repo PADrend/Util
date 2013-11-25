@@ -97,6 +97,11 @@ class Registry {
 		const container_t & getElements() const {
 			return container;
 		}
+
+		//! Get a copy of the currently registered elements.
+		container_t getElementsCopy() const {
+			return container;
+		}
 };
 
 }

@@ -145,3 +145,104 @@ void RegistryTest::testFunctions() {
 		CPPUNIT_ASSERT(funcRegistry.getElements().empty());
 	}
 }
+
+void RegistryTest::testChangesDuringExecution() {
+	typedef Util::Registry<std::list<std::function<void ()>>> Registry;
+	Registry funcRegistry;
+	typedef Registry::handle_t RegistryHandle;
+
+	CPPUNIT_ASSERT(funcRegistry.getElements().empty());
+
+	// Register a function that registers a function when called.
+	std::unique_ptr<RegistryHandle> optionalHandleB;
+	auto handleA = funcRegistry.registerElement(
+		[&funcRegistry, &optionalHandleB] {
+			optionalHandleB.reset(new RegistryHandle(funcRegistry.registerElement([] {})));
+		}
+	);
+	// Register a second function that registers a function when called.
+	std::unique_ptr<RegistryHandle> optionalHandleD;
+	auto handleC = funcRegistry.registerElement(
+		[&funcRegistry, &optionalHandleD] {
+			optionalHandleD.reset(new RegistryHandle(funcRegistry.registerElement([] {})));
+		}
+	);
+
+	CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(2), funcRegistry.getElements().size());
+	CPPUNIT_ASSERT(!optionalHandleB);
+	CPPUNIT_ASSERT(!optionalHandleD);
+
+	for(const auto & func : funcRegistry.getElementsCopy()) {
+		func();
+	}
+
+	CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(4), funcRegistry.getElements().size());
+	CPPUNIT_ASSERT(optionalHandleB);
+	CPPUNIT_ASSERT(optionalHandleD);
+
+	funcRegistry.unregisterElement(std::move(handleC));
+	funcRegistry.unregisterElement(std::move(handleA));
+
+	CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(2), funcRegistry.getElements().size());
+	CPPUNIT_ASSERT(optionalHandleB);
+	CPPUNIT_ASSERT(optionalHandleD);
+
+	// Register a function that removes a function when called.
+	auto handleE = funcRegistry.registerElement(
+		[&funcRegistry, &optionalHandleB] {
+			funcRegistry.unregisterElement(std::move(*optionalHandleB.get()));
+			optionalHandleB.reset();
+		}
+	);
+	// Register a second function that removes a function when called.
+	auto handleF = funcRegistry.registerElement(
+		[&funcRegistry, &optionalHandleD] {
+			funcRegistry.unregisterElement(std::move(*optionalHandleD.get()));
+			optionalHandleD.reset();
+		}
+	);
+
+	CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(4), funcRegistry.getElements().size());
+	CPPUNIT_ASSERT(optionalHandleB);
+	CPPUNIT_ASSERT(optionalHandleD);
+
+	for(const auto & func : funcRegistry.getElementsCopy()) {
+		func();
+	}
+
+	CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(2), funcRegistry.getElements().size());
+	CPPUNIT_ASSERT(!optionalHandleB);
+	CPPUNIT_ASSERT(!optionalHandleD);
+
+	funcRegistry.unregisterElement(std::move(handleF));
+	funcRegistry.unregisterElement(std::move(handleE));
+
+	CPPUNIT_ASSERT(funcRegistry.getElements().empty());
+
+	// Register a function that removes itself from the registry when called.
+	optionalHandleB.reset(new RegistryHandle(funcRegistry.registerElement(
+		[&funcRegistry, &optionalHandleB] {
+			funcRegistry.unregisterElement(std::move(*optionalHandleB.get()));
+			optionalHandleB.reset();
+		}
+	)));
+	// Register a second function that removes itself from the registry when called.
+	optionalHandleD.reset(new RegistryHandle(funcRegistry.registerElement(
+		[&funcRegistry, &optionalHandleD] {
+			funcRegistry.unregisterElement(std::move(*optionalHandleD.get()));
+			optionalHandleD.reset();
+		}
+	)));
+
+	CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(2), funcRegistry.getElements().size());
+	CPPUNIT_ASSERT(optionalHandleB);
+	CPPUNIT_ASSERT(optionalHandleD);
+
+	for(const auto & func : funcRegistry.getElementsCopy()) {
+		func();
+	}
+
+	CPPUNIT_ASSERT(funcRegistry.getElements().empty());
+	CPPUNIT_ASSERT(!optionalHandleB);
+	CPPUNIT_ASSERT(!optionalHandleD);
+}

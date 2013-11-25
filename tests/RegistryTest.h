@@ -17,12 +17,14 @@ class RegistryTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST(testList);
 	CPPUNIT_TEST(testMultiset);
 	CPPUNIT_TEST(testFunctions);
+	CPPUNIT_TEST(testChangesDuringExecution);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
 		void testList();
 		void testMultiset();
 		void testFunctions();
+		void testChangesDuringExecution();
 };
 
 #endif /* REGISTRYTEST_H_ */
