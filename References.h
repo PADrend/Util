@@ -99,6 +99,7 @@ class Reference {
 		bool operator==(const _T * other) const					{	return other == obj;	}
 		bool operator!=(const _T * other) const					{	return other != obj;	}
 		bool operator<(const Reference_t& other) const			{	return other.obj < obj;	}
+		explicit operator bool()const							{	return obj;	}
 };
 /**
  * Weak-smart-pointer.
@@ -146,6 +147,7 @@ class WeakPointer {
 		bool operator==(const _T * other) const					{	return other == obj;	}
 		bool operator!=(const _T * other) const					{	return other != obj;	}
 		bool operator<(const WeakPointer<_T> & other) const		{	return other.obj < obj;	}
+		explicit operator bool()const							{	return obj;	}
 };
 }
 
