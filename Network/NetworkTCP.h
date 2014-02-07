@@ -26,7 +26,7 @@ namespace Util {
 
 namespace Network {
 
-struct InternalTCPConnectionData_t;
+class TCPServer;
 
 /**
  * TCP Connection between two endpoints.
@@ -35,6 +35,8 @@ struct InternalTCPConnectionData_t;
  */
 class TCPConnection : public ReferenceCounter<TCPConnection>, private Concurrency::UserThread {
 	public:
+		friend class TCPServer;
+
 		static const size_t BUFFER_SIZE = 4096;
 
 		/*! Tries to open a connection to a TCP-Server at given address.
@@ -43,11 +45,11 @@ class TCPConnection : public ReferenceCounter<TCPConnection>, private Concurrenc
 
 	private:
 		std::unique_ptr<Concurrency::Mutex> connectionDataMutex;
-		std::unique_ptr<InternalTCPConnectionData_t> connectionData;
+		struct InternalData;
+		std::unique_ptr<InternalData> connectionData;
+		TCPConnection(InternalData && internalData);
 
 	public:
-
-		TCPConnection(InternalTCPConnectionData_t * internalData);
 		virtual ~TCPConnection();
 
 		float getLastActiveTime() const;
@@ -123,8 +125,6 @@ class TCPConnection : public ReferenceCounter<TCPConnection>, private Concurrenc
 		// @}
 };
 
-struct InternalTCPServerData_t;
-
 /**
  * TCP Server which creates TCPConnections
  *
@@ -138,10 +138,11 @@ class TCPServer : private Concurrency::UserThread {
 
 	private:
 		std::unique_ptr<Concurrency::Mutex> serverDataMutex;
-		std::unique_ptr<InternalTCPServerData_t> serverData;
+		struct InternalData;
+		std::unique_ptr<InternalData> serverData;
 
 	public:
-		TCPServer(InternalTCPServerData_t * internalData);
+		TCPServer(InternalData * internalData);
 		virtual ~TCPServer();
 
 		/*! @name State */

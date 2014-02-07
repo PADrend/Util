@@ -42,62 +42,68 @@ extern IPAddress fromSockaddr(const sockaddr_in & sockAddr);
 extern sockaddr_in toSockaddr(const IPAddress & address);
 #endif
 
-struct InternalTCPConnectionData_t {
+struct TCPConnection::InternalData {
 		IPAddress remoteIp;
 		float lastActiveTime;
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 		TCPsocket tcpSocket;
+
+		InternalData(TCPsocket && socket, const IPAddress & address) :
+			tcpSocket(std::forward<TCPsocket>(socket)),
+			remoteIp(address),
+			lastActiveTime(0) {
+		}
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 		int tcpSocket;
+
+		InternalData(int socket, const IPAddress & address) :
+			tcpSocket(socket),
+			remoteIp(address),
+			lastActiveTime(0) {
+		}
 #endif
 };
 
 //! (static) Factory
 Reference<TCPConnection> TCPConnection::connect(const IPAddress & remoteIp) {
-	std::unique_ptr<InternalTCPConnectionData_t> internalData(new InternalTCPConnectionData_t);
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-	{
-		IPaddress sdlIp = toSDLIPAddress(remoteIp);
+	IPaddress sdlIp = toSDLIPAddress(remoteIp);
 
-		TCPsocket tcpSocket = SDLNet_TCP_Open(&sdlIp);
-		if (!tcpSocket) {
-			WARN(std::string("SDLNet_TCP_Open: ") + SDLNet_GetError());
-			return nullptr;
-		}
-
-		internalData->tcpSocket = tcpSocket;
+	auto tcpSocket = SDLNet_TCP_Open(&sdlIp);
+	if (!tcpSocket) {
+		WARN(std::string("SDLNet_TCP_Open: ") + SDLNet_GetError());
+		return nullptr;
 	}
+
+	return new TCPConnection(InternalData(std::move(tcpSocket), remoteIp));
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
-	{
-		internalData->tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
-		if (internalData->tcpSocket == -1) {
-			const int error = errno;
-			WARN(std::string(strerror(error)));
-			return nullptr;
-		}
-		sockaddr_in sockAddr = toSockaddr(remoteIp);
-		int result = ::connect(internalData->tcpSocket, reinterpret_cast<const sockaddr *> (&sockAddr), sizeof(sockaddr_in));
-		if (result == -1) {
-			const int error = errno;
-			WARN(std::string(strerror(error)));
-			return nullptr;
-		}
-		const int optionTrue = 1;
-		setsockopt(internalData->tcpSocket, IPPROTO_TCP, TCP_NODELAY, &optionTrue, sizeof(int));
+	auto tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (tcpSocket == -1) {
+		const int error = errno;
+		WARN(std::string(strerror(error)));
+		return nullptr;
 	}
+	sockaddr_in sockAddr = toSockaddr(remoteIp);
+	int result = ::connect(tcpSocket, reinterpret_cast<const sockaddr *>(&sockAddr), sizeof(sockaddr_in));
+	if (result == -1) {
+		const int error = errno;
+		WARN(std::string(strerror(error)));
+		return nullptr;
+	}
+	const int optionTrue = 1;
+	setsockopt(tcpSocket, IPPROTO_TCP, TCP_NODELAY, &optionTrue, sizeof(int));
+
+	return new TCPConnection(InternalData(std::move(tcpSocket), remoteIp));
 #endif
-	internalData->remoteIp = remoteIp;
-	internalData->lastActiveTime = 0;
-	return new TCPConnection(internalData.release());
 }
 
 // ----------------------------------------
 
 //! (ctor)
-TCPConnection::TCPConnection(InternalTCPConnectionData_t * internalData) :
+TCPConnection::TCPConnection(InternalData && internalData) :
 		UserThread(),
-		connectionDataMutex(Concurrency::createMutex()), connectionData(internalData), state(OPEN), stateMutex(Concurrency::createMutex()), inQueueDataSize(0),
+		connectionDataMutex(Concurrency::createMutex()), connectionData(new InternalData(std::forward<InternalData>(internalData))), state(OPEN), stateMutex(Concurrency::createMutex()), inQueueDataSize(0),
 		inQueueMutex(Concurrency::createMutex()), outQueueMutex(Concurrency::createMutex()) {
 	UserThread::start();
 }
@@ -381,7 +387,7 @@ std::string TCPConnection::receiveString(char delimiter/*='\0'*/) {
 // -----------------------------------------------------------------------------
 // [TCPServer]
 
-struct InternalTCPServerData_t {
+struct TCPServer::InternalData {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 		TCPsocket serverSocket;
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
@@ -391,7 +397,7 @@ struct InternalTCPServerData_t {
 
 //! (static) Factory
 TCPServer * TCPServer::create(uint16_t port) {
-	std::unique_ptr<InternalTCPServerData_t> internalData(new InternalTCPServerData_t);
+	std::unique_ptr<InternalData> internalData(new InternalData);
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	IPaddress sdlIp;
 
@@ -459,7 +465,7 @@ TCPServer * TCPServer::create(uint16_t port) {
 }
 // ----------------------------------------
 //! (ctor) TCPServer
-TCPServer::TCPServer(InternalTCPServerData_t * internalData) :
+TCPServer::TCPServer(InternalData * internalData) :
 		UserThread(),
 		serverDataMutex(Concurrency::createMutex()), serverData(internalData), state(OPEN), stateMutex(Concurrency::createMutex()), queueMutex(
 		Concurrency::createMutex()) {
@@ -494,11 +500,9 @@ void TCPServer::run() {
 		if (clientSocket) {
 			auto lockQ = Concurrency::createLock(*queueMutex);
 			IPaddress * remote_sdlIp = SDLNet_TCP_GetPeerAddress(clientSocket);
-			auto internalData = new InternalTCPConnectionData_t;
-			internalData->remoteIp = fromSDLIPAddress(*remote_sdlIp);
-			internalData->tcpSocket = clientSocket;
-			internalData->lastActiveTime = 0;
-			newConnectionsQueue.push_back(new TCPConnection(internalData));
+			auto remoteIp = fromSDLIPAddress(*remote_sdlIp);
+			newConnectionsQueue.push_back(new TCPConnection(
+				TCPConnection::InternalData(std::move(clientSocket), remoteIp)));
 		} else {
 			Utils::sleep(1);
 		}
@@ -540,11 +544,9 @@ void TCPServer::run() {
 			int clientSocket = accept(serverData->tcpServerSocket, reinterpret_cast<sockaddr *> (&clientAddr), &clientAddrSize);
 
 			auto lockQ = Concurrency::createLock(*queueMutex);
-			InternalTCPConnectionData_t * internalData = new InternalTCPConnectionData_t;
-			internalData->remoteIp = fromSockaddr(clientAddr);
-			internalData->tcpSocket = clientSocket;
-			internalData->lastActiveTime = 0;
-			newConnectionsQueue.push_back(new TCPConnection(internalData));
+			auto remoteIp = fromSockaddr(clientAddr);
+			newConnectionsQueue.push_back(new TCPConnection(
+				TCPConnection::InternalData(clientSocket, remoteIp)));
 		}
 	}
 	{
