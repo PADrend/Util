@@ -390,14 +390,20 @@ std::string TCPConnection::receiveString(char delimiter/*='\0'*/) {
 struct TCPServer::InternalData {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 		TCPsocket serverSocket;
+
+		InternalData(TCPsocket socket) : 
+			serverSocket(std::forward<TCPsocket>(socket)) {
+		}
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 		int tcpServerSocket;
+
+		InternalData(int socket) : tcpServerSocket(socket) {
+		}
 #endif
 };
 
 //! (static) Factory
 TCPServer * TCPServer::create(uint16_t port) {
-	std::unique_ptr<InternalData> internalData(new InternalData);
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	IPaddress sdlIp;
 
@@ -413,10 +419,10 @@ TCPServer * TCPServer::create(uint16_t port) {
 		return nullptr;
 	}
 
-	internalData->serverSocket = serverSocket;
+	return new TCPServer(std::move(serverSocket));
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
-	internalData->tcpServerSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (internalData->tcpServerSocket == -1) {
+	auto tcpServerSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (tcpServerSocket == -1) {
 		const int error = errno;
 		WARN(std::string(strerror(error)));
 		return nullptr;
@@ -424,7 +430,7 @@ TCPServer * TCPServer::create(uint16_t port) {
 	// Enable the socket to be bound to a previously used address again.
 	const int optionTrue = 1;
 	{
-		const int result = setsockopt(internalData->tcpServerSocket, SOL_SOCKET, SO_REUSEADDR, &optionTrue, sizeof(int));
+		const int result = setsockopt(tcpServerSocket, SOL_SOCKET, SO_REUSEADDR, &optionTrue, sizeof(int));
 		if (result == -1) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
@@ -432,7 +438,7 @@ TCPServer * TCPServer::create(uint16_t port) {
 		}
 	}
 	{
-		const int result = setsockopt(internalData->tcpServerSocket, IPPROTO_TCP, TCP_NODELAY, &optionTrue, sizeof(int));
+		const int result = setsockopt(tcpServerSocket, IPPROTO_TCP, TCP_NODELAY, &optionTrue, sizeof(int));
 		if (result == -1) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
@@ -445,7 +451,7 @@ TCPServer * TCPServer::create(uint16_t port) {
 		sockAddr.sin_family = AF_INET;
 		sockAddr.sin_port = htons(port);
 		sockAddr.sin_addr.s_addr = 0x00000000; // INADDR_ANY without old-style cast
-		const int result = ::bind(internalData->tcpServerSocket, reinterpret_cast<const sockaddr *> (&sockAddr), sizeof(sockaddr_in));
+		const int result = ::bind(tcpServerSocket, reinterpret_cast<const sockaddr *> (&sockAddr), sizeof(sockaddr_in));
 		if (result == -1) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
@@ -453,22 +459,25 @@ TCPServer * TCPServer::create(uint16_t port) {
 		}
 	}
 	{
-		const int result = listen(internalData->tcpServerSocket, 8);
+		const int result = listen(tcpServerSocket, 8);
 		if (result == -1) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
 			return nullptr;
 		}
 	}
+	return new TCPServer(TCPServer::InternalData(tcpServerSocket));
 #endif
-	return new TCPServer(internalData.release());
 }
 // ----------------------------------------
 //! (ctor) TCPServer
-TCPServer::TCPServer(InternalData * internalData) :
+TCPServer::TCPServer(InternalData && internalData) :
 		UserThread(),
-		serverDataMutex(Concurrency::createMutex()), serverData(internalData), state(OPEN), stateMutex(Concurrency::createMutex()), queueMutex(
-		Concurrency::createMutex()) {
+		serverDataMutex(Concurrency::createMutex()), 
+		serverData(new InternalData(std::forward<InternalData>(internalData))), 
+		state(OPEN), 
+		stateMutex(Concurrency::createMutex()), 
+		queueMutex(Concurrency::createMutex()) {
 	UserThread::start();
 }
 

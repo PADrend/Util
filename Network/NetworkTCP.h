@@ -140,9 +140,9 @@ class TCPServer : private Concurrency::UserThread {
 		std::unique_ptr<Concurrency::Mutex> serverDataMutex;
 		struct InternalData;
 		std::unique_ptr<InternalData> serverData;
+		TCPServer(InternalData && internalData);
 
 	public:
-		TCPServer(InternalData * internalData);
 		virtual ~TCPServer();
 
 		/*! @name State */
