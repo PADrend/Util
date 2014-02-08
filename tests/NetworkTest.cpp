@@ -38,7 +38,7 @@ void NetworkTest::testTCP() {
 
 	tryCount = 0;
 	Util::Reference<TCPConnection> tcpClient;
-	const IPAddress address = IPAddress::resolveHost("127.0.0.1", 45000);
+	const IPv4Address address = IPv4Address::resolveHost("127.0.0.1", 45000);
 	while (tcpClient.get() == nullptr && tryCount < 10) {
 		Util::Utils::sleep(1);
 		tcpClient = TCPConnection::connect(address);
@@ -90,7 +90,7 @@ void NetworkTest::testUDP() {
 
 	UDPNetworkSocket udpSocketClient;
 	udpSocketClient.open();
-	const IPAddress toAddress = IPAddress::resolveHost("127.0.0.1", 45000);
+	const IPv4Address toAddress = IPv4Address::resolveHost("127.0.0.1", 45000);
 
 	std::default_random_engine engine;
 	std::uniform_int_distribution<uint8_t> distribution(0, 255);
@@ -129,7 +129,7 @@ void NetworkTest::testDataConnection() {
 
 	tryCount = 0;
 	Util::Reference<TCPConnection> tcpClient;
-	const IPAddress address = IPAddress::resolveHost("127.0.0.1", 45002);
+	const IPv4Address address = IPv4Address::resolveHost("127.0.0.1", 45002);
 	while (tcpClient.get() == nullptr && tryCount < maxTries) {
 		Util::Utils::sleep(1);
 		tcpClient = TCPConnection::connect(address);
@@ -356,7 +356,7 @@ void NetworkTest::testTCPClientExit() {
 
 	tryCount = 0;
 	Util::Reference<TCPConnection> tcpClient;
-	const IPAddress address = IPAddress::resolveHost("127.0.0.1", 45001);
+	const IPv4Address address = IPv4Address::resolveHost("127.0.0.1", 45001);
 	while (tcpClient.get() == nullptr && tryCount < 10) {
 		Util::Utils::sleep(1);
 		tcpClient = TCPConnection::connect(address);

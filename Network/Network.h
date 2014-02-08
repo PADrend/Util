@@ -22,30 +22,30 @@ bool init();
 
 // --------------------------------------
 
-struct InternalIPAddressData_t;
+struct InternalIPv4AddressData_t;
 
-class IPAddress {
+class IPv4Address {
 	public:
-		IPAddress();
-		IPAddress(const InternalIPAddressData_t & internalData);
-		IPAddress(uint32_t _host, uint16_t _port);
-		IPAddress(const IPAddress & source);
-		~IPAddress();
+		IPv4Address();
+		IPv4Address(const InternalIPv4AddressData_t & internalData);
+		IPv4Address(uint32_t _host, uint16_t _port);
+		IPv4Address(const IPv4Address & source);
+		~IPv4Address();
 
-		IPAddress & operator=(const IPAddress & source);
+		IPv4Address & operator=(const IPv4Address & source);
 		void setHost(uint32_t host);
 		void setPort(uint16_t port);
-		bool operator<(const IPAddress & p) const;
+		bool operator<(const IPv4Address & p) const;
 		bool isValid() const;
 		std::string toString() const;
 		std::string getHostAsString() const;
 		uint32_t getHost() const;
 		uint16_t getPort() const;
-		const InternalIPAddressData_t * getData() const;
+		const InternalIPv4AddressData_t * getData() const;
 
-		static IPAddress resolveHost(const std::string & host, uint16_t port);
+		static IPv4Address resolveHost(const std::string & host, uint16_t port);
 	private:
-		std::unique_ptr<InternalIPAddressData_t> data;
+		std::unique_ptr<InternalIPv4AddressData_t> data;
 };
 
 }

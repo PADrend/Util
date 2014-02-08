@@ -27,7 +27,7 @@ class ClockSynchronizer : private Concurrency::UserThread {
 		};
 
 		static ClockSynchronizer * createServer(uint16_t port);
-		static ClockSynchronizer * createClient(const IPAddress & remoteIP);
+		static ClockSynchronizer * createClient(const IPv4Address & remoteIP);
 
 		/** Default destructor */
 		virtual ~ClockSynchronizer();

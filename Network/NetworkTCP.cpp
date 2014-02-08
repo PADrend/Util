@@ -35,21 +35,21 @@ namespace Util {
 namespace Network {
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-extern IPaddress toSDLIPAddress(const IPAddress & address);
-extern IPAddress fromSDLIPAddress(const IPaddress & address);
+extern IPaddress toSDLIPv4Address(const IPv4Address & address);
+extern IPv4Address fromSDLIPv4Address(const IPaddress & address);
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
-extern IPAddress fromSockaddr(const sockaddr_in & sockAddr);
-extern sockaddr_in toSockaddr(const IPAddress & address);
+extern IPv4Address fromSockaddr(const sockaddr_in & sockAddr);
+extern sockaddr_in toSockaddr(const IPv4Address & address);
 #endif
 
 struct TCPConnection::InternalData {
-		IPAddress remoteIp;
+		IPv4Address remoteIp;
 		float lastActiveTime;
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 		TCPsocket tcpSocket;
 
-		InternalData(TCPsocket && socket, const IPAddress & address) :
+		InternalData(TCPsocket && socket, const IPv4Address & address) :
 			tcpSocket(std::forward<TCPsocket>(socket)),
 			remoteIp(address),
 			lastActiveTime(0) {
@@ -57,7 +57,7 @@ struct TCPConnection::InternalData {
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 		int tcpSocket;
 
-		InternalData(int socket, const IPAddress & address) :
+		InternalData(int socket, const IPv4Address & address) :
 			tcpSocket(socket),
 			remoteIp(address),
 			lastActiveTime(0) {
@@ -66,9 +66,9 @@ struct TCPConnection::InternalData {
 };
 
 //! (static) Factory
-Reference<TCPConnection> TCPConnection::connect(const IPAddress & remoteIp) {
+Reference<TCPConnection> TCPConnection::connect(const IPv4Address & remoteIp) {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-	IPaddress sdlIp = toSDLIPAddress(remoteIp);
+	IPaddress sdlIp = toSDLIPv4Address(remoteIp);
 
 	auto tcpSocket = SDLNet_TCP_Open(&sdlIp);
 	if (!tcpSocket) {
@@ -118,7 +118,7 @@ float TCPConnection::getLastActiveTime() const {
 	return connectionData->lastActiveTime;
 }
 
-IPAddress TCPConnection::getRemoteIp() const {
+IPv4Address TCPConnection::getRemoteIp() const {
 	auto lock = Concurrency::createLock(*connectionDataMutex);
 	return connectionData->remoteIp;
 }
@@ -509,7 +509,7 @@ void TCPServer::run() {
 		if (clientSocket) {
 			auto lockQ = Concurrency::createLock(*queueMutex);
 			IPaddress * remote_sdlIp = SDLNet_TCP_GetPeerAddress(clientSocket);
-			auto remoteIp = fromSDLIPAddress(*remote_sdlIp);
+			auto remoteIp = fromSDLIPv4Address(*remote_sdlIp);
 			newConnectionsQueue.push_back(new TCPConnection(
 				TCPConnection::InternalData(std::move(clientSocket), remoteIp)));
 		} else {

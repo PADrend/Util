@@ -45,7 +45,7 @@ bool init() {
 // -----------------------------------------------------------------------------------------------------
 
 
-struct InternalIPAddressData_t {
+struct InternalIPv4AddressData_t {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 		IPaddress sdlAddress;
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
@@ -54,31 +54,31 @@ struct InternalIPAddressData_t {
 };
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-IPAddress fromSDLIPAddress(const IPaddress & sdlIp);
-IPAddress fromSDLIPAddress(const IPaddress & sdlIp) {
-	InternalIPAddressData_t data;
+IPv4Address fromSDLIPv4Address(const IPaddress & sdlIp);
+IPv4Address fromSDLIPv4Address(const IPaddress & sdlIp) {
+	InternalIPv4AddressData_t data;
 	data.sdlAddress = sdlIp;
-	return IPAddress(data);
+	return IPv4Address(data);
 }
-IPaddress toSDLIPAddress(const IPAddress & address);
-IPaddress toSDLIPAddress(const IPAddress & address) {
+IPaddress toSDLIPv4Address(const IPv4Address & address);
+IPaddress toSDLIPv4Address(const IPv4Address & address) {
 	return address.getData()->sdlAddress;
 }
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
-IPAddress fromSockaddr(const sockaddr_in & sockAddr);
-IPAddress fromSockaddr(const sockaddr_in & sockAddr) {
-	InternalIPAddressData_t data;
+IPv4Address fromSockaddr(const sockaddr_in & sockAddr);
+IPv4Address fromSockaddr(const sockaddr_in & sockAddr) {
+	InternalIPv4AddressData_t data;
 	data.address = sockAddr;
-	return IPAddress(data);
+	return IPv4Address(data);
 }
-sockaddr_in toSockaddr(const IPAddress & address);
-sockaddr_in toSockaddr(const IPAddress & address) {
+sockaddr_in toSockaddr(const IPv4Address & address);
+sockaddr_in toSockaddr(const IPv4Address & address) {
 	return address.getData()->address;
 }
 #endif
 
-IPAddress::IPAddress() :
-	data(new InternalIPAddressData_t) {
+IPv4Address::IPv4Address() :
+	data(new InternalIPv4AddressData_t) {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	setHost(0);
 	setPort(0);
@@ -87,56 +87,56 @@ IPAddress::IPAddress() :
 #endif
 }
 
-IPAddress::IPAddress(const InternalIPAddressData_t & internalData) :
-	data(new InternalIPAddressData_t(internalData)) {
+IPv4Address::IPv4Address(const InternalIPv4AddressData_t & internalData) :
+	data(new InternalIPv4AddressData_t(internalData)) {
 }
 
-IPAddress::IPAddress(uint32_t _host, uint16_t _port) :
-	data(new InternalIPAddressData_t) {
+IPv4Address::IPv4Address(uint32_t _host, uint16_t _port) :
+	data(new InternalIPv4AddressData_t) {
 	setHost(_host);
 	setPort(_port);
 }
-IPAddress::IPAddress(const IPAddress & source) :
-	data(new InternalIPAddressData_t(*source.data)) {
+IPv4Address::IPv4Address(const IPv4Address & source) :
+	data(new InternalIPv4AddressData_t(*source.data)) {
 }
-IPAddress::~IPAddress() = default;
-IPAddress & IPAddress::operator=(const IPAddress & source) {
+IPv4Address::~IPv4Address() = default;
+IPv4Address & IPv4Address::operator=(const IPv4Address & source) {
 	// Handle self assignment gracefully.
 	*data = *source.data;
 	return *this;
 }
-void IPAddress::setHost(uint32_t host) {
+void IPv4Address::setHost(uint32_t host) {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	data->sdlAddress.host = ((host & 0x000000FF) << 24) + ((host & 0x0000FF00) << 8) + ((host & 0x00FF0000) >> 8) + ((host & 0xFF000000) >> 24);
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	data->address.sin_addr.s_addr = htonl(host);
 #endif
 }
-void IPAddress::setPort(uint16_t port) {
+void IPv4Address::setPort(uint16_t port) {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	data->sdlAddress.port = ((port & 0x00FF) << 8) + ((port & 0xFF00) >> 8);
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	data->address.sin_port = htons(port);
 #endif
 }
-bool IPAddress::operator<(const IPAddress & p) const {
+bool IPv4Address::operator<(const IPv4Address & p) const {
 	return getHost() != p.getHost() ? (getHost() < p.getHost()) : (getPort() < p.getPort());
 }
-bool IPAddress::isValid() const {
+bool IPv4Address::isValid() const {
 	return getHost() != 0 && getPort() != 0;
 }
-std::string IPAddress::toString() const {
+std::string IPv4Address::toString() const {
 	std::ostringstream s;
 	s << getHostAsString() << ":" << getPort();
 	return s.str();
 }
-std::string IPAddress::getHostAsString() const {
+std::string IPv4Address::getHostAsString() const {
 	std::ostringstream s;
 	const uint32_t host = getHost();
 	s << ((host & 0xFF000000) >> 24) << "." << ((host & 0xFF0000) >> 16) << "." << ((host & 0xFF00) >> 8) << "." << (host & 0xFF);
 	return s.str();
 }
-uint32_t IPAddress::getHost() const {
+uint32_t IPv4Address::getHost() const {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	const uint32_t & host = data->sdlAddress.host;
 	return ((host & 0x000000FF) << 24) + ((host & 0x0000FF00) << 8) + ((host & 0x00FF0000) >> 8) + ((host & 0xFF000000) >> 24);
@@ -146,7 +146,7 @@ uint32_t IPAddress::getHost() const {
 	return 0;
 #endif
 }
-uint16_t IPAddress::getPort() const {
+uint16_t IPv4Address::getPort() const {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	return ((data->sdlAddress.port & 0x00FF) << 8) + ((data->sdlAddress.port & 0xFF00) >> 8);
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
@@ -155,14 +155,14 @@ uint16_t IPAddress::getPort() const {
 	return 0;
 #endif
 }
-const InternalIPAddressData_t * IPAddress::getData() const {
+const InternalIPv4AddressData_t * IPv4Address::getData() const {
 	return data.get();
 }
-IPAddress IPAddress::resolveHost(const std::string & host, uint16_t port) {
-	IPAddress ip;
+IPv4Address IPv4Address::resolveHost(const std::string & host, uint16_t port) {
+	IPv4Address ip;
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	if (SDLNet_ResolveHost(&(ip.data->sdlAddress), host.c_str(), port) == -1) {
-		return IPAddress();
+		return IPv4Address();
 	}
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	const std::string portString(StringUtils::toString(port));
@@ -173,7 +173,7 @@ IPAddress IPAddress::resolveHost(const std::string & host, uint16_t port) {
 	int result = getaddrinfo(host.c_str(), portString.c_str(), &hints, &info);
 	if (result != 0) {
 		WARN(std::string(gai_strerror(result)));
-		return IPAddress();
+		return IPv4Address();
 	}
 	ip.data->address = *reinterpret_cast<sockaddr_in *> (info->ai_addr);
 	freeaddrinfo(info);

@@ -33,14 +33,14 @@ namespace Util {
 namespace Network {
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-extern IPaddress toSDLIPAddress(const IPAddress & address);
-extern IPAddress fromSDLIPAddress(const IPaddress & address);
+extern IPaddress toSDLIPv4Address(const IPv4Address & address);
+extern IPv4Address fromSDLIPv4Address(const IPaddress & address);
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
-extern IPAddress fromSockaddr(const sockaddr_in & sockAddr);
-extern sockaddr_in toSockaddr(const IPAddress & address);
+extern IPv4Address fromSockaddr(const sockaddr_in & sockAddr);
+extern sockaddr_in toSockaddr(const IPv4Address & address);
 #endif
 
-typedef std::set<IPAddress> targetSet_t;
+typedef std::set<IPv4Address> targetSet_t;
 
 struct InternalUDPSocketData_t {
 		uint16_t port;
@@ -170,7 +170,7 @@ UDPNetworkSocket::Packet * UDPNetworkSocket::receive() {
 		WARN("Maximum UDP packet size exceeded.");
 	}
 	auto myPacket = new Packet(p->data, p->len);
-	myPacket->source = fromSDLIPAddress(p->address);
+	myPacket->source = fromSDLIPv4Address(p->address);
 
 	SDLNet_FreePacket(p);
 	return myPacket;
@@ -219,7 +219,7 @@ int UDPNetworkSocket::sendData(const uint8_t * _data, size_t _dataSize) {
 	std::copy(_data, _data + _dataSize, p->data);
 	p->len = _dataSize;
 	for(const auto & target : data->targets) {
-		p->address = toSDLIPAddress(target);
+		p->address = toSDLIPv4Address(target);
 		sendCounter += SDLNet_UDP_Send(data->udpsock, -1, p);
 	}
 	SDLNet_FreePacket(p);
@@ -239,14 +239,14 @@ int UDPNetworkSocket::sendData(const uint8_t * _data, size_t _dataSize) {
 	return sendCounter;
 }
 
-bool UDPNetworkSocket::sendData(const uint8_t * _data, size_t _dataSize, const IPAddress & _address) {
+bool UDPNetworkSocket::sendData(const uint8_t * _data, size_t _dataSize, const IPv4Address & _address) {
 	if (!isOpen())
 		return false;
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	UDPpacket * p = SDLNet_AllocPacket(_dataSize);
 	std::copy(_data, _data + _dataSize, p->data);
 	p->len = _dataSize;
-	p->address = toSDLIPAddress(_address);
+	p->address = toSDLIPv4Address(_address);
 	int i = SDLNet_UDP_Send(data->udpsock, -1, p);
 	SDLNet_FreePacket(p);
 	p = nullptr;
@@ -265,12 +265,12 @@ bool UDPNetworkSocket::sendData(const uint8_t * _data, size_t _dataSize, const I
 #endif
 }
 
-void UDPNetworkSocket::addTarget(const IPAddress & address) {
+void UDPNetworkSocket::addTarget(const IPv4Address & address) {
 	if (address.isValid())
 		data->targets.insert(address);
 }
 
-void UDPNetworkSocket::removeTarget(const IPAddress & address) {
+void UDPNetworkSocket::removeTarget(const IPv4Address & address) {
 	data->targets.erase(address);
 }
 

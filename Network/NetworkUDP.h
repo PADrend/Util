@@ -40,7 +40,7 @@ class UDPNetworkSocket {
 		void close();
 
 		struct Packet {
-			IPAddress source;
+			IPv4Address source;
 			std::vector<uint8_t> packetData;
 			Packet(const std::string & s) :
 				source(), packetData(s.begin(), s.end()) {
@@ -64,12 +64,12 @@ class UDPNetworkSocket {
 		Packet * receive();
 		int sendData(const uint8_t * data, size_t dataSize);
 
-		bool sendData(const uint8_t * data, size_t dataSize, const IPAddress & ip);
+		bool sendData(const uint8_t * data, size_t dataSize, const IPv4Address & ip);
 
 		int sendString(const std::string & data);
 
-		void addTarget(const IPAddress & address);
-		void removeTarget(const IPAddress & address);
+		void addTarget(const IPv4Address & address);
+		void removeTarget(const IPv4Address & address);
 	private:
 		std::unique_ptr<InternalUDPSocketData_t> data;
 };

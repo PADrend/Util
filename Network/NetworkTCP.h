@@ -41,7 +41,7 @@ class TCPConnection : public ReferenceCounter<TCPConnection>, private Concurrenc
 
 		/*! Tries to open a connection to a TCP-Server at given address.
 		 \return TCPConnection if successful, nullptr on failure */
-		static Reference<TCPConnection> connect(const IPAddress & remote);
+		static Reference<TCPConnection> connect(const IPv4Address & remote);
 
 	private:
 		std::unique_ptr<Concurrency::Mutex> connectionDataMutex;
@@ -53,7 +53,7 @@ class TCPConnection : public ReferenceCounter<TCPConnection>, private Concurrenc
 		virtual ~TCPConnection();
 
 		float getLastActiveTime() const;
-		IPAddress getRemoteIp() const;
+		IPv4Address getRemoteIp() const;
 
 		/*! @name State */
 		// @{

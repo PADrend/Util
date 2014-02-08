@@ -30,7 +30,7 @@ ClockSynchronizer * ClockSynchronizer::createServer(uint16_t port){
 }
 
 //! (static)
-ClockSynchronizer * ClockSynchronizer::createClient(const IPAddress & remoteIP){
+ClockSynchronizer * ClockSynchronizer::createClient(const IPv4Address & remoteIP){
 	auto socket = new UDPNetworkSocket;
 	if(!socket->open()){
 		delete socket;
