@@ -17,7 +17,10 @@
 #include <algorithm>
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
+COMPILER_WARN_PUSH
+COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL_net.h>
+COMPILER_WARN_POP
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -50,9 +53,7 @@ struct TCPConnection::InternalData {
 		TCPsocket tcpSocket;
 
 		InternalData(TCPsocket && socket, const IPv4Address & address) :
-			tcpSocket(std::forward<TCPsocket>(socket)),
-			remoteIp(address),
-			lastActiveTime(0) {
+			remoteIp(address), lastActiveTime(0), tcpSocket(std::forward<TCPsocket>(socket)){
 		}
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 		int tcpSocket;

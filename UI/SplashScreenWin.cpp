@@ -74,7 +74,7 @@ void SplashScreenWin::run() {
 		wc.hInstance     = hInstance;
 		wc.hIcon         = LoadIcon(hInstance, IDI_APPLICATION);
 		wc.hCursor       = LoadCursor(nullptr, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+		wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW+1);
 		wc.lpszMenuName  = nullptr;
 		wc.lpszClassName = g_szClassName;
 		wc.hIconSm       = LoadIcon(hInstance, IDI_APPLICATION);
@@ -124,7 +124,7 @@ void SplashScreenWin::run() {
 		ZeroMemory(&bminfo, sizeof(bminfo));
 		bminfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 		bminfo.bmiHeader.biWidth = imgSize.cx;
-		bminfo.bmiHeader.biHeight = -((LONG) imgSize.cy);
+		bminfo.bmiHeader.biHeight = -(static_cast<LONG>(imgSize.cy));
 		bminfo.bmiHeader.biPlanes = 1;
 		bminfo.bmiHeader.biBitCount = 32;
 		bminfo.bmiHeader.biCompression = BI_RGB;

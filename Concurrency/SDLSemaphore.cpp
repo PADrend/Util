@@ -11,8 +11,12 @@
 #ifdef UTIL_HAVE_LIB_SDL2
 
 #include "SDLSemaphore.h"
+#include "../Macros.h"
+COMPILER_WARN_PUSH
+COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL.h>
 #include <SDL_thread.h>
+COMPILER_WARN_POP
 
 namespace Util {
 namespace Concurrency {

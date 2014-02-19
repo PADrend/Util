@@ -17,8 +17,11 @@
 #include <cstddef>
 
 #if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
+COMPILER_WARN_PUSH
+COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL.h>
 #include <SDL_image.h>
+COMPILER_WARN_POP
 #endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
 
 namespace Util {
