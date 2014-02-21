@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -12,28 +12,23 @@
 #define UTIL_NETWORK_TCP_H
 
 #include "Network.h"
-#include "../Concurrency/Concurrency.h"
-#include "../Concurrency/Lock.h"
-#include "../Concurrency/Mutex.h"
-#include "../Concurrency/UserThread.h"
 #include "../ReferenceCounter.h"
 #include <cstdint>
 #include <deque>
 #include <memory>
+#include <mutex>
+#include <thread>
 #include <vector>
 
 namespace Util {
-
 namespace Network {
 
 class TCPServer;
 
 /**
  * TCP Connection between two endpoints.
- *
- * [TCPConnection] ---|> [UserThread]
  */
-class TCPConnection : public ReferenceCounter<TCPConnection>, private Concurrency::UserThread {
+class TCPConnection : public ReferenceCounter<TCPConnection> {
 	public:
 		friend class TCPServer;
 
@@ -44,7 +39,7 @@ class TCPConnection : public ReferenceCounter<TCPConnection>, private Concurrenc
 		static Reference<TCPConnection> connect(const IPv4Address & remote);
 
 	private:
-		std::unique_ptr<Concurrency::Mutex> connectionDataMutex;
+		mutable std::mutex connectionDataMutex;
 		struct InternalData;
 		std::unique_ptr<InternalData> connectionData;
 		TCPConnection(InternalData && internalData);
@@ -61,15 +56,15 @@ class TCPConnection : public ReferenceCounter<TCPConnection>, private Concurrenc
 		enum state_t {
 			OPEN, CLOSING, CLOSED
 		} volatile state;
-		std::unique_ptr<Concurrency::Mutex> stateMutex;
+		mutable std::mutex stateMutex;
 
 		void setState(state_t newState) {
-			auto lock = Concurrency::createLock(*stateMutex);
+			std::lock_guard<std::mutex> lock(stateMutex);
 			state = newState;
 		}
 	public:
-		state_t getState() const{
-			auto lock = Concurrency::createLock(*stateMutex);
+		state_t getState() const {
+			std::lock_guard<std::mutex> lock(stateMutex);
 			return state;
 		}
 		bool isOpen() const{
@@ -81,21 +76,17 @@ class TCPConnection : public ReferenceCounter<TCPConnection>, private Concurrenc
 		void close();
 		// @}
 
-
-		/*! @name ---|> UserThread */
-		// @{
-		void run() override;
-		// @}
-
 		/*! @name Data handling */
 		// @{
 	private:
 		std::deque<std::vector<uint8_t>> inQueue;
 		std::deque<std::vector<uint8_t>> outQueue;
 		volatile size_t inQueueDataSize;
-		std::unique_ptr<Concurrency::Mutex> inQueueMutex;
-		std::unique_ptr<Concurrency::Mutex> outQueueMutex;
+		mutable std::mutex inQueueMutex;
+		mutable std::mutex outQueueMutex;
+		std::thread thread;
 
+		void run();
 		std::vector<uint8_t> extractDataFromInQueue(size_t numBytes);
 
 	public:
@@ -119,7 +110,7 @@ class TCPConnection : public ReferenceCounter<TCPConnection>, private Concurrenc
 
 		/*! Returns the number of bytes in the input buffer */
 		size_t getAvailableDataSize() const {
-			auto lock = Concurrency::createLock(*inQueueMutex);
+			std::lock_guard<std::mutex> lock(inQueueMutex);
 			return inQueueDataSize;
 		}
 		// @}
@@ -127,17 +118,15 @@ class TCPConnection : public ReferenceCounter<TCPConnection>, private Concurrenc
 
 /**
  * TCP Server which creates TCPConnections
- *
- * [TCPServer] ---|> [UserThread]
  */
-class TCPServer : private Concurrency::UserThread {
+class TCPServer {
 	public:
 		/*! (Factory) Try to create a TCPServer listening on the given port.
 		 Returns nullptr, if the port can not be opened. */
 		static TCPServer * create(uint16_t port);
 
 	private:
-		std::unique_ptr<Concurrency::Mutex> serverDataMutex;
+		std::mutex serverDataMutex;
 		struct InternalData;
 		std::unique_ptr<InternalData> serverData;
 		TCPServer(InternalData && internalData);
@@ -151,15 +140,15 @@ class TCPServer : private Concurrency::UserThread {
 		enum state_t {
 			OPEN, CLOSING, CLOSED
 		} state;
-		std::unique_ptr<Concurrency::Mutex> stateMutex;
+		mutable std::mutex stateMutex;
 
 		void setState(state_t newState) {
-			auto lock = Concurrency::createLock(*stateMutex);
+			std::lock_guard<std::mutex> lock(stateMutex);
 			state = newState;
 		}
 	public:
 		state_t getState() const {
-			auto lock = Concurrency::createLock(*stateMutex);
+			std::lock_guard<std::mutex> lock(stateMutex);
 			return state;
 		}
 		bool isOpen() const {
@@ -176,18 +165,16 @@ class TCPServer : private Concurrency::UserThread {
 		// @{
 	private:
 		std::deque<Reference<TCPConnection>> newConnectionsQueue;
-		std::unique_ptr<Concurrency::Mutex> queueMutex;
+		std::mutex queueMutex;
+		
+		std::thread connectionHandlingThread;
+
+		void run();
 
 	public:
 		/*! Returns a new Connection or nullptr if there is none.  Each incoming
 		 connection is only reported once.   */
 		Reference<TCPConnection> getIncomingConnection();
-		// @}
-
-		/*! @name ---|> UserThread */
-		// @{
-	public:
-		void run() override;
 		// @}
 };
 

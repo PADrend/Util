@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -15,6 +15,7 @@
 
 #include "SplashScreen.h"
 #include <memory>
+#include <thread>
 #include <string>
 
 namespace Util {
@@ -39,8 +40,8 @@ class SplashScreenX11 : public SplashScreen {
 		void removeMessage() override;
 
 	protected:
-		//! ---|> UserThread
-		void run() override;
+		//! Check for events.
+		void eventLoop();
 
 		//! Create a new splash screen.
 		SplashScreenX11(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
@@ -54,6 +55,9 @@ class SplashScreenX11 : public SplashScreen {
 
 		//! Storage of attributes.
 		std::unique_ptr<SplashScreenData> data;
+
+		//! Thread checking for events.
+		std::thread eventThread;
 };
 
 }

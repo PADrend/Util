@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -22,6 +22,7 @@
 #include "SplashScreen.h"
 #include "../References.h"
 #include <memory>
+#include <thread>
 
 namespace Util {
 namespace UI {
@@ -44,8 +45,8 @@ class SplashScreenWin : public SplashScreen {
 		}
 
 	protected:
-		//! ---|> UserThread
-		void run() override;
+		//! Check for events.
+		void eventLoop();
 
 		//! Create a new splash screen.
 		SplashScreenWin(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
@@ -55,6 +56,15 @@ class SplashScreenWin : public SplashScreen {
 
 	private:
 		Reference<Bitmap> splashImage;
+
+		bool running;
+		mutable std::mutex runningMutex;
+
+		//! Thread checking for events.
+		std::thread eventThread;
+
+		bool isRunning() const;
+		void stop();
 };
 
 }

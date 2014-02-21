@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -9,8 +9,6 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "NetworkTCP.h"
-#include "../Concurrency/Concurrency.h"
-#include "../Concurrency/Thread.h"
 #include "../Macros.h"
 #include "../Timer.h"
 #include "../Utils.h"
@@ -103,10 +101,9 @@ Reference<TCPConnection> TCPConnection::connect(const IPv4Address & remoteIp) {
 
 //! (ctor)
 TCPConnection::TCPConnection(InternalData && internalData) :
-		UserThread(),
-		connectionDataMutex(Concurrency::createMutex()), connectionData(new InternalData(std::forward<InternalData>(internalData))), state(OPEN), stateMutex(Concurrency::createMutex()), inQueueDataSize(0),
-		inQueueMutex(Concurrency::createMutex()), outQueueMutex(Concurrency::createMutex()) {
-	UserThread::start();
+		connectionDataMutex(), connectionData(new InternalData(std::forward<InternalData>(internalData))), state(OPEN), stateMutex(), inQueueDataSize(0),
+		inQueueMutex(), outQueueMutex(),
+		thread(std::bind(&TCPConnection::run, this)) {
 }
 
 //! (dtor)
@@ -115,12 +112,12 @@ TCPConnection::~TCPConnection() {
 }
 
 float TCPConnection::getLastActiveTime() const {
-	auto lock = Concurrency::createLock(*connectionDataMutex);
+	std::lock_guard<std::mutex> lock(connectionDataMutex);
 	return connectionData->lastActiveTime;
 }
 
 IPv4Address TCPConnection::getRemoteIp() const {
-	auto lock = Concurrency::createLock(*connectionDataMutex);
+	std::lock_guard<std::mutex> lock(connectionDataMutex);
 	return connectionData->remoteIp;
 }
 
@@ -128,7 +125,7 @@ bool TCPConnection::sendData(const std::vector<uint8_t> & data){
 	if (!isOpen()) {
 		return false;
 	}
-	auto lock = Concurrency::createLock(*outQueueMutex);
+	std::lock_guard<std::mutex> lock(outQueueMutex);
 	outQueue.emplace_back(data);
 	return true;
 }
@@ -143,7 +140,7 @@ void TCPConnection::run() {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	SDLNet_SocketSet socketSet;
 	{
-		auto lockC = Concurrency::createLock(*connectionDataMutex);
+		std::lock_guard<std::mutex> lockC(connectionDataMutex);
 		socketSet = SDLNet_AllocSocketSet(1);
 		SDLNet_TCP_AddSocket(socketSet, connectionData->tcpSocket);
 		connectionData->lastActiveTime = Timer::now();
@@ -153,8 +150,8 @@ void TCPConnection::run() {
 
 		// send outgoing data
 		if(!outQueue.empty()){ // this may give a wrong result, but requires no locking!
-			auto lockC = Concurrency::createLock(*connectionDataMutex);
-			auto lockO = Concurrency::createLock(*outQueueMutex);
+			std::lock_guard<std::mutex> lockC(connectionDataMutex);
+			std::lock_guard<std::mutex> lockO(outQueueMutex);
 			while (!outQueue.empty()) {
 				std::vector<uint8_t> & data = outQueue.front();
 				const int len = data.size();
@@ -182,7 +179,7 @@ void TCPConnection::run() {
 			}
 			int bytesRecieved;
 			{
-				auto lockC = Concurrency::createLock(*connectionDataMutex);
+				std::lock_guard<std::mutex> lockC(connectionDataMutex);
 				bytesRecieved = SDLNet_TCP_Recv(connectionData->tcpSocket, buffer, BUFFER_SIZE);
 			}
 			if (bytesRecieved <= 0) {
@@ -190,18 +187,18 @@ void TCPConnection::run() {
 				break;
 			}
 			{
-				auto lockC = Concurrency::createLock(*connectionDataMutex);
+				std::lock_guard<std::mutex> lockC(connectionDataMutex);
 				connectionData->lastActiveTime = Timer::now();
 			}
 			{
-				auto lock = Concurrency::createLock(*inQueueMutex);
+				std::lock_guard<std::mutex> lock(inQueueMutex);
 				inQueue.emplace_back(buffer, buffer + static_cast<size_t>(bytesRecieved));
 				inQueueDataSize += static_cast<size_t> (bytesRecieved);
 			}
 		}
 	}
 	{
-		auto lockC = Concurrency::createLock(*connectionDataMutex);
+		std::lock_guard<std::mutex> lockC(connectionDataMutex);
 		SDLNet_FreeSocketSet(socketSet);
 		SDLNet_TCP_Close(connectionData->tcpSocket);
 		setState(CLOSED);
@@ -211,7 +208,7 @@ void TCPConnection::run() {
 
 	pollfd pollDescr;
 	{
-		auto lockC = Concurrency::createLock(*connectionDataMutex);
+		std::lock_guard<std::mutex> lockC(connectionDataMutex);
 		pollDescr.fd = connectionData->tcpSocket;
 		connectionData->lastActiveTime = Timer::now();
 	}
@@ -219,8 +216,8 @@ void TCPConnection::run() {
 	while (isOpen()) {
 		// send outgoing data
 		{
-			auto lockC = Concurrency::createLock(*connectionDataMutex);
-			auto lockO = Concurrency::createLock(*outQueueMutex);
+			std::lock_guard<std::mutex> lockC(connectionDataMutex);
+			std::lock_guard<std::mutex> lockO(outQueueMutex);
 			while (!outQueue.empty()) {
 				const std::vector<uint8_t> & data = outQueue.front();
 				const int len = data.size();
@@ -259,7 +256,7 @@ void TCPConnection::run() {
 			}
 			int bytesRecieved;
 			{
-				auto lockC = Concurrency::createLock(*connectionDataMutex);
+				std::lock_guard<std::mutex> lockC(connectionDataMutex);
 				bytesRecieved = recv(connectionData->tcpSocket, buffer, BUFFER_SIZE, 0);
 				if(bytesRecieved == 0) {
 					// Peer has shut down.
@@ -274,14 +271,14 @@ void TCPConnection::run() {
 				connectionData->lastActiveTime = Timer::now();
 			}
 			{
-				auto lock = Concurrency::createLock(*inQueueMutex);
+				std::lock_guard<std::mutex> lock(inQueueMutex);
 				inQueue.emplace_back(buffer, buffer + static_cast<size_t>(bytesRecieved));
 				inQueueDataSize += static_cast<size_t> (bytesRecieved);
 			}
 		}
 	}
 	{
-		auto lockC = Concurrency::createLock(*connectionDataMutex);
+		std::lock_guard<std::mutex> lockC(connectionDataMutex);
 		if (::close(connectionData->tcpSocket) != 0) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
@@ -296,8 +293,7 @@ void TCPConnection::run() {
 void TCPConnection::close() {
 	if(isOpen())
 		setState(CLOSING);
-	if(UserThread::isActive())
-		UserThread::join();
+	thread.join();
 }
 
 //! (internal) \note caller needs to lock inQueue
@@ -337,7 +333,7 @@ std::vector<uint8_t> TCPConnection::extractDataFromInQueue(size_t numBytes) {
 
 std::vector<uint8_t> TCPConnection::receiveData() {
 	if(inQueueDataSize>0){ // use without locking!
-		auto lock = Concurrency::createLock(*inQueueMutex);
+		std::lock_guard<std::mutex> lock(inQueueMutex);
 		return std::move(extractDataFromInQueue(inQueueDataSize));
 	}else{
 		return std::move(std::vector<uint8_t>());
@@ -347,7 +343,7 @@ std::vector<uint8_t> TCPConnection::receiveData() {
 
 std::vector<uint8_t> TCPConnection::receiveData(size_t numBytes) {
 	if(inQueueDataSize>=numBytes){ // use without locking!
-		auto lock = Concurrency::createLock(*inQueueMutex);
+		std::lock_guard<std::mutex> lock(inQueueMutex);
 		return std::move(extractDataFromInQueue(numBytes));
 	}else{
 		return std::move(std::vector<uint8_t>());
@@ -359,7 +355,7 @@ std::string TCPConnection::receiveString(char delimiter/*='\0'*/) {
 	if(inQueueDataSize==0){ // use without locking!
 		return "";
 	}else{
-		auto lock = Concurrency::createLock(*inQueueMutex);
+		std::lock_guard<std::mutex> lock(inQueueMutex);
 
 		// search form delimiter
 		size_t pos = 0;
@@ -473,13 +469,12 @@ TCPServer * TCPServer::create(uint16_t port) {
 // ----------------------------------------
 //! (ctor) TCPServer
 TCPServer::TCPServer(InternalData && internalData) :
-		UserThread(),
-		serverDataMutex(Concurrency::createMutex()), 
+		serverDataMutex(), 
 		serverData(new InternalData(std::forward<InternalData>(internalData))), 
 		state(OPEN), 
-		stateMutex(Concurrency::createMutex()), 
-		queueMutex(Concurrency::createMutex()) {
-	UserThread::start();
+		stateMutex(), 
+		queueMutex(),
+		connectionHandlingThread(std::bind(&TCPServer::run, this)) {
 }
 
 //! (dtor) TCPServer
@@ -489,7 +484,7 @@ TCPServer::~TCPServer() {
 
 
 Reference<TCPConnection> TCPServer::getIncomingConnection() {
-	auto lock = Concurrency::createLock(*queueMutex);
+	std::lock_guard<std::mutex> lock(queueMutex);
 	Reference<TCPConnection> connection;
 	if (!newConnectionsQueue.empty()) {
 		connection = newConnectionsQueue.front();
@@ -498,17 +493,16 @@ Reference<TCPConnection> TCPServer::getIncomingConnection() {
 	return connection;
 }
 
-//! ---|> UserThread
 void TCPServer::run() {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	while (isOpen()) {
 		TCPsocket clientSocket;
 		{
-			auto lockS = Concurrency::createLock(*serverDataMutex);
+			std::lock_guard<std::mutex> lockS(serverDataMutex);
 			clientSocket = SDLNet_TCP_Accept(serverData->serverSocket);
 		}
 		if (clientSocket) {
-			auto lockQ = Concurrency::createLock(*queueMutex);
+			std::lock_guard<std::mutex> lockQ(queueMutex);
 			IPaddress * remote_sdlIp = SDLNet_TCP_GetPeerAddress(clientSocket);
 			auto remoteIp = fromSDLIPv4Address(*remote_sdlIp);
 			newConnectionsQueue.push_back(new TCPConnection(
@@ -518,7 +512,7 @@ void TCPServer::run() {
 		}
 	}
 	{
-		auto lockS = Concurrency::createLock(*serverDataMutex);
+		std::lock_guard<std::mutex> lockS(serverDataMutex);
 		SDLNet_TCP_Close(serverData->serverSocket);
 	}
 // -----------------------------------------------------
@@ -526,7 +520,7 @@ void TCPServer::run() {
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	pollfd set;
 	{
-		auto lockS = Concurrency::createLock(*serverDataMutex);
+		std::lock_guard<std::mutex> lockS(serverDataMutex);
 		set.fd = serverData->tcpServerSocket;
 		set.events = POLLIN;
 		set.revents = 0;
@@ -547,20 +541,20 @@ void TCPServer::run() {
 				setState(CLOSING);
 				break;
 			}
-			auto lockS = Concurrency::createLock(*serverDataMutex);
+			std::lock_guard<std::mutex> lockS(serverDataMutex);
 
 			sockaddr_in clientAddr;
 			socklen_t clientAddrSize = sizeof(sockaddr_in);
 			int clientSocket = accept(serverData->tcpServerSocket, reinterpret_cast<sockaddr *> (&clientAddr), &clientAddrSize);
 
-			auto lockQ = Concurrency::createLock(*queueMutex);
+			std::lock_guard<std::mutex> lockQ(queueMutex);
 			auto remoteIp = fromSockaddr(clientAddr);
 			newConnectionsQueue.push_back(new TCPConnection(
 				TCPConnection::InternalData(clientSocket, remoteIp)));
 		}
 	}
 	{
-		auto lockS = Concurrency::createLock(*serverDataMutex);
+		std::lock_guard<std::mutex> lockS(serverDataMutex);
 		if (::close(serverData->tcpServerSocket) != 0) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
@@ -575,7 +569,7 @@ void TCPServer::run() {
 
 void TCPServer::close() {
 	{
-		auto lock = Concurrency::createLock(*queueMutex);
+		std::lock_guard<std::mutex> lock(queueMutex);
 		while (!newConnectionsQueue.empty()) {
 			newConnectionsQueue.front()->close();
 			newConnectionsQueue.pop_front();
@@ -583,8 +577,7 @@ void TCPServer::close() {
 	}
 	if (isOpen())
 		setState(CLOSING);
-	if(UserThread::isActive())
-		UserThread::join();
+	connectionHandlingThread.join();
 }
 
 }

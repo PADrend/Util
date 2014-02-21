@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -13,12 +13,11 @@
 
 #include "../ReferenceCounter.h"
 #include "../StringIdentifier.h"
-#include "../Concurrency/Concurrency.h"
-#include "../Concurrency/Lock.h"
-#include "../Concurrency/Mutex.h"
 #include <deque>
 #include <map>
 #include <memory>
+#include <mutex>
+#include <thread>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
@@ -43,8 +42,6 @@ class TCPConnection;
  */
 class DataConnection : public ReferenceCounter<DataConnection>{
 	public:
-		
-		
 		typedef uint16_t channelId_t;
 		typedef std::vector<uint8_t> dataPacket_t;
 		typedef std::deque<std::pair<channelId_t, dataPacket_t>> incomingValueStorage_t;
@@ -54,14 +51,14 @@ class DataConnection : public ReferenceCounter<DataConnection>{
 		typedef std::function<void (channelId_t,const StringIdentifier &,const dataPacket_t &)> keyValueTypeHandler_t;
 
 		static const channelId_t FALLBACK_HANDLER;
-		
+
 		//! (ctor)
-		DataConnection( TCPConnection * connection );
+		DataConnection(TCPConnection * connection);
 		~DataConnection();
-		
-		bool isOpen()const;
+
+		bool isOpen() const;
 		void close();
-		
+
 		/*!	Send the given key,data - pair to the connected endpoint.
 			\note it is not guaranteed that this specific data is transferred for
 					the given key. If a new value is send to the same key, the old
@@ -69,7 +66,7 @@ class DataConnection : public ReferenceCounter<DataConnection>{
 			\note it is not guaranteed that the key value pairs are end in the order
 					of this function call.*/
 		void sendKeyValue(channelId_t channel,const StringIdentifier & key,const dataPacket_t & data){
-			auto lock = Concurrency::createLock(*outgoingKeyValuePairsMutex);
+			std::lock_guard<std::mutex> lock(outgoingKeyValuePairsMutex);
 			outgoingKeyValuePairs[std::make_pair(channel, key)] = data;
 		}
 		
@@ -78,14 +75,14 @@ class DataConnection : public ReferenceCounter<DataConnection>{
 			it has been sent and no data should be lost.
 			\note don't send too much data at once. */
 		void sendValue(channelId_t channel,const dataPacket_t & data){
-			auto lock = Concurrency::createLock(*outgoingValuesMutex);
+			std::lock_guard<std::mutex> lock(outgoingValuesMutex);
 			outgoingValues.emplace_back(channel, data);
 		}
 		
 		/*! \note prefer using a type-handler (and call only from a single thread!)
 			\return true iff data could be extracted.	*/
 		bool extractIncomingKeyValuePair(channelId_t & channel,StringIdentifier & key,dataPacket_t & data){
-			auto lock = Concurrency::createLock(*incomingKeyValuePairsMutex);
+			std::lock_guard<std::mutex> lock(incomingKeyValuePairsMutex);
 			if(incomingKeyValuePairs.empty()) {
 				return false;
 			}
@@ -99,7 +96,7 @@ class DataConnection : public ReferenceCounter<DataConnection>{
 		/*! \note prefer using a type-handler (and call only from a single thread!)
 			\return true iff data could be extracted.	*/
 		bool extractIncomingValue(channelId_t & channel,dataPacket_t & data){
-			auto lock = Concurrency::createLock(*incomingValuesMutex);
+			std::lock_guard<std::mutex> lock(incomingValuesMutex);
 			if(incomingValues.empty()) {
 				return false;
 			}
@@ -110,19 +107,19 @@ class DataConnection : public ReferenceCounter<DataConnection>{
 		}
 		
 		void registerKeyValueChannelHandler(channelId_t type,const keyValueTypeHandler_t & h){
-			auto lock = Concurrency::createLock(*keyValueChannelHandlersMutex);
+			std::lock_guard<std::mutex> lock(keyValueChannelHandlersMutex);
 			keyValueChannelHandlers[type] = h;
 		}
 		void registerValueChannelHandler(channelId_t type,const valueTypeHandler_t & h){
-			auto lock = Concurrency::createLock(*valueChannelHandlersMutex);
+			std::lock_guard<std::mutex> lock(valueChannelHandlersMutex);
 			valueChannelHandlers[type] = h;
 		}
 		void removeKeyValueChannelHandler(channelId_t type){
-			auto lock = Concurrency::createLock(*keyValueChannelHandlersMutex);
+			std::lock_guard<std::mutex> lock(keyValueChannelHandlersMutex);
 			keyValueChannelHandlers.erase(type);
 		}
 		void removeValueChannelHandler(channelId_t type){
-			auto lock = Concurrency::createLock(*valueChannelHandlersMutex);
+			std::lock_guard<std::mutex> lock(valueChannelHandlersMutex);
 			valueChannelHandlers.erase(type);
 		}
 
@@ -132,26 +129,42 @@ class DataConnection : public ReferenceCounter<DataConnection>{
 			\param if a time is given,after the given amount of ms, the handling is stopped.	*/
 		void handleIncomingData(float ms=-1.0f);
 	private:
-		std::unique_ptr<Concurrency::Mutex> incomingKeyValuePairsMutex;
+		Reference<TCPConnection> connection;
+
+		std::mutex incomingKeyValuePairsMutex;
 		keyValueStorage_t incomingKeyValuePairs;
 
-		std::unique_ptr<Concurrency::Mutex> outgoingKeyValuePairsMutex;
+		std::mutex outgoingKeyValuePairsMutex;
 		keyValueStorage_t outgoingKeyValuePairs;
 
-		std::unique_ptr<Concurrency::Mutex> incomingValuesMutex;
+		std::mutex incomingValuesMutex;
 		incomingValueStorage_t incomingValues;
 
-		std::unique_ptr<Concurrency::Mutex> outgoingValuesMutex;
+		std::mutex outgoingValuesMutex;
 		outgoingValueStorage_t outgoingValues;
 
-		std::unique_ptr<Concurrency::Mutex> keyValueChannelHandlersMutex;
+		std::mutex keyValueChannelHandlersMutex;
 		std::unordered_map<channelId_t, keyValueTypeHandler_t> keyValueChannelHandlers;
 
-		std::unique_ptr<Concurrency::Mutex> valueChannelHandlersMutex;
+		std::mutex valueChannelHandlersMutex;
 		std::unordered_map<channelId_t, valueTypeHandler_t> valueChannelHandlers;
 
-		struct WorkerThread;
-		std::unique_ptr<WorkerThread> internals;
+		mutable std::mutex runningMutex;
+		bool running;
+
+		std::thread thread;
+
+		void run();
+		bool isRunning() const {
+			std::lock_guard<std::mutex> lock(runningMutex);
+			return running;
+		}
+		void stop() {
+			std::lock_guard<std::mutex> lock(runningMutex);
+			running = false;
+		}
+
+		void dataError();
 };
 
 }

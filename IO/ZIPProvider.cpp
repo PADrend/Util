@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -13,9 +13,6 @@
 #include "ZIPProvider.h"
 #include "FileName.h"
 #include "FileUtils.h"
-#include "../Concurrency/Concurrency.h"
-#include "../Concurrency/Lock.h"
-#include "../Concurrency/Mutex.h"
 #include "../Factory/Factory.h"
 #include "../Macros.h"
 
@@ -70,16 +67,15 @@ bool ZIPProvider::init() {
 }
 
 ZIPProvider::ZIPProvider() :
-	AbstractFSProvider(), openHandles(), handlesMutex(Concurrency::createMutex()) {
+	AbstractFSProvider(), openHandles(), handlesMutex() {
 }
 
 ZIPProvider::~ZIPProvider() {
 	flush();
-	delete handlesMutex;
 }
 
 AbstractFSProvider::status_t ZIPProvider::readFile(const FileName & url, std::vector<uint8_t> & data) {
-	auto lock = Concurrency::createLock(*handlesMutex);
+	std::lock_guard<std::mutex> lock(handlesMutex);
 	std::string archiveFileName;
 	FileName file;
 	decomposeURL(url, archiveFileName, file);
@@ -102,7 +98,7 @@ AbstractFSProvider::status_t ZIPProvider::readFile(const FileName & url, std::ve
 AbstractFSProvider::status_t ZIPProvider::writeFile(const FileName & url,
 													const std::vector<uint8_t> & data,
 													bool overwrite) {
-	auto lock = Concurrency::createLock(*handlesMutex);
+	std::lock_guard<std::mutex> lock(handlesMutex);
 	std::string archiveFileName;
 	FileName file;
 	decomposeURL(url, archiveFileName, file);
@@ -115,7 +111,7 @@ AbstractFSProvider::status_t ZIPProvider::writeFile(const FileName & url,
 
 AbstractFSProvider::status_t ZIPProvider::dir(const FileName & url, std::list<
 		FileName> & result, uint8_t flags) {
-	auto lock = Concurrency::createLock(*handlesMutex);
+	std::lock_guard<std::mutex> lock(handlesMutex);
 	std::string archiveFileName;
 	FileName localPath;
 	decomposeURL(url, archiveFileName, localPath);
@@ -139,7 +135,7 @@ AbstractFSProvider::status_t ZIPProvider::dir(const FileName & url, std::list<
 }
 
 bool ZIPProvider::isFile(const FileName & url) {
-	auto lock = Concurrency::createLock(*handlesMutex);
+	std::lock_guard<std::mutex> lock(handlesMutex);
 	std::string archiveFileName;
 	FileName file;
 	decomposeURL(url, archiveFileName, file);
@@ -163,7 +159,7 @@ bool ZIPProvider::isFile(const FileName & url) {
 }
 
 bool ZIPProvider::isDir(const FileName & url) {
-	auto lock = Concurrency::createLock(*handlesMutex);
+	std::lock_guard<std::mutex> lock(handlesMutex);
 	std::string archiveFileName;
 	FileName file;
 	decomposeURL(url, archiveFileName, file);
@@ -187,7 +183,7 @@ bool ZIPProvider::isDir(const FileName & url) {
 }
 
 size_t ZIPProvider::fileSize(const FileName & url) {
-	auto lock = Concurrency::createLock(*handlesMutex);
+	std::lock_guard<std::mutex> lock(handlesMutex);
 	std::string archiveFileName;
 	FileName file;
 	decomposeURL(url, archiveFileName, file);
@@ -211,7 +207,7 @@ AbstractFSProvider::status_t ZIPProvider::makeDir(const FileName & url) {
 		return AbstractFSProvider::OK;
 	}
 
-	auto lock = Concurrency::createLock(*handlesMutex);
+	std::lock_guard<std::mutex> lock(handlesMutex);
 	std::string archiveFileName;
 	FileName file;
 	decomposeURL(url, archiveFileName, file);
@@ -251,7 +247,7 @@ AbstractFSProvider::status_t ZIPProvider::makeDirRecursive(const FileName & url)
 }
 
 AbstractFSProvider::status_t ZIPProvider::remove(const FileName & url) {
-	auto lock = Concurrency::createLock(*handlesMutex);
+	std::lock_guard<std::mutex> lock(handlesMutex);
 	std::string archiveFileName;
 	FileName file;
 	decomposeURL(url, archiveFileName, file);
@@ -272,7 +268,7 @@ AbstractFSProvider::status_t ZIPProvider::remove(const FileName & url) {
 }
 
 void ZIPProvider::flush() {
-	auto lock = Concurrency::createLock(*handlesMutex);
+	std::lock_guard<std::mutex> lock(handlesMutex);
 	for(auto & openHandle : openHandles) {
 		delete openHandle.second;
 	}

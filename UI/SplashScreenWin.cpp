@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -11,14 +11,12 @@
 #if defined(_WIN32)
 
 #include "SplashScreenWin.h"
-#include "../Concurrency/Concurrency.h"
-#include "../Concurrency/Lock.h"
-#include "../Concurrency/Mutex.h"
-
 #include "../Graphics/Bitmap.h"
 #include "../Graphics/PixelAccessor.h"
 #include "../Utils.h"
 #include "../Macros.h"
+#include <mutex>
+#include <thread>
 
 namespace Util {
 namespace UI {
@@ -30,11 +28,7 @@ namespace UI {
 
 const TCHAR * g_szClassName = "SplashWindow2";
 
-
-static volatile bool initDone = false;
-
-//! ---|> UserThread
-void SplashScreenWin::run() {
+void SplashScreenWin::eventLoop() {
 
 //	// needs lib gdi32
 
@@ -212,20 +206,25 @@ void SplashScreenWin::run() {
 
 //! (ctor)
 SplashScreenWin::SplashScreenWin(const std::string & /*splashTitle*/, const Reference<Bitmap> & _splashImage) : 
-	SplashScreen(), splashImage(_splashImage) {
-	if(splashImage.isNotNull()) {
-		splashImage = new Bitmap(*_splashImage.get());
-		start();
-		while(!initDone && isActive());
-	}
+		SplashScreen(), 
+		splashImage(splashImage.isNotNull() ? new Bitmap(*_splashImage.get()) : nullptr),
+		running(true),
+		runningMutex(),
+		thread(std::bind(&SplashScreenWin::eventLoop, this)) {
 }
 
 //! (dtor)
 SplashScreenWin::~SplashScreenWin() {
-	if(isActive()) {
-		setStatus(CLOSING_STATUS);
-		join();
+	{
+		std::lock_guard<std::mutex> lock(runningMutex);
+		running = false;
 	}
+	thread.join();
+}
+
+bool SplashScreenWin::isRunning() const {
+	std::lock_guard<std::mutex> lock(runningMutex);
+	return running;
 }
 
 }

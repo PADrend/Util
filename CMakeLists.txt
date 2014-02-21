@@ -36,7 +36,6 @@ add_sources(Util
 	Util.cpp
 	Utils.cpp
 )
-add_subdirectory(Concurrency)
 add_subdirectory(Graphics)
 add_subdirectory(IO)
 add_subdirectory(Network)

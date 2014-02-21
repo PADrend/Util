@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -15,14 +15,12 @@
 
 #include "AbstractFSProvider.h"
 #include "FileName.h"
+#include <mutex>
 
 // Forward declaration.
 struct zip;
 
 namespace Util {
-namespace Concurrency {
-class Mutex;
-}
 
 /**
  * File system provider for access to ZIP files using the
@@ -94,7 +92,7 @@ class ZIPProvider : public AbstractFSProvider {
 		};
 
 		std::map<std::string, ZIPHandle *> openHandles;
-		Concurrency::Mutex * handlesMutex;
+		std::mutex handlesMutex;
 
 		ZIPHandle * getZIPHandle(const std::string & archiveFileName, bool createFile = false);
 		void decomposeURL(const FileName & url, std::string & archiveFileName, FileName & localPath);

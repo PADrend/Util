@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -20,6 +20,8 @@
 #include <X11/X.h>
 #include <cstddef>
 #include <cstdint>
+#include <mutex>
+#include <thread>
 
 namespace Util {
 namespace UI {
@@ -35,7 +37,16 @@ struct SplashScreenX11::SplashScreenData {
 	bool freeGC;
 	bool freePixmap;
 
-	SplashScreenData() : x11Data(new WindowX11Data), freeGC(false), freePixmap(false) {
+	bool keepRunning;
+
+	mutable std::mutex dataMutex;
+
+	SplashScreenData() : 
+		x11Data(new WindowX11Data), 
+		freeGC(false), 
+		freePixmap(false),
+		keepRunning(true),
+		dataMutex() {
 	}
 
 	~SplashScreenData() {
@@ -47,12 +58,20 @@ struct SplashScreenX11::SplashScreenData {
 		}
 		x11Data.reset();
 	}
+
+	bool getKeepRunning() const {
+		std::lock_guard<std::mutex> lock(dataMutex);
+		return keepRunning;
+	}
+	void setKeepRunning(bool newState) {
+		std::lock_guard<std::mutex> lock(dataMutex);
+		keepRunning = newState;
+	}
 };
 
-void SplashScreenX11::run() {
+void SplashScreenX11::eventLoop() {
 	XEvent xev;
-	setStatus(RUNNING_STATUS);
-	while(getStatus() == RUNNING_STATUS) {
+	while(data->getKeepRunning()) {
 		XLockDisplay(data->x11Data->display);
 		while (XPending(data->x11Data->display) > 0) {
 			XNextEvent(data->x11Data->display, &xev);
@@ -65,7 +84,6 @@ void SplashScreenX11::run() {
 SplashScreenX11::SplashScreenX11(const std::string & splashTitle, const Reference<Bitmap> & splashImage) :
 	SplashScreen(), data(new SplashScreenData) {
 	if (splashImage == nullptr) {
-		setStatus(ERROR_STATUS);
 		errorMessage = "nullptr pointer given as splash image.";
 		return;
 	}
@@ -75,7 +93,6 @@ SplashScreenX11::SplashScreenX11(const std::string & splashTitle, const Referenc
 	data->x11Data->display = XOpenDisplay(nullptr);
 
 	if (data->x11Data->display == nullptr) {
-		setStatus(ERROR_STATUS);
 		errorMessage = "Failed to open X display.";
 		return;
 	}
@@ -107,7 +124,6 @@ COMPILER_WARN_OFF_GCC(-Wzero-as-null-pointer-constant)
 	data->x11Data->window = XCreateWindow(data->x11Data->display, rootWindow, 0, 0, iWidth, iHeight, 0, depth, InputOutput, CopyFromParent, CWOverrideRedirect, &attributes);
 COMPILER_WARN_POP
 	if (!data->x11Data->window) {
-		setStatus(ERROR_STATUS);
 		errorMessage = "Failed to create simple window.";
 		return;
 	} else {
@@ -180,14 +196,12 @@ COMPILER_WARN_POP
 	XMapRaised(data->x11Data->display, data->x11Data->window);
 	XMoveWindow(data->x11Data->display, data->x11Data->window, x, y);
 
-	start();
+	eventThread = std::thread(std::bind(&SplashScreenX11::eventLoop, this));
 }
 
 SplashScreenX11::~SplashScreenX11() {
-	if(isActive()) {
-		setStatus(CLOSING_STATUS);
-		join();
-	}
+	data->setKeepRunning(false);
+	eventThread.join();
 }
 
 void SplashScreenX11::showMessage(const std::string & message) {

@@ -1,6 +1,6 @@
 #
 # This file is part of the Util library.
-# Copyright (C) 2011-2013 Benjamin Eikel <benjamin@eikel.org>
+# Copyright (C) 2011-2014 Benjamin Eikel <benjamin@eikel.org>
 #
 # This library is subject to the terms of the Mozilla Public License, v. 2.0.
 # You should have received a copy of the MPL along with this library; see the 
@@ -12,7 +12,6 @@ option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built
 if(UTIL_BUILD_TESTS)
 	add_executable(UtilTest 
 		BidirectionalMapTest.cpp
-		ConcurrencyTest.cpp
 		EncodingTest.cpp
 		FactoryTest.cpp
 		FileUtilsTest.cpp
