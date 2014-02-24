@@ -53,9 +53,7 @@ struct TCPConnection::InternalData {
 		TCPsocket tcpSocket;
 
 		InternalData(TCPsocket && socket, const IPv4Address & address) :
-			remoteIp(address),
-			lastActiveTime(0),
-			tcpSocket(std::forward<TCPsocket>(socket)) {
+			remoteIp(address), lastActiveTime(0), tcpSocket(std::forward<TCPsocket>(socket)){
 		}
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 		int tcpSocket;

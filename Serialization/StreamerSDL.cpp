@@ -23,7 +23,10 @@
 #include <fstream>
 
 #if defined(UTIL_HAVE_LIB_SDL2)
+COMPILER_WARN_PUSH
+COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL.h>
+COMPILER_WARN_POP
 #endif /* defined(UTIL_HAVE_LIB_SDL2) */
 
 namespace Util {

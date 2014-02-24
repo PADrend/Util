@@ -17,7 +17,10 @@
 #include <sstream>
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
+COMPILER_WARN_PUSH
+COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL_net.h>
+COMPILER_WARN_POP
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 #include <arpa/inet.h>
 #include <sys/types.h>

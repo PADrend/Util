@@ -19,7 +19,10 @@
 #include <vector>
 
 #ifdef UTIL_HAVE_LIB_PNG
+COMPILER_WARN_PUSH
+COMPILER_WARN_OFF_GCC(-Wliteral-suffix)
 #include <png.h>
+COMPILER_WARN_POP
 #endif /* UTIL_HAVE_LIB_PNG */
 
 namespace Util {
