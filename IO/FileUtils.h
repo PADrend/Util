@@ -80,9 +80,6 @@ struct FileUtils {
 	static bool isDir (const FileName & filename);
 	static size_t fileSize(const FileName & filename);
 
-	//! Wrapper function for @a findFile using only one path hint.
-	static bool findFile(const FileName & fileName, const std::string & pathHint, FileName & newName);
-
 	/**
 	 * Search a file in different paths. The paths are checked absolute and relative to the originating file path.
 	 *
@@ -91,7 +88,7 @@ struct FileUtils {
 	 * @param newName New file name in the case the file was found.
 	 * @return @c true if the file was found and @c false otherwise.
 	 */
-	static bool findFile(const FileName & fileName, const std::list<std::string> & pathHints, FileName & newName);
+	static bool findFile(const FileName & fileName, const std::vector<std::string> & pathHints, FileName & newName);
 
 	static const uint8_t DIR_FILES          = 1<<0; //!< flag for dir(...)
 	static const uint8_t DIR_DIRECTORIES    = 1<<1; //!< flag for dir(...)

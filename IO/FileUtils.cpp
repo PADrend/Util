@@ -227,7 +227,7 @@ std::string FileUtils::getParsedFileContents(const FileName & filename){
 
 	static const std::string startMarker="/*{{";
 	static const std::string endMarker="}}*/";
-	std::list<std::string> pathHints;
+	std::vector<std::string> pathHints;
 
 	/*{{ include "foo.h" }}*/
 	while( (pos=content.find(startMarker,lastPos))!=std::string::npos ){
@@ -274,33 +274,23 @@ bool FileUtils::saveFile(const FileName & filename,const std::vector<uint8_t> & 
 	return false;
 }
 
-//! (static)
 size_t FileUtils::fileSize(const FileName & filename){
 	return getFSProvider(filename)->fileSize(filename);
 }
 
-//! (static)
 bool FileUtils::isFile(const FileName & filename){
 	return getFSProvider(filename)->isFile(filename);
 }
 
-//! (static)
 bool FileUtils::isDir(const FileName & filename){
 	return getFSProvider(filename)->isDir(filename);
 }
 
-//! (static)
 bool FileUtils::dir(const FileName & path, std::list<FileName> & result, uint8_t flags){
 	return getFSProvider(path)->dir(path,result,flags) == AbstractFSProvider::OK;
 }
 
-bool FileUtils::findFile(const FileName & fileName, const std::string & pathHint, FileName & newName) {
-	std::list<std::string> hints;
-	hints.push_back(pathHint);
-	return findFile(fileName, hints, newName);
-}
-
-bool FileUtils::findFile(const FileName & fileName, const std::list<std::string> & pathHints, FileName & newName) {
+bool FileUtils::findFile(const FileName & fileName, const std::vector<std::string> & pathHints, FileName & newName) {
 	FileName modifiedFileName(fileName);
 	const std::string & fileDir = fileName.getDir();
 	// Check if we are supposed to find a file inside an archive.

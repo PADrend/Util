@@ -32,8 +32,9 @@ class FileLocator{
 		const std::vector<std::string>& getSearchPaths()const	{	return searchPaths;	}
 		void setSearchPaths(std::vector<std::string> p)			{	searchPaths = std::move(p);	}
 
+		/*! If the file can be found in one of the the searchPaths, <true, searchPath/relFile> is returned;
+			Otherwise, <false,relFile> is returned.	*/
 		std::pair<bool,FileName> locateFile(const FileName& relFile) const; // -> <found?, fullPathName>
-	// std::vector<FileName> collectFiles(endings)
 };
 
 }

@@ -18,10 +18,10 @@ std::pair<bool,FileName> FileLocator::locateFile(const FileName& relFile)const{
 		return std::make_pair(true,relFile);
 		
 	FileName foundPath;
-	if(	FileUtils::findFile(relFile,std::list<std::string>(searchPaths.begin(),searchPaths.end()),foundPath) )
+	if(	FileUtils::findFile(relFile,searchPaths,foundPath) )
 		return std::make_pair(true,foundPath);
 
-	return std::make_pair(false,FileName());
+	return std::make_pair(false,relFile);
 }
 
 
