@@ -16,14 +16,11 @@ namespace Util {
 std::pair<bool,FileName> FileLocator::locateFile(const FileName& relFile)const{
 	if(FileUtils::isFile(relFile))
 		return std::make_pair(true,relFile);
-	
-	const std::string relFilePath = relFile.getDir() + relFile.getFile(); // without file system file://
-	for(const auto& path : searchPaths){
-		const FileName fullPath( (path.empty() || path.back()=='/') ?  path+relFilePath : path+"/"+relFilePath);
-		if(FileUtils::isFile(fullPath))
-			return std::make_pair(true,fullPath);
-	}
-	
+		
+	FileName foundPath;
+	if(	FileUtils::findFile(relFile,std::list<std::string>(searchPaths.begin(),searchPaths.end()),foundPath) )
+		return std::make_pair(true,foundPath);
+
 	return std::make_pair(false,FileName());
 }
 
