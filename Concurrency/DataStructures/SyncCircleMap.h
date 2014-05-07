@@ -42,7 +42,7 @@ class SyncCircleMap {
 		 * inserts or updates a key/value pair in this datastructure.
 		 */
 		void set(const K & key, const V & value) {
-			Lock lock(mutex.get());
+			auto lock = createLock(*mutex);
 			auto lb = map.lower_bound(key);
 			if (lb != map.end() && !(map.key_comp()(key, lb->first))) {
 				// Key already in map.
@@ -68,7 +68,7 @@ class SyncCircleMap {
 		std::pair<K, V> extractNext() {
 			semaphore->wait();
 			// map can not be empty!
-			Lock lock(mutex.get());
+			auto lock = createLock(*mutex);
 			auto actual = map.lower_bound(lastExtracted);
 			if(actual == map.end())
 				actual = map.begin();
@@ -87,7 +87,7 @@ class SyncCircleMap {
 		 * @return true iff this datastructure is empty
 		 */
 		bool empty() const {
-			Lock lock(mutex.get());
+			auto lock = createLock(*mutex);
 			return map.empty();
 		}
 
@@ -95,7 +95,7 @@ class SyncCircleMap {
 		 * @return the number of elements in this datastructure
 		 */
 		size_t size() const {
-			Lock lock(mutex.get());
+			auto lock = createLock(*mutex);
 			return map.size();
 		}
 

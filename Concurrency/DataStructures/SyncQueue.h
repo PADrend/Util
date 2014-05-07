@@ -43,7 +43,7 @@ class SyncQueue {
 		 * @param t the element to be added
 		 */
 		void push(T t) {
-			Lock lock(mutex.get());
+			auto lock = createLock(*mutex);
 			queue.push(t);
 			semaphore->post();
 		}
@@ -55,7 +55,7 @@ class SyncQueue {
 		 */
 		T pop() {
 			semaphore->wait();
-			Lock lock(mutex.get());
+			auto lock = createLock(*mutex);
 			T t = queue.front();
 			queue.pop();
 			return t;
@@ -65,7 +65,7 @@ class SyncQueue {
 		 *	@return true iff the queue is empty
 		 */
 		bool empty() const {
-			Lock lock(mutex.get());
+			auto lock = createLock(*mutex);
 			return queue.empty();
 		}
 
@@ -73,7 +73,7 @@ class SyncQueue {
 		 * @return the current size of the queue
 		 */
 		size_t size() const {
-			Lock lock(mutex.get());
+			auto lock = createLock(*mutex);
 			return queue.size();
 		}
 
