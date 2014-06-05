@@ -16,6 +16,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <memory>
 #include <set>
 #include <sstream>
 #include <sqlite3.h>
@@ -23,6 +24,9 @@
 #include "AbstractFSProvider.h"
 
 namespace Util {
+namespace Concurrency {
+class Mutex;
+}
 
 /*! Standard file system provider for accessing normal files with "file" protocol.
 	E.g. "file://bla/foo.txt"
@@ -55,6 +59,7 @@ class DBFSProvider : public AbstractFSProvider {
 			sqlite3_stmt * dirFiles_stmt;
 			sqlite3_stmt * dirFolders_stmt;
 
+			std::unique_ptr<Concurrency::Mutex> mutex;
 		public:
 			explicit DBHandle(sqlite3 *_db);
 			~DBHandle();
