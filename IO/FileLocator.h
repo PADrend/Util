@@ -27,6 +27,9 @@ class FileLocator{
 		FileLocator(const FileLocator&) = default;
 		FileLocator(FileLocator&&) = default;
 		~FileLocator() = default;
+		
+		FileLocator& operator=(const FileLocator&) = default;
+		FileLocator& operator=(FileLocator&&) = default;
 
 		void addSearchPath(std::string s)						{	searchPaths.emplace_back(std::move(s));	}
 		const std::vector<std::string>& getSearchPaths()const	{	return searchPaths;	}
