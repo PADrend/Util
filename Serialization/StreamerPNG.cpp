@@ -102,7 +102,7 @@ Reference<Bitmap> StreamerPNG::loadBitmap(std::istream & input) {
 			png_set_expand(png_ptr);
 
 			// Check if the color palette contains transparent colors.
-#if PNG_LIBPNG_VER > 10300
+#if PNG_LIBPNG_VER >= 10300
 			if(png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)){
 				pixelFormat = PixelFormat::RGBA;
 			}
