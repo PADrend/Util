@@ -71,6 +71,7 @@ class Bitmap : public ReferenceCounter<Bitmap> {
 		 * @note The new data must have the same size as the existing data.
 		 */
 		void setData(const std::vector<uint8_t> & newData);
+		void swapData(std::vector<uint8_t> & other);
 
 		//!	Swap the rows, so that the bitmap is turned upside down afterwards.
 		void flipVertically();
