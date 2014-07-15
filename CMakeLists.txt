@@ -33,6 +33,7 @@ add_sources(Util
 	StringIdentifier.cpp
 	StringUtils.cpp
 	Timer.cpp
+	TypeConstant.cpp
 	Util.cpp
 	Utils.cpp
 )
