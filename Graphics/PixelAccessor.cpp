@@ -278,14 +278,14 @@ class PixelAccessorF : public PixelAccessor{
 Reference<PixelAccessor> PixelAccessor::create(Reference<Bitmap> bitmap) {
 	if(bitmap.isNull()) {
 		return nullptr;
-	} else if(bitmap->getPixelFormat().getBytesPerComponent()==1 && bitmap->getPixelFormat().getNumComponents()==4){ // 4 bytes
+	} else if(bitmap->getPixelFormat().getValueType()==Util::TypeConstant::UINT8 && bitmap->getPixelFormat().getNumComponents()==4){ // 4 bytes
 		return new PixelAccessor4ub(std::move(bitmap));
-	} else if(bitmap->getPixelFormat().getBytesPerComponent()==1 ){ // x bytes
+	} else if(bitmap->getPixelFormat().getValueType()==Util::TypeConstant::UINT8 ){ // x bytes
 		return new PixelAccessorUb(std::move(bitmap));
-	} else if(bitmap->getPixelFormat().getBytesPerComponent()==4){ // floats
+	} else if(bitmap->getPixelFormat().getValueType()==Util::TypeConstant::FLOAT){ // floats
 		return new PixelAccessorF(std::move(bitmap));
 	} else{
-		WARN("There is no implemented PixelAccessor available for this bitmap format.");
+		WARN("PixelAccessor::create: There is no implemented PixelAccessor available for this bitmap format.");
 		return nullptr;
 	}
 }
