@@ -272,6 +272,111 @@ class PixelAccessorF : public PixelAccessor{
 };
 
 
+/*! PixelAccessorU32 ---|> PixelAccessor
+	\note No conversions are performed.
+*/
+class PixelAccessorU32 : public PixelAccessor{
+	public:
+		PixelAccessorU32(Reference<Bitmap> bitmap) : PixelAccessor(std::move(bitmap)) {}
+		virtual ~PixelAccessorU32(){}
+
+	private:
+		Color4f doReadColor4f(uint32_t x,uint32_t y)const override{
+			const uint8_t * const p = _ptr<uint8_t>(x,y);
+			const PixelFormat & f=getPixelFormat();
+
+			return Color4f(
+						f.getByteOffset_r()==PixelFormat::NONE ? 0.0f : static_cast<float>( *reinterpret_cast<const uint32_t*>( p + f.getByteOffset_r() )),
+						f.getByteOffset_g()==PixelFormat::NONE ? 0.0f : static_cast<float>( *reinterpret_cast<const uint32_t*>( p + f.getByteOffset_g() )),
+						f.getByteOffset_b()==PixelFormat::NONE ? 0.0f : static_cast<float>( *reinterpret_cast<const uint32_t*>( p + f.getByteOffset_b() )),
+						f.getByteOffset_a()==PixelFormat::NONE ? 1.0f : static_cast<float>( *reinterpret_cast<const uint32_t*>( p + f.getByteOffset_a() )));
+		}
+
+		Color4ub doReadColor4ub(uint32_t x,uint32_t y)const override			{	return doReadColor4f(x,y);	}
+
+		float doReadSingleValueFloat(uint32_t x, uint32_t y) const override {
+			const uint8_t * const ptr = _ptr<uint8_t>(x, y);
+			const PixelFormat & format = getPixelFormat();
+			return format.getByteOffset_r() == PixelFormat::NONE ? 0.0f : static_cast<float>( *reinterpret_cast<const uint32_t*>( ptr + format.getByteOffset_r() ));
+		}
+
+		uint8_t doReadSingleValueByte(uint32_t x, uint32_t y) const override	{	return static_cast<uint8_t>(doReadSingleValueFloat(x, y));	}
+		void doWriteColor(uint32_t x,uint32_t y,const Color4f & c) override{
+			uint8_t * p = _ptr<uint8_t>(x,y);
+			const PixelFormat & f=getPixelFormat();
+
+			if(f.getByteOffset_r()!=PixelFormat::NONE )
+				*reinterpret_cast<uint32_t*>( p + f.getByteOffset_r() ) = static_cast<uint32_t>( c.getR() );
+			if(f.getByteOffset_g()!=PixelFormat::NONE )
+				*reinterpret_cast<uint32_t*>( p + f.getByteOffset_g() ) = static_cast<uint32_t>( c.getG() );
+			if(f.getByteOffset_b()!=PixelFormat::NONE )
+				*reinterpret_cast<uint32_t*>( p + f.getByteOffset_b() ) = static_cast<uint32_t>( c.getB() );
+			if(f.getByteOffset_a()!=PixelFormat::NONE )
+				*reinterpret_cast<uint32_t*>( p + f.getByteOffset_a() ) = static_cast<uint32_t>( c.getA() );
+		}
+		void doWriteColor(uint32_t x,uint32_t y,const Color4ub & c) override	{	doWriteColor(x,y,Color4f(c.r(),c.g(),c.b(),c.a()));	}
+		void doWriteColor(uint32_t x, uint32_t y, float value) override {
+			uint8_t * const ptr = _ptr<uint8_t>(x, y);
+			const PixelFormat & format = getPixelFormat();
+			if(format.getByteOffset_r() != PixelFormat::NONE)
+				*reinterpret_cast<uint32_t*>( ptr + format.getByteOffset_r() ) = static_cast<uint32_t>( value );
+		}
+		void doWriteColor(uint32_t x, uint32_t y, uint8_t value) override		{	doWriteColor(x, y, static_cast<float>(value));	}
+};
+
+/*! PixelAccessorI32 ---|> PixelAccessor
+	\note No conversions are performed.
+*/
+class PixelAccessorI32 : public PixelAccessor{
+	public:
+		PixelAccessorI32(Reference<Bitmap> bitmap) : PixelAccessor(std::move(bitmap)) {}
+		virtual ~PixelAccessorI32(){}
+
+	private:
+		Color4f doReadColor4f(uint32_t x,uint32_t y)const override{
+			const uint8_t * const p = _ptr<uint8_t>(x,y);
+			const PixelFormat & f=getPixelFormat();
+
+			return Color4f(
+						f.getByteOffset_r()==PixelFormat::NONE ? 0.0f : static_cast<float>( *reinterpret_cast<const int32_t*>( p + f.getByteOffset_r() )),
+						f.getByteOffset_g()==PixelFormat::NONE ? 0.0f : static_cast<float>( *reinterpret_cast<const int32_t*>( p + f.getByteOffset_g() )),
+						f.getByteOffset_b()==PixelFormat::NONE ? 0.0f : static_cast<float>( *reinterpret_cast<const int32_t*>( p + f.getByteOffset_b() )),
+						f.getByteOffset_a()==PixelFormat::NONE ? 1.0f : static_cast<float>( *reinterpret_cast<const int32_t*>( p + f.getByteOffset_a() )));
+		}
+
+		Color4ub doReadColor4ub(uint32_t x,uint32_t y)const override			{	return doReadColor4f(x,y);	}
+
+		float doReadSingleValueFloat(uint32_t x, uint32_t y) const override {
+			const uint8_t * const ptr = _ptr<uint8_t>(x, y);
+			const PixelFormat & format = getPixelFormat();
+			return format.getByteOffset_r() == PixelFormat::NONE ? 0.0f : static_cast<float>( *reinterpret_cast<const int32_t*>( ptr + format.getByteOffset_r() ));
+		}
+
+		uint8_t doReadSingleValueByte(uint32_t x, uint32_t y) const override	{	return static_cast<uint8_t>(doReadSingleValueFloat(x, y));	}
+		void doWriteColor(uint32_t x,uint32_t y,const Color4f & c) override{
+			uint8_t * p = _ptr<uint8_t>(x,y);
+			const PixelFormat & f=getPixelFormat();
+
+			if(f.getByteOffset_r()!=PixelFormat::NONE )
+				*reinterpret_cast<int32_t*>( p + f.getByteOffset_r() ) = static_cast<int32_t>( c.getR() );
+			if(f.getByteOffset_g()!=PixelFormat::NONE )
+				*reinterpret_cast<int32_t*>( p + f.getByteOffset_g() ) = static_cast<int32_t>( c.getG() );
+			if(f.getByteOffset_b()!=PixelFormat::NONE )
+				*reinterpret_cast<int32_t*>( p + f.getByteOffset_b() ) = static_cast<int32_t>( c.getB() );
+			if(f.getByteOffset_a()!=PixelFormat::NONE )
+				*reinterpret_cast<int32_t*>( p + f.getByteOffset_a() ) = static_cast<int32_t>( c.getA() );
+		}
+		void doWriteColor(uint32_t x,uint32_t y,const Color4ub & c) override	{	doWriteColor(x,y,Color4f(c.r(),c.g(),c.b(),c.a()));	}
+		void doWriteColor(uint32_t x, uint32_t y, float value) override {
+			uint8_t * const ptr = _ptr<uint8_t>(x, y);
+			const PixelFormat & format = getPixelFormat();
+			if(format.getByteOffset_r() != PixelFormat::NONE)
+				*reinterpret_cast<int32_t*>( ptr + format.getByteOffset_r() ) = static_cast<int32_t>( value );
+		}
+		void doWriteColor(uint32_t x, uint32_t y, uint8_t value) override		{	doWriteColor(x, y, static_cast<float>(value));	}
+};
+
+
 // -----------------------------------------------------------------------------------
 
 //! (static)
@@ -284,6 +389,10 @@ Reference<PixelAccessor> PixelAccessor::create(Reference<Bitmap> bitmap) {
 		return new PixelAccessorUb(std::move(bitmap));
 	} else if(bitmap->getPixelFormat().getValueType()==Util::TypeConstant::FLOAT){ // floats
 		return new PixelAccessorF(std::move(bitmap));
+	} else if(bitmap->getPixelFormat().getValueType()==Util::TypeConstant::UINT32){
+		return new PixelAccessorU32(std::move(bitmap));
+	} else if(bitmap->getPixelFormat().getValueType()==Util::TypeConstant::INT32){
+		return new PixelAccessorI32(std::move(bitmap));
 	} else{
 		WARN("PixelAccessor::create: There is no implemented PixelAccessor available for this bitmap format.");
 		return nullptr;
