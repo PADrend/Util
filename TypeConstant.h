@@ -9,6 +9,7 @@
 #ifndef TYPE_CONSTANT_H
 #define TYPE_CONSTANT_H
 
+#include <cstddef>
 #include <cstdint>
 
 namespace Util {
