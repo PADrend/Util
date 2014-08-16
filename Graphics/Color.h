@@ -34,10 +34,10 @@ class Color4ub {
 		Color4ub(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a = 255) {
 			set(_r, _g, _b, _a);
 		}
-		Color4ub(uint32_t u32) {
+		explicit Color4ub(uint32_t u32) {
 			*reinterpret_cast<uint32_t *>(values.data()) = u32;
 		}
-		inline Color4ub(const Color4f & other);
+		explicit inline Color4ub(const Color4f & other); // explicit due to possible information loss
 		Color4ub(const Color4ub &) = default;
 		Color4ub(Color4ub &&) = default;
 
@@ -147,7 +147,7 @@ class Color4f {
 		Color4f(const Color4ub & other) : Color4f((1.0f / 255.0f) * other.getR(),(1.0f / 255.0f) * other.getG(),(1.0f / 255.0f) * other.getB(),(1.0f / 255.0f) * other.getA()) {
 		}
 
-		Color4f(const std::vector<float> & arr){
+		explicit Color4f(const std::vector<float> & arr){
 			assert(arr.size() == 4);
 			set(arr[0],arr[1],arr[2],arr[3]);
 		}

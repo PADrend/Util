@@ -60,9 +60,7 @@ class PixelAccessor : public ReferenceCounter<PixelAccessor> {
 		inline void writeColor(uint32_t x,uint32_t y,const Color4f & c);
 		inline void writeColor(uint32_t x,uint32_t y,const Color4ub & c);
 		//! Write a single value to the bitmap (e.g., a value to the red channel for monochrome bitmaps).
-		inline void writeColor(uint32_t x, uint32_t y, float value);
-		//! Write a single value to the bitmap (e.g., a value to the red channel for monochrome bitmaps).
-		inline void writeColor(uint32_t x, uint32_t y, uint8_t value);
+		inline void writeSingleValueFloat(uint32_t x, uint32_t y, float value);
 
 		/*! Fill the given area with the given color.
 			\note Specific PixelAccessors may provide an optimized implementation */
@@ -105,10 +103,7 @@ class PixelAccessor : public ReferenceCounter<PixelAccessor> {
 		virtual void doWriteColor(uint32_t x,uint32_t y,const Color4ub & c) = 0;
 
 		//! ---o
-		virtual void doWriteColor(uint32_t x, uint32_t y, float value) = 0;
-
-		//! ---o
-		virtual void doWriteColor(uint32_t x, uint32_t y, uint8_t value) = 0;
+		virtual void doWriteSingleValueFloat(uint32_t x, uint32_t y, float value) = 0;
 
 		//! ---o
 		virtual void doFill(uint32_t x,uint32_t y,uint32_t width,uint32_t height,const Color4f & c);
@@ -160,19 +155,11 @@ inline void PixelAccessor::writeColor(uint32_t x,uint32_t y,const Color4ub & c) 
 		WARN("writeColor: out of range");
 }
 
-inline void PixelAccessor::writeColor(uint32_t x, uint32_t y, float value) {
+inline void PixelAccessor::writeSingleValueFloat(uint32_t x, uint32_t y, float value) {
 	if(checkRange(x, y)) {
-		doWriteColor(x, y, value);
+		doWriteSingleValueFloat(x, y, value);
 	} else {
-		WARN("writeColor: out of range");
-	}
-}
-
-inline void PixelAccessor::writeColor(uint32_t x, uint32_t y, uint8_t value) {
-	if(checkRange(x, y)) {
-		doWriteColor(x, y, value);
-	} else {
-		WARN("writeColor: out of range");
+		WARN("writeSingleValueFloat: out of range");
 	}
 }
 
