@@ -68,7 +68,7 @@ static void drawBitmap(const FT_Bitmap & src, PixelAccessor & dst, uint32_t offX
 			const uint32_t posY = offY + static_cast<uint32_t>(y);
 			// Read the old value and write the maximum of old and new value.
 			const uint8_t oldValue = dst.readSingleValueByte(posX, posY);
-			dst.writeColor(posX,
+			dst.writeSingleValueFloat(posX,
 						   posY,
 						   std::max(oldValue, src.buffer[y * src.pitch + x]));
 		}
