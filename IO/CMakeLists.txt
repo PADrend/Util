@@ -15,6 +15,7 @@ add_sources(Util
 	FSProvider.cpp
 	DBFSProvider.cpp
 	NetProvider.cpp
+	SerialProvider.cpp
 	TemporaryDirectory.cpp
 	ZIPProvider.cpp
 )

@@ -13,6 +13,7 @@
 #include "IO/FSProvider.h"
 #include "IO/DBFSProvider.h"
 #include "IO/NetProvider.h"
+#include "IO/SerialProvider.h"
 #include "IO/ZIPProvider.h"
 #include "Serialization/StreamerPNG.h"
 #include "Serialization/StreamerSDL.h"
@@ -45,6 +46,11 @@ bool init() {
 				result = false;
 			}
 #endif /* UTIL_HAVE_LIB_CURL */
+#ifdef UTIL_HAVE_LIB_SERIAL
+			if(!SerialProvider::init()) {
+				result = false;
+			}
+#endif /* UTIL_HAVE_LIB_SERIAL */
 #ifdef UTIL_HAVE_LIB_ZIP
 			if(!ZIPProvider::init()) {
 				result = false;
