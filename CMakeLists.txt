@@ -27,6 +27,7 @@ add_sources(Util
 	GenericAttributeSerialization.cpp
 	GenericConversion.cpp
 	JSON_Parser.cpp
+	LibRegistry.cpp
 	Macros.cpp
 	MicroXML.cpp
 	ProgressIndicator.cpp

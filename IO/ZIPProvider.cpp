@@ -62,6 +62,12 @@ COMPILER_WARN_OFF_GCC(-Wshadow)
 #include <zip.h>
 COMPILER_WARN_POP
 
+#include "../LibRegistry.h" 
+static bool libNameInitailized = [](){	
+	Util::LibRegistry::registerLibVersionString("libzip","libzip (www.nih.at/libzip)"); 
+	return true;
+}();
+
 namespace Util {
 
 bool ZIPProvider::init() {

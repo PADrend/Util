@@ -19,11 +19,21 @@
 #if defined(UTIL_HAVE_LIB_FREETYPE)
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include "../LibRegistry.h"
+
 #endif /* defined(UTIL_HAVE_LIB_FREETYPE) */
 
 namespace Util {
 
 #if defined(UTIL_HAVE_LIB_FREETYPE)
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#define FT_FULL_VERSION_STRING  "Freetype " STR(FREETYPE_MAJOR) "." STR(FREETYPE_MINOR) "." STR(FREETYPE_PATCH) " (www.freetype.org)"
+
+static bool libNameInitailized = [](){	
+	Util::LibRegistry::registerLibVersionString("FreeType2",FT_FULL_VERSION_STRING); 
+	return true;
+}();
 
 struct FontRenderer::Implementation {
 	FT_Library library;
@@ -211,12 +221,12 @@ std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned 
 					   static_cast<uint32_t>(cursorX), 
 					   static_cast<uint32_t>(cursorY));
 
-			GlyphInfo info;
-			info.position = std::make_pair(cursorX, cursorY);
-			info.size = std::make_pair(slot->bitmap.width, slot->bitmap.rows);
-			info.offset = std::make_pair(slot->bitmap_left, slot->bitmap_top);
-			info.xAdvance = (slot->advance.x >> 6);
-			glyphMap.emplace(character, info);
+			GlyphInfo gInfo;
+			gInfo.position = std::make_pair(cursorX, cursorY);
+			gInfo.size = std::make_pair(slot->bitmap.width, slot->bitmap.rows);
+			gInfo.offset = std::make_pair(slot->bitmap_left, slot->bitmap_top);
+			gInfo.xAdvance = (slot->advance.x >> 6);
+			glyphMap.emplace(character, gInfo);
 
 			cursorX += slot->bitmap.width;
 		}

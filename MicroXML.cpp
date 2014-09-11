@@ -24,10 +24,17 @@
 #include <stack>
 #endif /* UTIL_HAVE_LIB_XML2 */
 
+#include "LibRegistry.h"
+
 namespace Util {
 namespace MicroXML {
 
 #ifdef UTIL_HAVE_LIB_XML2
+
+static bool libNameInitailized = [](){	
+	Util::LibRegistry::registerLibVersionString("libxml2",std::string("libxml ")+LIBXML_DOTTED_VERSION + std::string(" (xmlsoft.org)")); 
+	return true;
+}();
 
 static inline const char * toCharPtr(const xmlChar * str) {
 	return reinterpret_cast<const char *>(str);

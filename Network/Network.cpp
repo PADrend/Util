@@ -29,6 +29,16 @@ COMPILER_WARN_POP
 #include <netdb.h>
 #endif
 
+#include "../LibRegistry.h"
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#define SDL_NET_FULL_VERSION_STRING  "SDL_net " STR(SDL_NET_MAJOR_VERSION) "." STR(SDL_NET_MINOR_VERSION) "." STR(SDL_NET_PATCHLEVEL) " (www.libsdl.org/projects/SDL_net/)"
+
+static bool libNameInitailized = [](){	
+	Util::LibRegistry::registerLibVersionString("LibSDL2Net",SDL_NET_FULL_VERSION_STRING); 
+	return true;
+}();
+
 namespace Util {
 namespace Network {
 

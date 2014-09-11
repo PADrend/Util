@@ -24,6 +24,13 @@
 #include <sys/stat.h>
 #include <sstream>
 #include <vector>
+
+#include "../LibRegistry.h"
+static bool libNameInitailized = [](){	
+	Util::LibRegistry::registerLibVersionString("sqlite","sqlite " SQLITE_VERSION " (www.sqlite.org)"); 
+	return true;
+}();
+
 static const std::size_t MAX_DEFFERED_STATEMENTS = 500;
 static const sqlite3_destructor_type SQLITE_TRANSIENT_CXX = reinterpret_cast<sqlite3_destructor_type> (-1);
 
