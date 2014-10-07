@@ -21,6 +21,12 @@
 #include <vector>
 #include <curl/curl.h>
 
+#include "../LibRegistry.h"
+static bool libNameInitailized = [](){	
+	Util::LibRegistry::registerLibVersionString("curl","curl " LIBCURL_VERSION " (curl.haxx.se)"); 
+	return true;
+}();
+
 namespace Util {
 
 bool NetProvider::init() {

@@ -10,6 +10,7 @@ add_sources(Util
 	AbstractFSProvider.cpp
 	ArchiveProvider.cpp
 	FileName.cpp
+	FileLocator.cpp
 	FileUtils.cpp
 	FSProvider.cpp
 	DBFSProvider.cpp

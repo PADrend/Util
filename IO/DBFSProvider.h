@@ -16,6 +16,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <memory>
 #include <set>
 #include <sstream>
 #include <sqlite3.h>
@@ -23,6 +24,9 @@
 #include "AbstractFSProvider.h"
 
 namespace Util {
+namespace Concurrency {
+class Mutex;
+}
 
 /*! Standard file system provider for accessing normal files with "file" protocol.
 	E.g. "file://bla/foo.txt"
@@ -55,6 +59,7 @@ class DBFSProvider : public AbstractFSProvider {
 			sqlite3_stmt * dirFiles_stmt;
 			sqlite3_stmt * dirFolders_stmt;
 
+			std::unique_ptr<Concurrency::Mutex> mutex;
 		public:
 			explicit DBHandle(sqlite3 *_db);
 			~DBHandle();
@@ -67,6 +72,7 @@ class DBFSProvider : public AbstractFSProvider {
 			bool dir(const std::string & folder, const std::string & prefix, std::list<FileName> &result, uint8_t flags);
 			int getFolderId(const std::string & folder);
 			bool isFile(const std::string & folder,const std::string & file);
+			bool makeDir(const std::string & folder);
 
 			void flush();
 		protected:
@@ -81,6 +87,9 @@ class DBFSProvider : public AbstractFSProvider {
 
 		DBFSProvider();
 		virtual ~DBFSProvider();
+
+		status_t makeDir(const FileName & path) override;
+		status_t makeDirRecursive(const FileName &) override;
 
 		status_t readFile(const FileName & file, std::vector<uint8_t> & data) override;
 		status_t writeFile(const FileName &, const std::vector<uint8_t> & data, bool overwrite) override;

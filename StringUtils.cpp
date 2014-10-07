@@ -9,6 +9,7 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "StringUtils.h"
+#include "Timer.h"
 #include <cctype>
 #include <cstddef>
 #include <cstdio>
@@ -457,10 +458,11 @@ std::string escape(const std::string & s) {
 }
 
 //! (static)
+static Timer seedTimer;
 std::string createRandomString(size_t length){
 	static const char * const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 62 chars
 	static const size_t size = 62; // = strlen(chars);
-	static std::default_random_engine engine;
+	static std::default_random_engine engine(static_cast<size_t>(seedTimer.getNanoseconds()));
 	std::uniform_int_distribution<size_t> distribution(0, size - 1);
 
 	std::string s(length, '\0');

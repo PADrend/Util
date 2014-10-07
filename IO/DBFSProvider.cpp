@@ -15,12 +15,22 @@
 #include "FileUtils.h"
 #include "../Factory/Factory.h"
 #include "../Macros.h"
+#include "../Concurrency/Concurrency.h"
+#include "../Concurrency/Mutex.h"
+#include "../Concurrency/Lock.h"
 
 #include <cstdint>
 #include <cstdio>
 #include <sys/stat.h>
 #include <sstream>
 #include <vector>
+
+#include "../LibRegistry.h"
+static bool libNameInitailized = [](){	
+	Util::LibRegistry::registerLibVersionString("sqlite","sqlite " SQLITE_VERSION " (www.sqlite.org)"); 
+	return true;
+}();
+
 static const std::size_t MAX_DEFFERED_STATEMENTS = 500;
 static const sqlite3_destructor_type SQLITE_TRANSIENT_CXX = reinterpret_cast<sqlite3_destructor_type> (-1);
 
@@ -40,6 +50,44 @@ DBFSProvider::DBFSProvider() : AbstractFSProvider() {
 /*! (dtor) */
 DBFSProvider::~DBFSProvider(){
 	flush();
+}
+
+/*! ---|> AbstractFSProvider    */
+AbstractFSProvider::status_t DBFSProvider::makeDir(const FileName & path){
+	if (isDir(path))
+		return OK;
+	//else if(isFile(path))
+	//	return FAILURE;
+	std::string dbFilename,folder,file;
+	extractFileName(path, dbFilename, folder, file);
+	DBHandle * dbh=getDBHandle(dbFilename, true);
+	if(dbh==nullptr)
+		return FAILURE;
+
+	if(dbh->makeDir(folder))
+		return OK;
+	else
+		return FAILURE;
+}
+
+//! ---|> AbstractFSProvider
+AbstractFSProvider::status_t DBFSProvider::makeDirRecursive(const FileName & name){
+	if (isDir(name))
+		return OK;
+	std::string dbFilename,folder,file;
+	extractFileName(name, dbFilename, folder, file);
+	DBHandle * dbh=getDBHandle(dbFilename, true);
+	if(dbh==nullptr)
+		return FAILURE;
+
+	std::string s = name.toString();
+	size_t pos = std::string::npos;
+	if(s.back() == '/') {
+		pos = s.rfind('/')-1;
+	}
+	FileName child(name.toString());
+	makeDirRecursive(FileName(s.substr(0,s.rfind('/', pos))));
+	return makeDir(name);
 }
 
 /*! ---|> AbstractFSProvider    */
@@ -146,10 +194,10 @@ DBFSProvider::DBHandle * DBFSProvider::createDB(const std::string & dbFilename){
 	"						data BLOB, "
 	"						PRIMARY KEY (folderId, name));	"
 	"	"
-	"CREATE  TABLE Folders (folderId INTEGER NOT NULL , "
+	"CREATE  TABLE Folders (folderId INTEGER PRIMARY KEY AUTOINCREMENT , "
 	"						parentId INTEGER NOT NULL , "
 	"						name TEXT NOT NULL, "
-	"						PRIMARY KEY (folderId, parentId, name));	"
+	"						UNIQUE (folderId, parentId, name));	"
 	"	"
 	"DROP INDEX IF EXISTS 'filesInFolderIdx';	"
 	"CREATE UNIQUE INDEX 'filesInFolderIdx' ON 'Files' (name ASC, folderId ASC);	"
@@ -158,6 +206,7 @@ DBFSProvider::DBHandle * DBFSProvider::createDB(const std::string & dbFilename){
 	"	BEGIN	"
 	"		DELETE FROM Files WHERE folderId = OLD.folderId;	"
 	"	END;	"
+	"	"
 	"COMMIT;	";
 	sqlite3*db=nullptr;
 	int rc = sqlite3_open_v2(dbFilename.c_str(),&db, SQLITE_OPEN_READWRITE| SQLITE_OPEN_CREATE,nullptr);
@@ -243,14 +292,14 @@ void DBFSProvider::extractFileName(const FileName & filename,std::string & dbFil
 DBFSProvider::DBHandle::DBHandle(sqlite3 *_db):
 		db(_db),
 		getFolderId_stmt(nullptr),getFileData_stmt(nullptr),getFileSize_stmt(nullptr),
-		isFile_stmt(nullptr),dirFiles_stmt(nullptr),dirFolders_stmt(nullptr){
-
+		isFile_stmt(nullptr),dirFiles_stmt(nullptr),dirFolders_stmt(nullptr), mutex(Concurrency::createMutex()){
 }
 
 /*! (dtor) DBFSProvider::DBHandle */
 DBFSProvider::DBHandle::~DBHandle(){
 	flush();
 
+	auto lock = Concurrency::createLock(*mutex);
 	sqlite3_finalize(getFolderId_stmt);
 	sqlite3_finalize(getFileData_stmt);
 	sqlite3_finalize(getFileSize_stmt);
@@ -278,10 +327,15 @@ sqlite3_stmt * DBFSProvider::createStatement(sqlite3 * db,const char * sql){
 void DBFSProvider::DBHandle::storeStatement(int folderId,const std::string & file,sqlite3_stmt * stmt){
 	std::ostringstream s;
 	s<<folderId<<"/"<<file;
-	deferredFiles.insert(s.str());
+	size_t size = 0;
+	{
+		auto lock = Concurrency::createLock(*mutex);
+		deferredFiles.insert(s.str());
 
-	deferredStatements.push_back(stmt);
-	if(deferredStatements.size() > MAX_DEFFERED_STATEMENTS)
+		deferredStatements.push_back(stmt);
+		size = deferredStatements.size();
+	}
+	if(size > MAX_DEFFERED_STATEMENTS)
 		flush();
 }
 
@@ -298,6 +352,7 @@ int DBFSProvider::DBHandle::getFolderId(const std::string & folder){
 	if(folder==".")
 		return 0;
 
+	auto lock = Concurrency::createLock(*mutex);
 	if(getFolderId_stmt==nullptr){
 		getFolderId_stmt=createStatement(getDB(),"SELECT folderId FROM Folders WHERE name = :name AND parentId = :id ;");
 		if(getFolderId_stmt==nullptr)
@@ -362,6 +417,7 @@ std::vector<uint8_t> DBFSProvider::DBHandle::readFile(const std::string & folder
 	if(isPendingFile(folderId,file)){
 		flush();
 	}
+	auto lock = Concurrency::createLock(*mutex);
 	if(getFileData_stmt==nullptr){
 		getFileData_stmt=createStatement(getDB(),"SELECT data FROM Files WHERE folderId = :folderId AND name = :name ;");
 		if(getFileData_stmt==nullptr)
@@ -392,6 +448,7 @@ size_t DBFSProvider::DBHandle::getSize(const std::string & folder,const std::str
 	if(isPendingFile(folderId,file)){
 		flush();
 	}
+	auto lock = Concurrency::createLock(*mutex);
 	if(getFileSize_stmt==nullptr){
 		getFileSize_stmt=createStatement(getDB(),"SELECT length(data) FROM Files WHERE folderId = :folderId AND name = :name ;");
 		if(getFileSize_stmt==nullptr)
@@ -419,6 +476,7 @@ bool DBFSProvider::DBHandle::isFile(const std::string & folder,const std::string
 	if(isPendingFile(folderId,file)){
 		return true;
 	}
+	auto lock = Concurrency::createLock(*mutex);
 	if(isFile_stmt==nullptr){
 		isFile_stmt=createStatement(getDB(),"SELECT 1 FROM Files WHERE folderId = :folderId AND name = :name ;");
 		if(isFile_stmt==nullptr)
@@ -443,6 +501,7 @@ bool DBFSProvider::DBHandle::dir(const std::string & folder, const std::string &
 		WARN("TODO: DIR_RECURSIVE not implemented yet.\n");
 	}
 
+	auto lock = Concurrency::createLock(*mutex);
 	if(flags & FileUtils::DIR_FILES){
 		if(dirFiles_stmt==nullptr){
 			dirFiles_stmt=createStatement(getDB(),"SELECT name FROM Files WHERE folderId = :folderId ;");
@@ -483,7 +542,38 @@ bool DBFSProvider::DBHandle::dir(const std::string & folder, const std::string &
 }
 
 /*! DBFSProvider::DBHandle */
+bool DBFSProvider::DBHandle::makeDir(const std::string & folder){
+	flush();
+	int folderId = getFolderId(folder);
+	if(folderId==NO_ENTRY){
+		int parentId = 0;
+		std::string folderName = folder.substr(0,folder.length()-1);
+		size_t splitPos=folderName.rfind('/');
+		if(splitPos!=std::string::npos){
+			parentId = getFolderId(folder.substr(0,splitPos));
+			if(parentId==NO_ENTRY)
+				return false;
+			folderName = folder.substr(splitPos+1, folder.length()-splitPos);
+		}
+
+		sqlite3_stmt * stmt=createStatement(getDB(),"INSERT OR REPLACE INTO Folders (parentId,name) VALUES (:parentId,:name);");
+		if(stmt==nullptr)
+			return false;
+
+		sqlite3_reset(stmt);
+		sqlite3_bind_int(stmt,1,parentId);
+		sqlite3_bind_text(stmt,2,folderName.c_str(),-1,SQLITE_TRANSIENT_CXX);
+
+		storeStatement(parentId,folderName,stmt);
+		flush();
+		return true;
+	}
+	return true;
+}
+
+/*! DBFSProvider::DBHandle */
 void DBFSProvider::DBHandle::flush(){
+	auto lock = Concurrency::createLock(*mutex);
 	if(deferredStatements.empty())
 		return;
 	std::cout << "DB FLUSH!\n";

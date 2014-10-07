@@ -27,12 +27,14 @@ add_sources(Util
 	GenericAttributeSerialization.cpp
 	GenericConversion.cpp
 	JSON_Parser.cpp
+	LibRegistry.cpp
 	Macros.cpp
 	MicroXML.cpp
 	ProgressIndicator.cpp
 	StringIdentifier.cpp
 	StringUtils.cpp
 	Timer.cpp
+	TypeConstant.cpp
 	Util.cpp
 	Utils.cpp
 )

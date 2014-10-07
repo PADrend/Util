@@ -11,15 +11,15 @@
 #include "PixelFormat.h"
 
 namespace Util {
-const PixelFormat PixelFormat::RGB(1, 0,1,2,PixelFormat::NONE);
-const PixelFormat PixelFormat::RGB_FLOAT(4, 0,4,8,PixelFormat::NONE);
-const PixelFormat PixelFormat::BGR(1, 2,1,0,PixelFormat::NONE);
-const PixelFormat PixelFormat::BGR_FLOAT(4, 8,4,0,PixelFormat::NONE);
-const PixelFormat PixelFormat::RGBA(1, 0,1,2,3);
-const PixelFormat PixelFormat::RGBA_FLOAT(4, 0,4,8,12);
-const PixelFormat PixelFormat::BGRA(1, 2,1,0,3);
-const PixelFormat PixelFormat::BGRA_FLOAT(4, 8,4,0,12);
-const PixelFormat PixelFormat::MONO(1, 0,PixelFormat::NONE,PixelFormat::NONE,PixelFormat::NONE);
-const PixelFormat PixelFormat::MONO_FLOAT(4, 0,PixelFormat::NONE,PixelFormat::NONE,PixelFormat::NONE);
-const PixelFormat PixelFormat::UNKNOWN(0, PixelFormat::NONE,PixelFormat::NONE,PixelFormat::NONE,PixelFormat::NONE);
+const PixelFormat PixelFormat::RGB( 		TypeConstant::UINT8, 0,1,2,PixelFormat::NONE);
+const PixelFormat PixelFormat::RGB_FLOAT(	TypeConstant::FLOAT, 0,4,8,PixelFormat::NONE);
+const PixelFormat PixelFormat::BGR( 		TypeConstant::UINT8, 2,1,0,PixelFormat::NONE);
+const PixelFormat PixelFormat::BGR_FLOAT(	TypeConstant::FLOAT, 8,4,0,PixelFormat::NONE);
+const PixelFormat PixelFormat::RGBA( 		TypeConstant::UINT8, 0,1,2,3);
+const PixelFormat PixelFormat::RGBA_FLOAT(	TypeConstant::FLOAT, 0,4,8,12);
+const PixelFormat PixelFormat::BGRA(		TypeConstant::UINT8, 2,1,0,3);
+const PixelFormat PixelFormat::BGRA_FLOAT(	TypeConstant::FLOAT, 8,4,0,12);
+const PixelFormat PixelFormat::MONO(		TypeConstant::UINT8, 0,PixelFormat::NONE,PixelFormat::NONE,PixelFormat::NONE);
+const PixelFormat PixelFormat::MONO_FLOAT(	TypeConstant::FLOAT, 0,PixelFormat::NONE,PixelFormat::NONE,PixelFormat::NONE);
+const PixelFormat PixelFormat::UNKNOWN(		TypeConstant::UINT8, PixelFormat::NONE,PixelFormat::NONE,PixelFormat::NONE,PixelFormat::NONE);
 }

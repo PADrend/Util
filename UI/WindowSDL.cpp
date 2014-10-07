@@ -34,6 +34,17 @@ COMPILER_WARN_POP
 #include <string>
 #include <unordered_map>
 
+#include <sstream>
+#include "../LibRegistry.h"
+
+static bool libNameInitailized = [](){	
+	SDL_version version;
+	SDL_GetVersion(&version);
+	std::ostringstream s;
+	s << "SDL " << static_cast<int>(version.major) << "." << static_cast<int>(version.minor) << "." << static_cast<int>(version.patch)<< " (www.libsdl.org)";
+	Util::LibRegistry::registerLibVersionString("LibSDL2",s.str()); 
+	return true;
+}();
 
 namespace Util {
 namespace UI {
@@ -226,7 +237,7 @@ static SDL_Cursor * convertBitmapToSDLCursor(const Reference<Bitmap> & image, un
 WindowSDL::WindowSDL(const Window::Properties & properties) :
 		Window(properties), sdlWindow(nullptr), sdlGlContext(nullptr), sdlCursor(nullptr) {
 
-	if (SDL_WasInit(SDL_INIT_VIDEO) == 0) {
+	if(SDL_WasInit(SDL_INIT_VIDEO) == 0) {
 		if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 			throw std::runtime_error(std::string("SDL_INIT_VIDEO failed: ") + SDL_GetError());
 		}

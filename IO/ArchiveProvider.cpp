@@ -26,6 +26,12 @@
 #include <archive.h>
 #include <archive_entry.h>
 
+#include "../LibRegistry.h"
+static bool libNameInitailized = [](){	
+	Util::LibRegistry::registerLibVersionString("libarchive",ARCHIVE_VERSION_STRING + std::string(" (www.libarchive.org)")); 
+	return true;
+}();
+
 namespace Util {
 
 static archive * openReadHandle(const std::string & archiveFileName) {

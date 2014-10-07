@@ -40,22 +40,27 @@ void Bitmap::swap(Bitmap & other){
 }
 
 void Bitmap::setData(const std::vector<uint8_t> & newData) {
-	if(newData.size() != pixelData.size()) {
-		throw std::invalid_argument("Sizes differ.");
-	}
+	if(newData.size() != pixelData.size()) 
+		throw std::invalid_argument("Bitmap::setData: Sizes differ.");
 	pixelData = newData;
+}
+void Bitmap::swapData(std::vector<uint8_t> & other) {
+	if(other.size() != pixelData.size()) 
+		throw std::invalid_argument("Bitmap::swapData: Sizes differ.");
+	using std::swap;
+	swap( other, pixelData);
 }
 
 void Bitmap::flipVertically() {
-	if (pixelData.empty()) {
+	if(pixelData.empty()) 
 		return;
-	}
+
 	std::vector<uint8_t> temp(pixelData.size());
 	const uint8_t * src = pixelData.data();
 	uint8_t * dst = temp.data();
 	const uint32_t rowDataSize( width*pixelFormat.getBytesPerPixel() );
 
-	for (int32_t y = (height - 1); y >= 0; --y) {
+	for(int32_t y = (height - 1); y >= 0; --y) {
 		const uint8_t * rowBegin = src + y * rowDataSize;
 		std::copy(rowBegin, rowBegin + rowDataSize, dst);
 		dst += rowDataSize;
