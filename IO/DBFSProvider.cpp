@@ -15,9 +15,6 @@
 #include "FileUtils.h"
 #include "../Factory/Factory.h"
 #include "../Macros.h"
-#include "../Concurrency/Concurrency.h"
-#include "../Concurrency/Mutex.h"
-#include "../Concurrency/Lock.h"
 
 #include <cstdint>
 #include <cstdio>
@@ -292,14 +289,14 @@ void DBFSProvider::extractFileName(const FileName & filename,std::string & dbFil
 DBFSProvider::DBHandle::DBHandle(sqlite3 *_db):
 		db(_db),
 		getFolderId_stmt(nullptr),getFileData_stmt(nullptr),getFileSize_stmt(nullptr),
-		isFile_stmt(nullptr),dirFiles_stmt(nullptr),dirFolders_stmt(nullptr), mutex(Concurrency::createMutex()){
+		isFile_stmt(nullptr),dirFiles_stmt(nullptr),dirFolders_stmt(nullptr), mutex(){
 }
 
 /*! (dtor) DBFSProvider::DBHandle */
 DBFSProvider::DBHandle::~DBHandle(){
 	flush();
 
-	auto lock = Concurrency::createLock(*mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 	sqlite3_finalize(getFolderId_stmt);
 	sqlite3_finalize(getFileData_stmt);
 	sqlite3_finalize(getFileSize_stmt);
@@ -329,7 +326,7 @@ void DBFSProvider::DBHandle::storeStatement(int folderId,const std::string & fil
 	s<<folderId<<"/"<<file;
 	size_t size = 0;
 	{
-		auto lock = Concurrency::createLock(*mutex);
+		std::lock_guard<std::mutex> lock(mutex);
 		deferredFiles.insert(s.str());
 
 		deferredStatements.push_back(stmt);
@@ -352,7 +349,7 @@ int DBFSProvider::DBHandle::getFolderId(const std::string & folder){
 	if(folder==".")
 		return 0;
 
-	auto lock = Concurrency::createLock(*mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 	if(getFolderId_stmt==nullptr){
 		getFolderId_stmt=createStatement(getDB(),"SELECT folderId FROM Folders WHERE name = :name AND parentId = :id ;");
 		if(getFolderId_stmt==nullptr)
@@ -417,7 +414,7 @@ std::vector<uint8_t> DBFSProvider::DBHandle::readFile(const std::string & folder
 	if(isPendingFile(folderId,file)){
 		flush();
 	}
-	auto lock = Concurrency::createLock(*mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 	if(getFileData_stmt==nullptr){
 		getFileData_stmt=createStatement(getDB(),"SELECT data FROM Files WHERE folderId = :folderId AND name = :name ;");
 		if(getFileData_stmt==nullptr)
@@ -448,7 +445,7 @@ size_t DBFSProvider::DBHandle::getSize(const std::string & folder,const std::str
 	if(isPendingFile(folderId,file)){
 		flush();
 	}
-	auto lock = Concurrency::createLock(*mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 	if(getFileSize_stmt==nullptr){
 		getFileSize_stmt=createStatement(getDB(),"SELECT length(data) FROM Files WHERE folderId = :folderId AND name = :name ;");
 		if(getFileSize_stmt==nullptr)
@@ -476,7 +473,7 @@ bool DBFSProvider::DBHandle::isFile(const std::string & folder,const std::string
 	if(isPendingFile(folderId,file)){
 		return true;
 	}
-	auto lock = Concurrency::createLock(*mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 	if(isFile_stmt==nullptr){
 		isFile_stmt=createStatement(getDB(),"SELECT 1 FROM Files WHERE folderId = :folderId AND name = :name ;");
 		if(isFile_stmt==nullptr)
@@ -501,7 +498,7 @@ bool DBFSProvider::DBHandle::dir(const std::string & folder, const std::string &
 		WARN("TODO: DIR_RECURSIVE not implemented yet.\n");
 	}
 
-	auto lock = Concurrency::createLock(*mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 	if(flags & FileUtils::DIR_FILES){
 		if(dirFiles_stmt==nullptr){
 			dirFiles_stmt=createStatement(getDB(),"SELECT name FROM Files WHERE folderId = :folderId ;");
@@ -573,7 +570,7 @@ bool DBFSProvider::DBHandle::makeDir(const std::string & folder){
 
 /*! DBFSProvider::DBHandle */
 void DBFSProvider::DBHandle::flush(){
-	auto lock = Concurrency::createLock(*mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 	if(deferredStatements.empty())
 		return;
 	std::cout << "DB FLUSH!\n";
