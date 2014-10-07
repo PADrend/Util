@@ -38,6 +38,13 @@ if(UTIL_BUILD_TESTS)
 	target_include_directories(UtilTest PRIVATE ${CPPUNIT_INCLUDE_DIRS})
 	target_link_libraries(UtilTest LINK_PRIVATE ${CPPUNIT_LIBRARIES})
 
+	# Dependency to pthread
+	set(CMAKE_THREAD_PREFER_PTHREAD ON)
+	find_package(Threads)
+	if(CMAKE_USE_PTHREADS_INIT AND (NOT DEFINED XCODE_VERSION OR XCODE_VERSION LESS 5.0))
+		target_link_libraries(UtilTest LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+	endif()
+
 	if(COMPILER_SUPPORTS_CXX11)
 		set_property(TARGET UtilTest APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11 ")
 	elseif(COMPILER_SUPPORTS_CXX0X)

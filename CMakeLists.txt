@@ -142,8 +142,7 @@ endif()
 # Dependency to pthread
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 find_package(Threads)
-if(CMAKE_USE_PTHREADS_INIT AND XCODE_VERSION LESS 5.0)
-	target_compile_definitions(Util PRIVATE UTIL_HAVE_PTHREAD)
+if(CMAKE_USE_PTHREADS_INIT AND (NOT DEFINED XCODE_VERSION OR XCODE_VERSION LESS 5.0))
 	target_link_libraries(Util LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
