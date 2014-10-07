@@ -178,8 +178,8 @@ DataConnection::DataConnection(TCPConnection * _connection) :
 	outgoingValuesMutex(),
 	keyValueChannelHandlersMutex(),
 	valueChannelHandlersMutex(),
-	running(true),
 	runningMutex(),
+	running(true),
 	thread(std::bind(&DataConnection::run, this)) {
 }
 
