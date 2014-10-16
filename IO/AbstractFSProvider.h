@@ -14,7 +14,7 @@
 #include "../ReferenceCounter.h"
 #include "../References.h"
 #include <cstdint>
-#include <iostream>
+#include <iosfwd>
 #include <list>
 #include <map>
 #include <memory>

@@ -9,11 +9,11 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #ifndef _FS_PROVIDER_H
-#define	_FS_PROVIDER_H
+#define _FS_PROVIDER_H
 
-#include <string>
+#include <iosfwd>
 #include <list>
-#include <fstream>
+#include <string>
 
 #include "AbstractFSProvider.h"
 

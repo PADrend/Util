@@ -15,6 +15,7 @@
 #include "../Graphics/BitmapUtils.h"
 #include "../Macros.h"
 #include <cstddef>
+#include <istream>
 
 #if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
 COMPILER_WARN_PUSH

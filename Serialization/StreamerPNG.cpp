@@ -16,6 +16,8 @@
 #include "../Macros.h"
 #include "../References.h"
 #include <cstddef>
+#include <istream>
+#include <ostream>
 #include <vector>
 
 #ifdef UTIL_HAVE_LIB_PNG
