@@ -13,8 +13,8 @@
 
 #include "AbstractBitmapStreamer.h"
 #include "../References.h"
-#include <istream>
 #include <cstdint>
+#include <iosfwd>
 #include <string>
 
 namespace Util {

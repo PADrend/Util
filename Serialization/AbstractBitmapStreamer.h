@@ -14,9 +14,8 @@
 #include "AbstractStreamer.h"
 #include "../Macros.h"
 #include "../References.h"
-#include <istream>
-#include <ostream>
 #include <cstdint>
+#include <iosfwd>
 #include <string>
 
 namespace Util {

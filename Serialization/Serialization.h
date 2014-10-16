@@ -13,7 +13,7 @@
 
 #include "../References.h"
 #include <functional>
-#include <ostream>
+#include <iosfwd>
 #include <string>
 
 namespace Util {

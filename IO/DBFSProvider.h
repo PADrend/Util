@@ -11,15 +11,15 @@
 #ifdef UTIL_HAVE_LIB_SQLITE
 
 #ifndef _DBFS_PROVIDER_H
-#define	_DBFS_PROVIDER_H
+#define _DBFS_PROVIDER_H
 
-#include <string>
+#include <iosfwd>
 #include <list>
 #include <map>
 #include <memory>
 #include <mutex>
 #include <set>
-#include <sstream>
+#include <string>
 #include <sqlite3.h>
 
 #include "AbstractFSProvider.h"

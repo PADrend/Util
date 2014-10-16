@@ -13,7 +13,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
+#include <ostream>
 #include <string>
 #include <vector>
 
