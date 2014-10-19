@@ -17,6 +17,7 @@
 #include <serial/serial.h>
 #include <sstream>
 #include <memory>
+#include <iostream>
 
 namespace Util {
 
@@ -69,7 +70,7 @@ static PortInfo getPortInfo(const FileName & filename){
 	info.flowcontrol = serial::flowcontrol_none;
 	info.parity = serial::parity_none;
 for(auto& s:parts)
-	std::cout << ">"<<s<<"\n";
+//	std::cout << ">"<<s<<"\n";
 
 	if(parts.size()>1){
 		info.baudRate = StringUtils::toNumber<uint32_t>(parts[1]);
@@ -127,7 +128,7 @@ bool SerialProvider::isFile(const FileName & filename){
 //		std::cout << "IsOpen:" << b <<"\n";
 		return b;
 	}catch(const serial::IOException & e){
-		std::cout << "!"<< e.what() << "\n";
+//		std::cout << "!"<< e.what() << "\n";
 		return false;
 	}
 }
@@ -202,7 +203,7 @@ class SerialIOBuffer : public std::streambuf{
 			const std::ptrdiff_t bytesWritten = port.write(reinterpret_cast<const uint8_t*>(pbase()), bytesAvailable);
 			if(bytesWritten!=bytesAvailable)
 				throw std::runtime_error("SerialProvider: Error writing to serial port.");
-			std::cout << "Bytes to serial: "<<bytesWritten<<std::endl;
+//			std::cout << "Bytes to serial: "<<bytesWritten<<std::endl;
 			pbump(-bytesWritten);
 			return true;
 		}
