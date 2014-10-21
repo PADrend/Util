@@ -47,6 +47,44 @@ struct WindowEGL::WindowEGLData {
 		}
 };
 
+static std::string eglErrorToString(const EGLint errorCode) {
+	const std::string strErrorCode = StringUtils::toString(errorCode);
+	switch(errorCode) {
+		case EGL_SUCCESS:
+			return "EGL_SUCCESS/" + strErrorCode + ": The last function succeeded without error.";
+		case EGL_NOT_INITIALIZED:
+			return "EGL_NOT_INITIALIZED/" + strErrorCode + ": EGL is not initialized, or could not be initialized, for the specified EGL display connection.";
+		case EGL_BAD_ACCESS:
+			return "EGL_BAD_ACCESS/" + strErrorCode + ": EGL cannot access a requested resource (for example a context is bound in another thread).";
+		case EGL_BAD_ALLOC:
+			return "EGL_BAD_ALLOC/" + strErrorCode + ": EGL failed to allocate resources for the requested operation.";
+		case EGL_BAD_ATTRIBUTE:
+			return "EGL_BAD_ATTRIBUTE/" + strErrorCode + ": An unrecognized attribute or attribute value was passed in the attribute list.";
+		case EGL_BAD_CONTEXT:
+			return "EGL_BAD_CONTEXT/" + strErrorCode + ": An EGLContext argument does not name a valid EGL rendering context.";
+		case EGL_BAD_CONFIG:
+			return "EGL_BAD_CONFIG/" + strErrorCode + ": An EGLConfig argument does not name a valid EGL frame buffer configuration.";
+		case EGL_BAD_CURRENT_SURFACE:
+			return "EGL_BAD_CURRENT_SURFACE/" + strErrorCode + ": The current surface of the calling thread is a window, pixel buffer or pixmap that is no longer valid.";
+		case EGL_BAD_DISPLAY:
+			return "EGL_BAD_DISPLAY/" + strErrorCode + ": An EGLDisplay argument does not name a valid EGL display connection.";
+		case EGL_BAD_SURFACE:
+			return "EGL_BAD_SURFACE/" + strErrorCode + ": An EGLSurface argument does not name a valid surface (window, pixel buffer or pixmap) configured for GL rendering.";
+		case EGL_BAD_MATCH:
+			return "EGL_BAD_MATCH/" + strErrorCode + ": Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).";
+		case EGL_BAD_PARAMETER:
+			return "EGL_BAD_PARAMETER/" + strErrorCode + ": One or more argument values are invalid.";
+		case EGL_BAD_NATIVE_PIXMAP:
+			return "EGL_BAD_NATIVE_PIXMAP/" + strErrorCode + ": A NativePixmapType argument does not refer to a valid native pixmap.";
+		case EGL_BAD_NATIVE_WINDOW:
+			return "EGL_BAD_NATIVE_WINDOW/" + strErrorCode + ": A NativeWindowType argument does not refer to a valid native window.";
+		case EGL_CONTEXT_LOST:
+			return "EGL_CONTEXT_LOST/" + strErrorCode + ": A power management event has occurred. The application must destroy all contexts and reinitialise OpenGL ES state and objects to continue rendering.";
+		default:
+			return "";
+	}
+}
+
 WindowEGL::WindowEGL(const Window::Properties & properties) :
 		WindowX11(properties), eglData(new WindowEGLData) {
 
@@ -107,7 +145,7 @@ WindowEGL::WindowEGL(const Window::Properties & properties) :
 	eglData->context = eglCreateContext(eglData->display, fbConfig, EGL_NO_CONTEXT, contextAttribs);
 	if (eglData->context == EGL_NO_CONTEXT) {
 		throw std::runtime_error("Failed to create OpenGL ES 2.x context. " + 
-								 StringUtils::toString(eglGetError()));
+								 eglErrorToString(eglGetError()));
 	}
 
 	// Create X11 window
