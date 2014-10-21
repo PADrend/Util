@@ -44,9 +44,16 @@ class Window {
 			uint32_t multisamples;			//! (if multisampled == true) Number of samples used for multisampling; default is 4.
 
 			std::string title;				//! The title string commonly displayed in the title bar of the window.
+			enum RenderingAPI {
+				GL_ES_1, //!< OpenGL ES 1
+				GL_ES_2, //!< OpenGL ES 2
+				GL_ES_3, //!< OpenGL ES 3
+				GL //!< OpenGL (all versions)
+			} renderingAPI;
 			Properties() : borderless(false),debug(false),compatibilityProfile(true),
 					fullscreen(false),multisampled(false),positioned(false),resizable(false),
-					clientAreaWidth(0),clientAreaHeight(0),posX(0),posY(0),multisamples(4){}
+					clientAreaWidth(0),clientAreaHeight(0),posX(0),posY(0),multisamples(4),
+					renderingAPI(GL){}
 		};
 		
 		//! Destroy the window and free the allocated resources.
