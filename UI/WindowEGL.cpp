@@ -104,6 +104,10 @@ WindowEGL::WindowEGL(const Window::Properties & properties) :
 		throw std::runtime_error("EGL version less than 1.3 detected.");
 	}
 
+	if (EGL_TRUE != eglBindAPI(EGL_OPENGL_ES_API)) {
+		throw std::runtime_error("Cannot bind API.");
+	}
+
 	// Define attributes of desired framebuffer configurations
 	EGLint fbAttribs[] = { EGL_COLOR_BUFFER_TYPE, EGL_RGB_BUFFER, EGL_BUFFER_SIZE, 24, EGL_RED_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE, 8, EGL_DEPTH_SIZE, 8,
 							EGL_NATIVE_RENDERABLE, EGL_TRUE, EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_NONE };
