@@ -104,7 +104,28 @@ WindowEGL::WindowEGL(const Window::Properties & properties) :
 		throw std::runtime_error("EGL version less than 1.3 detected.");
 	}
 
-	if (EGL_TRUE != eglBindAPI(EGL_OPENGL_ES_API)) {
+	EGLenum api;
+	EGLint glesVersion = 0;
+	switch(properties.renderingAPI) {
+		case Properties::RenderingAPI::GL_ES_1:
+			api = EGL_OPENGL_ES_API;
+			glesVersion = 1;
+			break;
+		case Properties::RenderingAPI::GL_ES_2:
+			api = EGL_OPENGL_ES_API;
+			glesVersion = 2;
+			break;
+		case Properties::RenderingAPI::GL_ES_3:
+			api = EGL_OPENGL_ES_API;
+			glesVersion = 3;
+			break;
+		case Properties::RenderingAPI::GL:
+			api = EGL_OPENGL_API;
+			break;
+		default:
+			throw std::runtime_error("Unsupported rendering API.");
+	}
+	if (EGL_TRUE != eglBindAPI(api)) {
 		throw std::runtime_error("Cannot bind API.");
 	}
 
@@ -145,10 +166,14 @@ WindowEGL::WindowEGL(const Window::Properties & properties) :
 	EGLint visualID;
 	eglGetConfigAttrib(eglData->display, fbConfig, EGL_NATIVE_VISUAL_ID, &visualID);
 
-	const EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+	EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, glesVersion, EGL_NONE };
+	if (0 == glesVersion) {
+		contextAttribs[0] = EGL_NONE;
+		contextAttribs[1] = EGL_NONE;
+	}
 	eglData->context = eglCreateContext(eglData->display, fbConfig, EGL_NO_CONTEXT, contextAttribs);
 	if (eglData->context == EGL_NO_CONTEXT) {
-		throw std::runtime_error("Failed to create OpenGL ES 2.x context. " + 
+		throw std::runtime_error("Failed to create context: " +
 								 eglErrorToString(eglGetError()));
 	}
 
