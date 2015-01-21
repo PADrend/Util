@@ -13,6 +13,7 @@
 #include "../Timer.h"
 #include "../Utils.h"
 #include <algorithm>
+#include <iostream>
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 COMPILER_WARN_PUSH
@@ -70,7 +71,7 @@ Reference<TCPConnection> TCPConnection::connect(const IPv4Address & remoteIp) {
 	IPaddress sdlIp = toSDLIPv4Address(remoteIp);
 
 	auto tcpSocket = SDLNet_TCP_Open(&sdlIp);
-	if (!tcpSocket) {
+	if(!tcpSocket) {
 		WARN(std::string("SDLNet_TCP_Open: ") + SDLNet_GetError());
 		return nullptr;
 	}
@@ -78,14 +79,14 @@ Reference<TCPConnection> TCPConnection::connect(const IPv4Address & remoteIp) {
 	return new TCPConnection(InternalData(std::move(tcpSocket), remoteIp));
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	auto tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (tcpSocket == -1) {
+	if(tcpSocket == -1) {
 		const int error = errno;
 		WARN(std::string(strerror(error)));
 		return nullptr;
 	}
 	sockaddr_in sockAddr = toSockaddr(remoteIp);
 	int result = ::connect(tcpSocket, reinterpret_cast<const sockaddr *>(&sockAddr), sizeof(sockaddr_in));
-	if (result == -1) {
+	if(result == -1) {
 		const int error = errno;
 		WARN(std::string(strerror(error)));
 		return nullptr;
@@ -101,7 +102,7 @@ Reference<TCPConnection> TCPConnection::connect(const IPv4Address & remoteIp) {
 
 //! (ctor)
 TCPConnection::TCPConnection(InternalData && internalData) :
-		connectionDataMutex(), connectionData(new InternalData(std::forward<InternalData>(internalData))), state(OPEN), stateMutex(), inQueueDataSize(0),
+		dataMutex(), internals(new InternalData(std::forward<InternalData>(internalData))), state(OPEN), inQueueDataSize(0),
 		inQueueMutex(), outQueueMutex(),
 		thread(std::bind(&TCPConnection::run, this)) {
 }
@@ -112,19 +113,18 @@ TCPConnection::~TCPConnection() {
 }
 
 float TCPConnection::getLastActiveTime() const {
-	std::lock_guard<std::mutex> lock(connectionDataMutex);
-	return connectionData->lastActiveTime;
+	std::lock_guard<std::mutex> lock(dataMutex);
+	return internals->lastActiveTime;
 }
 
 IPv4Address TCPConnection::getRemoteIp() const {
-	std::lock_guard<std::mutex> lock(connectionDataMutex);
-	return connectionData->remoteIp;
+	std::lock_guard<std::mutex> lock(dataMutex);
+	return internals->remoteIp;
 }
 
 bool TCPConnection::sendData(const std::vector<uint8_t> & data){
-	if (!isOpen()) {
+	if(!isOpen())
 		return false;
-	}
 	std::lock_guard<std::mutex> lock(outQueueMutex);
 	outQueue.emplace_back(data);
 	return true;
@@ -140,23 +140,23 @@ void TCPConnection::run() {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	SDLNet_SocketSet socketSet;
 	{
-		std::lock_guard<std::mutex> lockC(connectionDataMutex);
+		std::lock_guard<std::mutex> lockC(dataMutex);
 		socketSet = SDLNet_AllocSocketSet(1);
-		SDLNet_TCP_AddSocket(socketSet, connectionData->tcpSocket);
-		connectionData->lastActiveTime = Timer::now();
+		SDLNet_TCP_AddSocket(socketSet, internals->tcpSocket);
+		internals->lastActiveTime = Timer::now();
 	}
-	while (isOpen()) {
+	while(isOpen()) {
 		Utils::sleep(1);
 
 		// send outgoing data
 		if(!outQueue.empty()){ // this may give a wrong result, but requires no locking!
-			std::lock_guard<std::mutex> lockC(connectionDataMutex);
+			std::lock_guard<std::mutex> lockC(dataMutex);
 			std::lock_guard<std::mutex> lockO(outQueueMutex);
-			while (!outQueue.empty()) {
+			while(!outQueue.empty()) {
 				std::vector<uint8_t> & data = outQueue.front();
 				const int len = data.size();
 
-				if (SDLNet_TCP_Send(connectionData->tcpSocket, reinterpret_cast<const void *>(data.data()), len) < len) {
+				if(SDLNet_TCP_Send(internals->tcpSocket, reinterpret_cast<const void *>(data.data()), len) < len) {
 					setState(CLOSING);
 					break;
 				}
@@ -164,31 +164,28 @@ void TCPConnection::run() {
 			}
 		}
 		// receive data
-		while (true) {
-			if(!mayBeOpen() && !isOpen()) // double check: first one may be wrong because of missing lock.
-				break;
-			
+		while(isOpen()) {
 			const int socketReady = SDLNet_CheckSockets(socketSet, 0);
 
-			if (socketReady == 0) { // no data received
+			if(socketReady == 0) { // no data received
 				break;
-			} else if (socketReady < 0) {
+			} else if(socketReady < 0) {
 				setState(CLOSING);
 				WARN("TCP Connection error");
 				break;
 			}
 			int bytesRecieved;
 			{
-				std::lock_guard<std::mutex> lockC(connectionDataMutex);
-				bytesRecieved = SDLNet_TCP_Recv(connectionData->tcpSocket, buffer, BUFFER_SIZE);
+				std::lock_guard<std::mutex> lock(dataMutex);
+				bytesRecieved = SDLNet_TCP_Recv(internals->tcpSocket, buffer, BUFFER_SIZE);
 			}
-			if (bytesRecieved <= 0) {
+			if(bytesRecieved <= 0) {
 				setState(CLOSING);
 				break;
 			}
 			{
-				std::lock_guard<std::mutex> lockC(connectionDataMutex);
-				connectionData->lastActiveTime = Timer::now();
+				std::lock_guard<std::mutex> lock(dataMutex);
+				internals->lastActiveTime = Timer::now();
 			}
 			{
 				std::lock_guard<std::mutex> lock(inQueueMutex);
@@ -198,30 +195,29 @@ void TCPConnection::run() {
 		}
 	}
 	{
-		std::lock_guard<std::mutex> lockC(connectionDataMutex);
+		std::lock_guard<std::mutex> lock(dataMutex);
 		SDLNet_FreeSocketSet(socketSet);
-		SDLNet_TCP_Close(connectionData->tcpSocket);
-		setState(CLOSED);
+		SDLNet_TCP_Close(internals->tcpSocket);
 	}
 // ---------------------------------------------------------
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 
 	pollfd pollDescr;
 	{
-		std::lock_guard<std::mutex> lockC(connectionDataMutex);
-		pollDescr.fd = connectionData->tcpSocket;
-		connectionData->lastActiveTime = Timer::now();
+		std::lock_guard<std::mutex> lockC(dataMutex);
+		pollDescr.fd = internals->tcpSocket;
+		internals->lastActiveTime = Timer::now();
 	}
 
-	while (isOpen()) {
+	while(isOpen()) {
 		// send outgoing data
 		{
-			std::lock_guard<std::mutex> lockC(connectionDataMutex);
+			std::lock_guard<std::mutex> lockC(dataMutex);
 			std::lock_guard<std::mutex> lockO(outQueueMutex);
-			while (!outQueue.empty()) {
+			while(!outQueue.empty()) {
 				const std::vector<uint8_t> & data = outQueue.front();
 				const int len = data.size();
-				if (send(connectionData->tcpSocket, data.data(), len, 0) < len) {
+				if(send(internals->tcpSocket, data.data(), len, 0) < len) {
 					const int error = errno;
 					WARN(std::string(strerror(error)));
 					setState(CLOSING);
@@ -232,16 +228,16 @@ void TCPConnection::run() {
 		}
 
 		// receive data
-		while (isOpen()) {
+		while(isOpen()) {
 			// Check if reading is possible. Wait at most 1 ms.
 			pollDescr.events = POLLIN;
 			pollDescr.revents = 0;
 			const int result = poll(&pollDescr, 1, 1);
 
-			if (result == 0) {
+			if(result == 0) {
 				// Socket is not ready for reading yet. Continue with writing.
 				break;
-			} else if (result < 0) {
+			} else if(result < 0) {
 				const int error = errno;
 				WARN(std::string(strerror(error)));
 				setState(CLOSING);
@@ -256,19 +252,19 @@ void TCPConnection::run() {
 			}
 			int bytesRecieved;
 			{
-				std::lock_guard<std::mutex> lockC(connectionDataMutex);
-				bytesRecieved = recv(connectionData->tcpSocket, buffer, BUFFER_SIZE, 0);
+				std::lock_guard<std::mutex> lockC(dataMutex);
+				bytesRecieved = recv(internals->tcpSocket, buffer, BUFFER_SIZE, 0);
 				if(bytesRecieved == 0) {
 					// Peer has shut down.
 					setState(CLOSING);
 					break;
-				} else if (bytesRecieved < 0) {
+				} else if(bytesRecieved < 0) {
 					const int error = errno;
 					WARN(std::string(strerror(error)));
 					setState(CLOSING);
 					break;
 				}
-				connectionData->lastActiveTime = Timer::now();
+				internals->lastActiveTime = Timer::now();
 			}
 			{
 				std::lock_guard<std::mutex> lock(inQueueMutex);
@@ -278,27 +274,29 @@ void TCPConnection::run() {
 		}
 	}
 	{
-		std::lock_guard<std::mutex> lockC(connectionDataMutex);
-		if (::close(connectionData->tcpSocket) != 0) {
+		std::lock_guard<std::mutex> lockC(dataMutex);
+		if(::close(internals->tcpSocket) != 0) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
 		}
-		connectionData->tcpSocket = 0;
-		setState(CLOSED);
+		internals->tcpSocket = 0;
 	}
 #endif
 // ---------------------------------------------------------
 }
 
 void TCPConnection::close() {
-	if(isOpen())
-		setState(CLOSING);
-	thread.join();
+	if(!isClosed()){
+		if(isOpen())
+			setState(CLOSING);
+		thread.join();
+		setState(CLOSED);
+	}
 }
 
 //! (internal) \note caller needs to lock inQueue
 std::vector<uint8_t> TCPConnection::extractDataFromInQueue(size_t numBytes) {
-	if (inQueueDataSize < numBytes || numBytes == 0)
+	if(inQueueDataSize < numBytes || numBytes == 0)
 		return std::vector<uint8_t>();
 
 	std::vector<uint8_t> data;
@@ -307,7 +305,7 @@ std::vector<uint8_t> TCPConnection::extractDataFromInQueue(size_t numBytes) {
 	size_t packetsToRemove = 0;
 	for (auto it = inQueue.begin(); it != inQueue.end() && remainingBytes > 0; ++it) {
 		// take full packet
-		if (remainingBytes >= it->size()) {
+		if(remainingBytes >= it->size()) {
 			data.insert(data.end(), it->begin(), it->end());
 			remainingBytes -= it->size();
 			++packetsToRemove;
@@ -319,7 +317,7 @@ std::vector<uint8_t> TCPConnection::extractDataFromInQueue(size_t numBytes) {
 		}
 	}
 	// remove packets from queue
-	if (packetsToRemove == inQueue.size()) {
+	if(packetsToRemove == inQueue.size()) {
 		inQueue.clear();
 	} else {
 		for (; packetsToRemove > 0; --packetsToRemove) {
@@ -327,7 +325,7 @@ std::vector<uint8_t> TCPConnection::extractDataFromInQueue(size_t numBytes) {
 		}
 	}
 	inQueueDataSize -= numBytes;
-	return data;
+	return std::move(data);
 }
 
 
@@ -372,9 +370,9 @@ std::string TCPConnection::receiveString(char delimiter/*='\0'*/) {
 
 		// extract string
 		std::string s;
-		if (found) {
+		if(found) {
 			const std::vector<uint8_t> d = extractDataFromInQueue(pos + 1);
-			if (!d.empty())
+			if(!d.empty())
 				s.assign(d.begin(), d.end());
 		}
 		return s;
@@ -406,12 +404,12 @@ TCPServer * TCPServer::create(uint16_t port) {
 
 	/// Create server-socket
 	int val = SDLNet_ResolveHost(&sdlIp, nullptr, port);
-	if (-1 == val) {
+	if(-1 == val) {
 		WARN("Cannot resolve host name or address");
 		return nullptr;
 	}
 	TCPsocket serverSocket = SDLNet_TCP_Open(&sdlIp);
-	if (!serverSocket) {
+	if(!serverSocket) {
 		WARN(std::string("SDLNet_TCP_Open: ") + SDLNet_GetError());
 		return nullptr;
 	}
@@ -419,7 +417,7 @@ TCPServer * TCPServer::create(uint16_t port) {
 	return new TCPServer(std::move(serverSocket));
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	auto tcpServerSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (tcpServerSocket == -1) {
+	if(tcpServerSocket == -1) {
 		const int error = errno;
 		WARN(std::string(strerror(error)));
 		return nullptr;
@@ -428,7 +426,7 @@ TCPServer * TCPServer::create(uint16_t port) {
 	const int optionTrue = 1;
 	{
 		const int result = setsockopt(tcpServerSocket, SOL_SOCKET, SO_REUSEADDR, &optionTrue, sizeof(int));
-		if (result == -1) {
+		if(result == -1) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
 			return nullptr;
@@ -436,7 +434,7 @@ TCPServer * TCPServer::create(uint16_t port) {
 	}
 	{
 		const int result = setsockopt(tcpServerSocket, IPPROTO_TCP, TCP_NODELAY, &optionTrue, sizeof(int));
-		if (result == -1) {
+		if(result == -1) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
 			return nullptr;
@@ -449,7 +447,7 @@ TCPServer * TCPServer::create(uint16_t port) {
 		sockAddr.sin_port = htons(port);
 		sockAddr.sin_addr.s_addr = 0x00000000; // INADDR_ANY without old-style cast
 		const int result = ::bind(tcpServerSocket, reinterpret_cast<const sockaddr *> (&sockAddr), sizeof(sockaddr_in));
-		if (result == -1) {
+		if(result == -1) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
 			return nullptr;
@@ -457,7 +455,7 @@ TCPServer * TCPServer::create(uint16_t port) {
 	}
 	{
 		const int result = listen(tcpServerSocket, 8);
-		if (result == -1) {
+		if(result == -1) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
 			return nullptr;
@@ -472,9 +470,8 @@ TCPServer::TCPServer(InternalData && internalData) :
 		serverDataMutex(), 
 		serverData(new InternalData(std::forward<InternalData>(internalData))), 
 		state(OPEN), 
-		stateMutex(), 
 		queueMutex(),
-		connectionHandlingThread(std::bind(&TCPServer::run, this)) {
+		thread(std::bind(&TCPServer::run, this)) {
 }
 
 //! (dtor) TCPServer
@@ -486,26 +483,26 @@ TCPServer::~TCPServer() {
 Reference<TCPConnection> TCPServer::getIncomingConnection() {
 	std::lock_guard<std::mutex> lock(queueMutex);
 	Reference<TCPConnection> connection;
-	if (!newConnectionsQueue.empty()) {
-		connection = newConnectionsQueue.front();
-		newConnectionsQueue.pop_front();
+	if(!incomingConnections.empty()) {
+		connection = incomingConnections.front();
+		incomingConnections.pop_front();
 	}
 	return connection;
 }
 
 void TCPServer::run() {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-	while (isOpen()) {
+	while(isOpen()) {
 		TCPsocket clientSocket;
 		{
-			std::lock_guard<std::mutex> lockS(serverDataMutex);
+			std::lock_guard<std::mutex> lock(serverDataMutex);
 			clientSocket = SDLNet_TCP_Accept(serverData->serverSocket);
 		}
-		if (clientSocket) {
-			std::lock_guard<std::mutex> lockQ(queueMutex);
+		if(clientSocket) {
+			std::lock_guard<std::mutex> lock(queueMutex);
 			IPaddress * remote_sdlIp = SDLNet_TCP_GetPeerAddress(clientSocket);
 			auto remoteIp = fromSDLIPv4Address(*remote_sdlIp);
-			newConnectionsQueue.push_back(new TCPConnection(
+			incomingConnections.push_back(new TCPConnection(
 				TCPConnection::InternalData(std::move(clientSocket), remoteIp)));
 		} else {
 			Utils::sleep(1);
@@ -525,17 +522,17 @@ void TCPServer::run() {
 		set.events = POLLIN;
 		set.revents = 0;
 	}
-	while (isOpen()) {
+	while(isOpen()) {
 		// Check if a readable event is available (see accept(2)).
 		const int result = poll(&set, 1, 5);
-		if (result < 0) {
+		if(result < 0) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
 			setState(CLOSING);
 			break;
 		}
-		if (result > 0) {
-			if (set.revents != POLLIN) {
+		if(result > 0) {
+			if(set.revents != POLLIN) {
 				const int error = errno;
 				WARN(std::string(strerror(error)));
 				setState(CLOSING);
@@ -549,13 +546,13 @@ void TCPServer::run() {
 
 			std::lock_guard<std::mutex> lockQ(queueMutex);
 			auto remoteIp = fromSockaddr(clientAddr);
-			newConnectionsQueue.push_back(new TCPConnection(
+			incomingConnections.push_back(new TCPConnection(
 				TCPConnection::InternalData(clientSocket, remoteIp)));
 		}
 	}
 	{
 		std::lock_guard<std::mutex> lockS(serverDataMutex);
-		if (::close(serverData->tcpServerSocket) != 0) {
+		if(::close(serverData->tcpServerSocket) != 0) {
 			const int error = errno;
 			WARN(std::string(strerror(error)));
 		}
@@ -563,21 +560,22 @@ void TCPServer::run() {
 	}
 #endif
 // -----------------------------------------------------
-
-	setState(CLOSED);
 }
 
 void TCPServer::close() {
 	{
 		std::lock_guard<std::mutex> lock(queueMutex);
-		while (!newConnectionsQueue.empty()) {
-			newConnectionsQueue.front()->close();
-			newConnectionsQueue.pop_front();
+		while(!incomingConnections.empty()) {
+			incomingConnections.front()->close();
+			incomingConnections.pop_front();
 		}
 	}
-	if (isOpen())
-		setState(CLOSING);
-	connectionHandlingThread.join();
+	if(!isClosed()){
+		if(isOpen())
+			setState(CLOSING);
+		thread.join();
+		setState(CLOSED);
+	}
 }
 
 }

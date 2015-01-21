@@ -25,9 +25,7 @@ static const uint16_t MSG_TYPE_KEY_VALUE = 1;
 void DataConnection::run() {
 	static_assert(sizeof(channelId_t)==2,"channelId_t should be uint16_t");
 	uint32_t incomingSize = 0;
-	while(true){
-		if(!connection->mayBeOpen() && !connection->isOpen())
-			break;
+	while( connection->isOpen() ){
 		bool busy = false;
 		if(!outgoingValues.empty()) // may be wrong!
 		{ // send values

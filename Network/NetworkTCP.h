@@ -15,6 +15,7 @@
 #include "../ReferenceCounter.h"
 #include <cstdint>
 #include <deque>
+#include <atomic>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -39,9 +40,9 @@ class TCPConnection : public ReferenceCounter<TCPConnection> {
 		static Reference<TCPConnection> connect(const IPv4Address & remote);
 
 	private:
-		mutable std::mutex connectionDataMutex;
+		mutable std::mutex dataMutex;
 		struct InternalData;
-		std::unique_ptr<InternalData> connectionData;
+		std::unique_ptr<InternalData> internals;
 		TCPConnection(InternalData && internalData);
 
 	public:
@@ -53,26 +54,13 @@ class TCPConnection : public ReferenceCounter<TCPConnection> {
 		/*! @name State */
 		// @{
 	private:
-		enum state_t {
-			OPEN, CLOSING, CLOSED
-		} volatile state;
-		mutable std::mutex stateMutex;
-
-		void setState(state_t newState) {
-			std::lock_guard<std::mutex> lock(stateMutex);
-			state = newState;
-		}
+		enum state_t : int {	OPEN, CLOSING, CLOSED	};
+		std::atomic<state_t> state;
+		void setState(state_t newState)		{	state = newState;	}
+		state_t getState() const			{	return state;	}
 	public:
-		state_t getState() const {
-			std::lock_guard<std::mutex> lock(stateMutex);
-			return state;
-		}
-		bool isOpen() const{
-			return getState() == OPEN;
-		}
-		bool mayBeOpen()const volatile{
-			return state == OPEN;
-		}
+		bool isOpen() const					{	return state == OPEN;	}
+		bool isClosed() const				{	return state == CLOSED;	}
 		void close();
 		// @}
 
@@ -120,58 +108,35 @@ class TCPConnection : public ReferenceCounter<TCPConnection> {
  * TCP Server which creates TCPConnections
  */
 class TCPServer {
+		std::mutex serverDataMutex;
+		struct InternalData;
+		std::unique_ptr<InternalData> serverData;
+		std::deque<Reference<TCPConnection>> incomingConnections;
+		enum state_t : int				{	OPEN, CLOSING, CLOSED	};
+		std::atomic<state_t> state;
+		std::mutex queueMutex;
+		std::thread thread;
+
+		TCPServer(InternalData && internalData);
+		void run();
+
+		void setState(state_t newState)	{	state = newState;	}
+		state_t getState() const		{	return state;	}
+
 	public:
 		/*! (Factory) Try to create a TCPServer listening on the given port.
 		 Returns nullptr, if the port can not be opened. */
 		static TCPServer * create(uint16_t port);
 
-	private:
-		std::mutex serverDataMutex;
-		struct InternalData;
-		std::unique_ptr<InternalData> serverData;
-		TCPServer(InternalData && internalData);
-
-	public:
 		virtual ~TCPServer();
 
-		/*! @name State */
-		// @{
-	private:
-		enum state_t {
-			OPEN, CLOSING, CLOSED
-		} state;
-		mutable std::mutex stateMutex;
-
-		void setState(state_t newState) {
-			std::lock_guard<std::mutex> lock(stateMutex);
-			state = newState;
-		}
-	public:
-		state_t getState() const {
-			std::lock_guard<std::mutex> lock(stateMutex);
-			return state;
-		}
-		bool isOpen() const {
-			return getState() == OPEN;
-		}
-
+		bool isOpen() const				{	return state == OPEN;	}
+		bool isClosed() const			{	return state == CLOSED;	}
 
 		/*! Stops the server. New incoming connections are closed, old
 		 connections persist. */
 		void close();
-		// @}
 
-		/*! @name Connection handling */
-		// @{
-	private:
-		std::deque<Reference<TCPConnection>> newConnectionsQueue;
-		std::mutex queueMutex;
-		
-		std::thread connectionHandlingThread;
-
-		void run();
-
-	public:
 		/*! Returns a new Connection or nullptr if there is none.  Each incoming
 		 connection is only reported once.   */
 		Reference<TCPConnection> getIncomingConnection();
