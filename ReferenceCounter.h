@@ -1,7 +1,7 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
-	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
+	Copyright (C) 2007-2012,2015 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
@@ -12,14 +12,13 @@
 #define REFERENCECOUNTER_H_INCLUDED
 
 #include "References.h"
+#include <atomic>
 
 namespace Util {
 
 template<class Obj_t>
 struct ObjectDeleter {
-	static void release(Obj_t * obj) {
-		delete obj;
-	}
+	static void release(Obj_t * obj)	{	delete obj;	}
 };
 
 /**
@@ -34,8 +33,7 @@ struct ObjectDeleter {
  */
 template<class Obj_t, class ObjReleaseHandler_t = ObjectDeleter<Obj_t>>
 class ReferenceCounter {
-	private:
-		int refCounter;
+		std::atomic<int> refCounter;
 
 	protected:
 		//! Type definition for this class. It can be used to call a parent's constructor from the inheriting class.
@@ -46,12 +44,10 @@ class ReferenceCounter {
 		typedef Reference<Obj_t> ref_t;
 
 		//! Default constructor
-		ReferenceCounter() : refCounter(0) {
-		}
+		ReferenceCounter() : refCounter(0) 							{	}
 
 		//! Copy constructor (counter of the new object must be zero)
-		ReferenceCounter(const ReferenceCounter &) : refCounter(0) {
-		}
+		ReferenceCounter(const ReferenceCounter &) : refCounter(0) 	{	}
 
 		//! Forbid move constructor
 		ReferenceCounter(ReferenceCounter &&) = delete;
@@ -63,30 +59,16 @@ class ReferenceCounter {
 		ReferenceCounter & operator=(ReferenceCounter &&) = delete;
 
 		//! Return the current number of references to this object.
-		int countReferences() const {
-			return refCounter;
-		}
+		int countReferences() const									{	return refCounter;	}
 
 		//! Increase the reference counter of object @p o.
-		static void addReference(Obj_t * o) {
-			if(o != nullptr) {
-				++o->refCounter;
-			}
-		}
+		static void addReference(Obj_t * o)							{	if( o ) ++o->refCounter;	}
 
 		//! Decrease the reference counter of object @p o. If the counter is zero, the object is released.
-		static void removeReference(Obj_t * o) {
-			if(o != nullptr && (--o->refCounter) == 0) {
-				ObjReleaseHandler_t::release(o);
-			}
-		}
+		static void removeReference(Obj_t * o)						{	if( o && (--o->refCounter) == 0 )	ObjReleaseHandler_t::release(o);	}
 
 		//! Decrease the reference counter of object @p o. The object is not released, even if the counter is zero.
-		static void decreaseReference(Obj_t * o) {
-			if(o != nullptr) {
-				--o->refCounter;
-			}
-		}
+		static void decreaseReference(Obj_t * o)					{	if( o ) --o->refCounter;	}
 };
 
 }
