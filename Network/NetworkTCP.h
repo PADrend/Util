@@ -1,7 +1,7 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
-	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
+	Copyright (C) 2007-2012,2015 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
@@ -30,25 +30,23 @@ class TCPServer;
  * TCP Connection between two endpoints.
  */
 class TCPConnection : public ReferenceCounter<TCPConnection> {
-	public:
 		friend class TCPServer;
-
 		static const size_t BUFFER_SIZE = 4096;
 
+		class Implementation;
+		std::unique_ptr<Implementation> implementation;
+		TCPConnection(Implementation *);
+		std::atomic<float> lastActiveTime;
+		
+	public:
+
 		/*! Tries to open a connection to a TCP-Server at given address.
-		 \return TCPConnection if successful, nullptr on failure */
+		 \return TCPConnection if successful, throws a runtime_error on failure */
 		static Reference<TCPConnection> connect(const IPv4Address & remote);
 
-	private:
-		mutable std::mutex dataMutex;
-		struct InternalData;
-		std::unique_ptr<InternalData> internals;
-		TCPConnection(InternalData && internalData);
-
-	public:
 		virtual ~TCPConnection();
 
-		float getLastActiveTime() const;
+		float getLastActiveTime() const		{	return lastActiveTime;	}
 		IPv4Address getRemoteIp() const;
 
 		/*! @name State */
@@ -80,8 +78,7 @@ class TCPConnection : public ReferenceCounter<TCPConnection> {
 	public:
 		bool sendData(const std::vector<uint8_t> & data);
 
-		/*! \note The string should end with a termination symbol, e.g. 0
-		 Otherwise it can't be reextracted properly.   */
+		/*! \note The string should end with a termination symbol, e.g. 0 Otherwise it can't be extracted properly.   */
 		bool sendString(const std::string & s);
 
 		/*! Returns all received data as a std::vector<uint8_t> Object
@@ -89,11 +86,10 @@ class TCPConnection : public ReferenceCounter<TCPConnection> {
 		std::vector<uint8_t> receiveData();
 
 		/*! Returns numBytes many bytes of received data as std::vector<uint8_t> Object
-		 or nullptr if less data was received. */
+		 or an empty array if less data was received. */
 		std::vector<uint8_t> receiveData(size_t numBytes);
 
-		/*! Returns a string ending with @p delimiter or "" if no delimiter is
-		 found. */
+		/*! Returns a string ending with @p delimiter or "" if no delimiter is found. */
 		std::string receiveString(char delimiter = '\0');
 
 		/*! Returns the number of bytes in the input buffer */
@@ -108,16 +104,15 @@ class TCPConnection : public ReferenceCounter<TCPConnection> {
  * TCP Server which creates TCPConnections
  */
 class TCPServer {
-		std::mutex serverDataMutex;
-		struct InternalData;
-		std::unique_ptr<InternalData> serverData;
+		class Implementation;
+		std::unique_ptr<Implementation> implementation;
 		std::deque<Reference<TCPConnection>> incomingConnections;
 		enum state_t : int				{	OPEN, CLOSING, CLOSED	};
 		std::atomic<state_t> state;
 		std::mutex queueMutex;
 		std::thread thread;
 
-		TCPServer(InternalData && internalData);
+		TCPServer(Implementation* implementation);
 		void run();
 
 		void setState(state_t newState)	{	state = newState;	}
@@ -125,7 +120,7 @@ class TCPServer {
 
 	public:
 		/*! (Factory) Try to create a TCPServer listening on the given port.
-		 Returns nullptr, if the port can not be opened. */
+		 Throws an exception, if the port can not be opened. */
 		static TCPServer * create(uint16_t port);
 
 		virtual ~TCPServer();
