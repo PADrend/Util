@@ -23,6 +23,7 @@
 #include "../References.h"
 #include <memory>
 #include <thread>
+#include <atomic>
 
 namespace Util {
 namespace UI {
@@ -44,7 +45,7 @@ class SplashScreenWin : public SplashScreen {
 		void removeMessage() override {
 		}
 
-	protected:
+	private:
 		//! Check for events.
 		void eventLoop();
 
@@ -54,17 +55,11 @@ class SplashScreenWin : public SplashScreen {
 		//! Allow access to constructor from factory.
 		friend std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
 
-	private:
+		
 		Reference<Bitmap> splashImage;
-
-		bool running;
-		mutable std::mutex runningMutex;
-
-		//! Thread checking for events.
-		std::thread eventThread;
-
-		bool isRunning() const;
-		void stop();
+		std::atomic<bool> running;
+		std::thread myThread;
+		
 };
 
 }

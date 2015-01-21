@@ -17,6 +17,7 @@
 #include "../Macros.h"
 #include <mutex>
 #include <thread>
+#include <thread>
 
 namespace Util {
 namespace UI {
@@ -73,7 +74,6 @@ void SplashScreenWin::eventLoop() {
 		wc.lpszClassName = g_szClassName;
 		wc.hIconSm       = LoadIcon(hInstance, IDI_APPLICATION);
 		if(!RegisterClassEx(&wc)) {
-			setStatus(ERROR_STATUS);
 			MessageBox(nullptr, "Window Registration Failed!", "Error!",
 					   MB_ICONEXCLAMATION | MB_OK);
 			return;
@@ -94,7 +94,6 @@ void SplashScreenWin::eventLoop() {
 			   nullptr, nullptr, hInstance, nullptr);
 
 	if(hwnd == nullptr) {
-		setStatus(ERROR_STATUS);
 		MessageBox(nullptr, "Window Creation Failed!", "Error!",
 				   MB_ICONEXCLAMATION | MB_OK);
 		return ;
@@ -131,15 +130,15 @@ void SplashScreenWin::eventLoop() {
 
 		ReleaseDC(nullptr, hdcScreen);
 
-		if (hbmp == nullptr) {
-			setStatus(ERROR_STATUS);
+		if( !hbmp ) {
+			running = false;
 			MessageBox(nullptr, "CreateDIBSection Failed!", "Error!",
 					   MB_ICONEXCLAMATION | MB_OK);
 			return ;
 		}
 		Reference<PixelAccessor> source = PixelAccessor::create(splashImage.get());
-		if(source.isNull()) {
-			setStatus(ERROR_STATUS);
+		if( !source ) {
+			running = false;
 			MessageBox(nullptr, "createPixelAccessor Failed!", "Error!",
 					   MB_ICONEXCLAMATION | MB_OK);
 			return ;
@@ -188,9 +187,7 @@ void SplashScreenWin::eventLoop() {
 //	// show the window
 	ShowWindow(hwnd, SW_SHOWNORMAL);//nCmdShow);
 
-	initDone = true;
-	setStatus(RUNNING_STATUS);
-	while(getStatus() == RUNNING_STATUS) {
+	while(running) {
 //		std::cout<< "#";
 		Utils::sleep(100);
 
@@ -198,7 +195,6 @@ void SplashScreenWin::eventLoop() {
 		while(PeekMessage(&Msg, hwnd, 0, 0,PM_REMOVE) != 0) {
 			TranslateMessage(&Msg);
 			DispatchMessage(&Msg);
-//			std::cout<< "M";
 		}
 	}
 	DestroyWindow(hwnd);
@@ -209,23 +205,16 @@ SplashScreenWin::SplashScreenWin(const std::string & /*splashTitle*/, const Refe
 		SplashScreen(), 
 		splashImage(splashImage.isNotNull() ? new Bitmap(*_splashImage.get()) : nullptr),
 		running(true),
-		runningMutex(),
-		thread(std::bind(&SplashScreenWin::eventLoop, this)) {
+		myThread(std::bind(&SplashScreenWin::eventLoop, this)) {
 }
 
 //! (dtor)
 SplashScreenWin::~SplashScreenWin() {
-	{
-		std::lock_guard<std::mutex> lock(runningMutex);
-		running = false;
-	}
-	thread.join();
+	running = false;
+	myThread.join();
 }
 
-bool SplashScreenWin::isRunning() const {
-	std::lock_guard<std::mutex> lock(runningMutex);
-	return running;
-}
+
 
 }
 }
