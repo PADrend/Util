@@ -20,6 +20,8 @@
 #include "Serialization/StreamerSDLImage.h"
 #include "GenericAttributeSerialization.h"
 
+#include <iostream>
+
 namespace Util {
 
 bool init() {
