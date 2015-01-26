@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -11,7 +11,6 @@
 #ifndef SPLASHSCREEN_H_
 #define SPLASHSCREEN_H_
 
-#include "../Concurrency/UserThread.h"
 #include "../References.h"
 #include <memory>
 #include <string>
@@ -19,9 +18,6 @@
 namespace Util {
 // Forward declarations.
 class Bitmap;
-namespace Concurrency {
-class Mutex;
-}
 
 namespace UI {
 
@@ -31,10 +27,10 @@ namespace UI {
  * @author Benjamin Eikel
  * @date 2010-08-23
  */
-class SplashScreen : public Concurrency::UserThread {
+class SplashScreen {
 	public:
 		//! Destroy the splash screen and free the allocated resources.
-		virtual ~SplashScreen();
+		virtual ~SplashScreen() = default;
 
 		//! Display a message on the splash screen.
 		virtual void showMessage(const std::string & message) = 0;
@@ -46,22 +42,8 @@ class SplashScreen : public Concurrency::UserThread {
 		//! Storage of error message.
 		std::string errorMessage;
 
-		//! Thread status
-		enum status_t {
-			UNDEFINED_STATUS,
-			ERROR_STATUS,
-			RUNNING_STATUS,
-			CLOSING_STATUS
-		};
-
-		//! Query the current thread status.
-		status_t getStatus() const;
-
-		//! Set the current thread status.
-		void setStatus(status_t newStatus);
-
 		//! Set internal variables.
-		SplashScreen();
+		SplashScreen() = default;
 
 		//! Allow access to members from factory.
 		friend std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
@@ -71,12 +53,6 @@ class SplashScreen : public Concurrency::UserThread {
 		SplashScreen(SplashScreen &&) = delete;
 		SplashScreen & operator=(const SplashScreen &) = delete;
 		SplashScreen & operator=(SplashScreen &&) = delete;
-
-		//! Guarantee mutal exclusion for @a status.
-		std::unique_ptr<Concurrency::Mutex> statusMutex;
-
-		//! Status needed for threading.
-		status_t status;
 };
 
 }

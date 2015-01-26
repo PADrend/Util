@@ -1,6 +1,6 @@
 #
 # This file is part of the Util library.
-# Copyright (C) 2011-2013 Benjamin Eikel <benjamin@eikel.org>
+# Copyright (C) 2011-2014 Benjamin Eikel <benjamin@eikel.org>
 #
 # This library is subject to the terms of the Mozilla Public License, v. 2.0.
 # You should have received a copy of the MPL along with this library; see the 
@@ -12,7 +12,6 @@ option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built
 if(UTIL_BUILD_TESTS)
 	add_executable(UtilTest 
 		BidirectionalMapTest.cpp
-		ConcurrencyTest.cpp
 		EncodingTest.cpp
 		FactoryTest.cpp
 		FileUtilsTest.cpp
@@ -38,6 +37,13 @@ if(UTIL_BUILD_TESTS)
 	find_package(CppUnit REQUIRED)
 	target_include_directories(UtilTest PRIVATE ${CPPUNIT_INCLUDE_DIRS})
 	target_link_libraries(UtilTest LINK_PRIVATE ${CPPUNIT_LIBRARIES})
+
+	# Dependency to pthread
+	set(CMAKE_THREAD_PREFER_PTHREAD ON)
+	find_package(Threads)
+	if(CMAKE_USE_PTHREADS_INIT AND (NOT DEFINED XCODE_VERSION OR XCODE_VERSION LESS 5.0))
+		target_link_libraries(UtilTest LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+	endif()
 
 	if(COMPILER_SUPPORTS_CXX11)
 		set_property(TARGET UtilTest APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11 ")

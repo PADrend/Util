@@ -11,7 +11,6 @@ add_sources(Util
 	EventContext.cpp
 	EventQueue.cpp
 	UI.cpp
-	SplashScreen.cpp
 	SplashScreenWin.cpp
 	SplashScreenX11.cpp
 	WindowEGL.cpp

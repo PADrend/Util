@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2012-2014 Benjamin Eikel <benjamin@eikel.org>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
@@ -15,14 +15,12 @@
 #include "FileName.h"
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace Util {
-namespace Concurrency {
-class Mutex;
-}
 class Archive;
 
 /**
@@ -59,7 +57,7 @@ class ArchiveProvider : public AbstractFSProvider {
 		ArchiveProvider & operator=(const ArchiveProvider &) = delete;
 		ArchiveProvider & operator=(ArchiveProvider &&) = delete;
 
-		std::unique_ptr<Concurrency::Mutex> archiveMutex;
+		std::mutex archiveMutex;
 		std::unordered_map<std::string, std::unique_ptr<Archive>> openArchives;
 
 		Archive * getHandle(const std::string & archiveFileName);

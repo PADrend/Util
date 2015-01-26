@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -18,7 +18,6 @@
 namespace Util {
 namespace Network {
 
-
 //! (static)
 ClockSynchronizer * ClockSynchronizer::createServer(uint16_t port){
 	auto socket = new UDPNetworkSocket(port);
@@ -26,7 +25,7 @@ ClockSynchronizer * ClockSynchronizer::createServer(uint16_t port){
 		delete socket;
 		return nullptr;
 	}
-	return new ClockSynchronizer(SERVER,socket);
+	return new ClockSynchronizer(true, socket);
 }
 
 //! (static)
@@ -37,14 +36,18 @@ ClockSynchronizer * ClockSynchronizer::createClient(const IPv4Address & remoteIP
 		return nullptr;
 	}
 	socket->addTarget(remoteIP);
-	return new ClockSynchronizer(CLIENT,socket);
+	return new ClockSynchronizer(false, socket);
 }
 
 //! (ctor)
-ClockSynchronizer::ClockSynchronizer(mode_t _mode, UDPNetworkSocket *socket ):
-		Concurrency::UserThread(),
-		state(CLOSED),mode(_mode),mySocket(socket),diff(0){
-	Concurrency::UserThread::start();
+ClockSynchronizer::ClockSynchronizer(bool startServer, UDPNetworkSocket * socket) :
+	running(true),
+	runningMutex(),
+	mySocket(socket),
+	diff(0),
+	thread(startServer ? 
+				std::bind(&ClockSynchronizer::runServer, this) : 
+				std::bind(&ClockSynchronizer::runClient, this)) {
 }
 
 //! (dtor)
@@ -56,20 +59,6 @@ float ClockSynchronizer::getClockSec()const{
 	return Timer::now()+diff;
 }
 
-//! ---|> UserThread
-void ClockSynchronizer::run(){
-	state=RUNNING;
-
-	if(mode==SERVER){
-		runServer();
-	}else{
-		runClient();
-	}
-	mySocket->close();
-	mySocket.reset();
-	state=CLOSED;
-}
-
 //! (internal)
 void ClockSynchronizer::runServer(){
 	const std::string requestString("rqTime");
@@ -78,7 +67,7 @@ void ClockSynchronizer::runServer(){
 	const std::string responseString("reTime");
 	std::copy(responseString.begin(),responseString.end(),answer.begin());
 
-	while(getState()==RUNNING){
+	while(isRunning()) {
 		Utils::sleep(1); // todo: test if this does not harm too much
 		UDPNetworkSocket::Packet * p=mySocket->receive();
 		if(p==nullptr)
@@ -106,7 +95,7 @@ void ClockSynchronizer::runClient(){
 	const std::string requestString("rqTime");
 	const std::vector<uint8_t> request(requestString.begin(), requestString.end());
 	const std::string responseString="reTime";
-	while(getState()==RUNNING){
+	while(isRunning()) {
 		Utils::sleep(453); // todo: adjust later...
 
 		const float startTime=Timer::now();
@@ -137,13 +126,19 @@ void ClockSynchronizer::runClient(){
 	}
 }
 
-void ClockSynchronizer::close(){
-	if(getState()==RUNNING){
-		state=CLOSING;
+bool ClockSynchronizer::isRunning() const {
+	std::lock_guard<std::mutex> lock(runningMutex);
+	return running;
+}
+
+void ClockSynchronizer::close() {
+	{
+		std::lock_guard<std::mutex> lock(runningMutex);
+		running = false;
 	}
-	if(UserThread::isActive()){
-		UserThread::join();
-	}
+	thread.join();
+	mySocket->close();
+	mySocket.reset();
 }
 
 }

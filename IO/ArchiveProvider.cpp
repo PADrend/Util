@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2012-2014 Benjamin Eikel <benjamin@eikel.org>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
@@ -11,9 +11,6 @@
 #include "ArchiveProvider.h"
 #include "FileName.h"
 #include "FileUtils.h"
-#include "../Concurrency/Concurrency.h"
-#include "../Concurrency/Lock.h"
-#include "../Concurrency/Mutex.h"
 #include "../Factory/Factory.h"
 #include "../Macros.h"
 #include "../StringUtils.h"
@@ -474,7 +471,7 @@ bool ArchiveProvider::init() {
 }
 
 ArchiveProvider::ArchiveProvider() :
-	AbstractFSProvider(), archiveMutex(Concurrency::createMutex()) {
+	AbstractFSProvider(), archiveMutex() {
 }
 
 ArchiveProvider::~ArchiveProvider() {
@@ -492,7 +489,7 @@ AbstractFSProvider::status_t ArchiveProvider::readFile(const FileName & url, std
 
 	bool success = false;
 
-	auto lock = Concurrency::createLock(*archiveMutex);
+	std::lock_guard<std::mutex> lock(archiveMutex);
 	archive * readHandle = openReadHandle(archiveFileName);
 
 	archive_entry * entry;
@@ -531,14 +528,14 @@ AbstractFSProvider::status_t ArchiveProvider::writeFile(const FileName & url,
 	}
 
 	if (!overwrite) {
-		auto lock = Concurrency::createLock(*archiveMutex);
+		std::lock_guard<std::mutex> lock(archiveMutex);
 		Archive * readHandle = getHandle(archiveFileName);
 		if(readHandle->isFile(file.getPath())) {
 			return AbstractFSProvider::FAILURE;
 		}
 	}
 
-	auto lock = Concurrency::createLock(*archiveMutex);
+	std::lock_guard<std::mutex> lock(archiveMutex);
 	openArchives.erase(archiveFileName);
 	WritableArchive handle(archiveFileName);
 	return handle.writeFile(file.getPath(), data);
@@ -555,7 +552,7 @@ AbstractFSProvider::status_t ArchiveProvider::dir(const FileName & url,
 		return AbstractFSProvider::OK;
 	}
 
-	auto lock = Concurrency::createLock(*archiveMutex);
+	std::lock_guard<std::mutex> lock(archiveMutex);
 	Archive * handle = getHandle(archiveFileName);
 	return handle->dir(localPath.getDir(), result, flags) ? AbstractFSProvider::OK : AbstractFSProvider::FAILURE;
 }
@@ -569,7 +566,7 @@ bool ArchiveProvider::isFile(const FileName & url) {
 		return false;
 	}
 
-	auto lock = Concurrency::createLock(*archiveMutex);
+	std::lock_guard<std::mutex> lock(archiveMutex);
 	Archive * handle = getHandle(archiveFileName);
 	return handle->isFile(file.getPath());
 }
@@ -583,7 +580,7 @@ bool ArchiveProvider::isDir(const FileName & url) {
 		return false;
 	}
 
-	auto lock = Concurrency::createLock(*archiveMutex);
+	std::lock_guard<std::mutex> lock(archiveMutex);
 	Archive * handle = getHandle(archiveFileName);
 	return handle->isDir(file.getPath());
 }
@@ -593,7 +590,7 @@ size_t ArchiveProvider::fileSize(const FileName & url) {
 	FileName file;
 	decomposeURL(url, archiveFileName, file);
 	
-	auto lock = Concurrency::createLock(*archiveMutex);
+	std::lock_guard<std::mutex> lock(archiveMutex);
 	Archive * handle = getHandle(archiveFileName);
 	return handle->fileSize(file.getPath());
 }
@@ -603,7 +600,7 @@ AbstractFSProvider::status_t ArchiveProvider::makeDir(const FileName & url) {
 		return AbstractFSProvider::OK;
 	}
 
-	auto lock = Concurrency::createLock(*archiveMutex);
+	std::lock_guard<std::mutex> lock(archiveMutex);
 	std::string archiveFileName;
 	FileName file;
 	decomposeURL(url, archiveFileName, file);
@@ -646,12 +643,12 @@ AbstractFSProvider::status_t ArchiveProvider::remove(const FileName & url) {
 	decomposeURL(url, archiveFileName, file);
 	
 	if(isDir(url)) {
-		auto lock = Concurrency::createLock(*archiveMutex);
+		std::lock_guard<std::mutex> lock(archiveMutex);
 		openArchives.erase(archiveFileName);
 		WritableArchive handle(archiveFileName);
 		return handle.removeDir(file);
 	} else if(isFile(url)) {
-		auto lock = Concurrency::createLock(*archiveMutex);
+		std::lock_guard<std::mutex> lock(archiveMutex);
 		openArchives.erase(archiveFileName);
 		WritableArchive handle(archiveFileName);
 		return handle.removeFile(file);
@@ -660,7 +657,7 @@ AbstractFSProvider::status_t ArchiveProvider::remove(const FileName & url) {
 }
 
 void ArchiveProvider::flush() {
-	auto lock = Concurrency::createLock(*archiveMutex);
+	std::lock_guard<std::mutex> lock(archiveMutex);
 	openArchives.clear();
 }
 

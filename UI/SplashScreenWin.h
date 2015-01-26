@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -22,6 +22,8 @@
 #include "SplashScreen.h"
 #include "../References.h"
 #include <memory>
+#include <thread>
+#include <atomic>
 
 namespace Util {
 namespace UI {
@@ -43,9 +45,9 @@ class SplashScreenWin : public SplashScreen {
 		void removeMessage() override {
 		}
 
-	protected:
-		//! ---|> UserThread
-		void run() override;
+	private:
+		//! Check for events.
+		void eventLoop();
 
 		//! Create a new splash screen.
 		SplashScreenWin(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
@@ -53,8 +55,11 @@ class SplashScreenWin : public SplashScreen {
 		//! Allow access to constructor from factory.
 		friend std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
 
-	private:
+		
 		Reference<Bitmap> splashImage;
+		std::atomic<bool> running;
+		std::thread myThread;
+		
 };
 
 }

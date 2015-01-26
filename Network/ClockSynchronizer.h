@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -12,58 +12,44 @@
 #define UTIL_SYNCHRONIZER_H
 
 #include "Network.h"
-#include "../Concurrency/UserThread.h"
+#include <mutex>
+#include <thread>
 
 namespace Util{
 namespace Network{
 
 class UDPNetworkSocket;
 
-//! ClockSynchronizer ---|> UserThread
-class ClockSynchronizer : private Concurrency::UserThread {
+class ClockSynchronizer {
 	public:
-		enum mode_t{
-			SERVER,CLIENT
-		};
-
 		static ClockSynchronizer * createServer(uint16_t port);
 		static ClockSynchronizer * createClient(const IPv4Address & remoteIP);
 
 		/** Default destructor */
-		virtual ~ClockSynchronizer();
+		~ClockSynchronizer();
 
 		float getClockSec()const;
 
 	/*! @name State */
 	// @{
 	private:
-		enum state_t {
-			RUNNING,
-			CLOSING,
-			CLOSED
-		}state;
+		bool running;
+		mutable std::mutex runningMutex;
 
 	public:
-		state_t getState()const      {   return state;   }
-		bool isRunning()const        {   return state==RUNNING; }
+		bool isRunning() const;
 		void close();
 
 	// @}
 
-	/*! @name ---|> UserThread */
-	// @{
 	private:
-		void run() override;
-	// @}
-
-	private:
-		ClockSynchronizer(mode_t mode, UDPNetworkSocket *socket );
+		ClockSynchronizer(bool startServer, UDPNetworkSocket * socket);
 		void runServer();
 		void runClient();
 
-		mode_t mode;
 		std::unique_ptr<UDPNetworkSocket> mySocket;
 		float diff;
+		std::thread thread;
 };
 
 }

@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2007-2014 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
@@ -11,14 +11,13 @@
 #if defined(_WIN32)
 
 #include "SplashScreenWin.h"
-#include "../Concurrency/Concurrency.h"
-#include "../Concurrency/Lock.h"
-#include "../Concurrency/Mutex.h"
-
 #include "../Graphics/Bitmap.h"
 #include "../Graphics/PixelAccessor.h"
 #include "../Utils.h"
 #include "../Macros.h"
+#include <mutex>
+#include <thread>
+#include <thread>
 
 namespace Util {
 namespace UI {
@@ -30,11 +29,7 @@ namespace UI {
 
 const TCHAR * g_szClassName = "SplashWindow2";
 
-
-static volatile bool initDone = false;
-
-//! ---|> UserThread
-void SplashScreenWin::run() {
+void SplashScreenWin::eventLoop() {
 
 //	// needs lib gdi32
 
@@ -79,7 +74,6 @@ void SplashScreenWin::run() {
 		wc.lpszClassName = g_szClassName;
 		wc.hIconSm       = LoadIcon(hInstance, IDI_APPLICATION);
 		if(!RegisterClassEx(&wc)) {
-			setStatus(ERROR_STATUS);
 			MessageBox(nullptr, "Window Registration Failed!", "Error!",
 					   MB_ICONEXCLAMATION | MB_OK);
 			return;
@@ -100,7 +94,6 @@ void SplashScreenWin::run() {
 			   nullptr, nullptr, hInstance, nullptr);
 
 	if(hwnd == nullptr) {
-		setStatus(ERROR_STATUS);
 		MessageBox(nullptr, "Window Creation Failed!", "Error!",
 				   MB_ICONEXCLAMATION | MB_OK);
 		return ;
@@ -137,15 +130,15 @@ void SplashScreenWin::run() {
 
 		ReleaseDC(nullptr, hdcScreen);
 
-		if (hbmp == nullptr) {
-			setStatus(ERROR_STATUS);
+		if( !hbmp ) {
+			running = false;
 			MessageBox(nullptr, "CreateDIBSection Failed!", "Error!",
 					   MB_ICONEXCLAMATION | MB_OK);
 			return ;
 		}
 		Reference<PixelAccessor> source = PixelAccessor::create(splashImage.get());
-		if(source.isNull()) {
-			setStatus(ERROR_STATUS);
+		if( !source ) {
+			running = false;
 			MessageBox(nullptr, "createPixelAccessor Failed!", "Error!",
 					   MB_ICONEXCLAMATION | MB_OK);
 			return ;
@@ -194,9 +187,7 @@ void SplashScreenWin::run() {
 //	// show the window
 	ShowWindow(hwnd, SW_SHOWNORMAL);//nCmdShow);
 
-	initDone = true;
-	setStatus(RUNNING_STATUS);
-	while(getStatus() == RUNNING_STATUS) {
+	while(running) {
 //		std::cout<< "#";
 		Utils::sleep(100);
 
@@ -204,7 +195,6 @@ void SplashScreenWin::run() {
 		while(PeekMessage(&Msg, hwnd, 0, 0,PM_REMOVE) != 0) {
 			TranslateMessage(&Msg);
 			DispatchMessage(&Msg);
-//			std::cout<< "M";
 		}
 	}
 	DestroyWindow(hwnd);
@@ -212,21 +202,19 @@ void SplashScreenWin::run() {
 
 //! (ctor)
 SplashScreenWin::SplashScreenWin(const std::string & /*splashTitle*/, const Reference<Bitmap> & _splashImage) : 
-	SplashScreen(), splashImage(_splashImage) {
-	if(splashImage.isNotNull()) {
-		splashImage = new Bitmap(*_splashImage.get());
-		start();
-		while(!initDone && isActive());
-	}
+		SplashScreen(), 
+		splashImage(splashImage.isNotNull() ? new Bitmap(*_splashImage.get()) : nullptr),
+		running(true),
+		myThread(std::bind(&SplashScreenWin::eventLoop, this)) {
 }
 
 //! (dtor)
 SplashScreenWin::~SplashScreenWin() {
-	if(isActive()) {
-		setStatus(CLOSING_STATUS);
-		join();
-	}
+	running = false;
+	myThread.join();
 }
+
+
 
 }
 }
