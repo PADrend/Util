@@ -57,11 +57,11 @@ class TCPConnection::Implementation {
 				throw std::runtime_error(std::string("SDLNet_TCP_Open: ") + SDLNet_GetError());
 
 			socketSet = SDLNet_AllocSocketSet(1);
-			SDLNet_TCP_AddSocket(socketSet, tcpSocket);				
+			SDLNet_TCP_AddSocket(socketSet, tcpSocket);
 		}
 		Implementation(TCPsocket&& tcpSocket_,const IPv4Address & remoteIp_): tcpSocket(tcpSocket_),remoteIp(remoteIp_){
 			socketSet = SDLNet_AllocSocketSet(1);
-			SDLNet_TCP_AddSocket(socketSet, tcpSocket);				
+			SDLNet_TCP_AddSocket(socketSet, tcpSocket);
 		}
 		
 		bool doSendData(std::vector<uint8_t> & data){
@@ -450,7 +450,7 @@ class TCPServer::Implementation {
 				int clientSocket = accept(tcpServerSocket, reinterpret_cast<sockaddr *> (&clientAddr), &clientAddrSize);
 
 				auto remoteIp = fromSockaddr(clientAddr);
-				return std::move(std::make_tuple(new TCPConnection(TCPConnection::Implementation(clientSocket, remoteIp)),true));
+				return std::move(std::make_tuple(new TCPConnection(new TCPConnection::Implementation(clientSocket, remoteIp)),true));
 			}
 			return std::make_tuple(nullptr,true);
 		}
