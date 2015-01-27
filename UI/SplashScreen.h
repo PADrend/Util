@@ -30,7 +30,7 @@ namespace UI {
 class SplashScreen {
 	public:
 		//! Destroy the splash screen and free the allocated resources.
-		virtual ~SplashScreen() = default;
+		virtual ~SplashScreen(){}
 
 		//! Display a message on the splash screen.
 		virtual void showMessage(const std::string & message) = 0;
