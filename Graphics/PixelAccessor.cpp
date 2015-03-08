@@ -97,7 +97,7 @@ class PixelAccessorUb : public PixelAccessor{
 		//! ---|> PixelAccessor
 		void doWriteSingleValueFloat(uint32_t x, uint32_t y, float value) override {
 			const uint_fast16_t tmpR = static_cast<uint_fast16_t>(256 * value);
-			doWriteColor(x, y, Color4f(static_cast<uint8_t>(tmpR > 255 ? 255 : tmpR),0,0,0) );
+			doWriteColor(x, y, Color4ub(static_cast<uint8_t>(tmpR > 255 ? 255 : tmpR),0,0,0) );
 		}
 };
 
@@ -154,7 +154,7 @@ class PixelAccessor4ub : public PixelAccessor{
 		//! ---|> PixelAccessor
 		void doWriteSingleValueFloat(uint32_t x, uint32_t y, float value) override {
 			const uint_fast16_t tmpR = static_cast<uint_fast16_t>(256 * value);
-			doWriteColor(x, y, Color4f(static_cast<uint8_t>(tmpR > 255 ? 255 : tmpR),0,0,0));
+			doWriteColor(x, y, Color4ub(static_cast<uint8_t>(tmpR > 255 ? 255 : tmpR),0,0,0));
 		}
 
 		//! ---|> PixelAccessor
