@@ -78,9 +78,7 @@ static void drawBitmap(const FT_Bitmap & src, PixelAccessor & dst, uint32_t offX
 			const uint32_t posY = offY + static_cast<uint32_t>(y);
 			// Read the old value and write the maximum of old and new value.
 			const uint8_t oldValue = dst.readSingleValueByte(posX, posY);
-			dst.writeSingleValueFloat(posX,
-						   posY,
-						   std::max(oldValue, src.buffer[y * src.pitch + x]));
+			dst.writeSingleValueFloat(posX,posY,std::max(oldValue, src.buffer[y * src.pitch + x])/255.0f);
 		}
 	}
 }
@@ -235,6 +233,27 @@ std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned 
 	return std::make_pair(std::move(bitmap), fontInfo);
 }
 
+std::map<std::pair<uint32_t,uint32_t>, float> FontRenderer::createKerningMap(const std::u32string & chars){
+	std::map<std::pair<uint32_t,uint32_t>, float> kMap; 
+	if(FT_HAS_KERNING( impl->face )){
+		for(const auto & char1 : chars) {
+			const auto index1 = FT_Get_Char_Index( impl->face, char1 );
+			if(index1){
+				for(const auto & char2 : chars) {
+					const auto index2 = FT_Get_Char_Index( impl->face, char2 );
+					if(index2){
+						FT_Vector delta;
+						FT_Get_Kerning( impl->face, index1, index2,FT_KERNING_DEFAULT, &delta );
+						if(delta.x!=0)
+							kMap[ std::make_pair(char1,char2)] = delta.x >> 6;
+					}
+				}
+			}
+		}
+	}
+	return std::move(kMap);
+}
+
 #else /* defined(UTIL_HAVE_LIB_FREETYPE) */
 
 struct FontRenderer::Implementation {
@@ -251,6 +270,11 @@ std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned 
 																	   const std::u32string &) {
 	WARN("Build Util with FreeType to enable FontRenderer.");
 	return std::make_pair(nullptr, FontInfo());
+}
+
+std::map<std::pair<uint32_t,uint32_t>, float> FontRenderer::createKerningMap(const std::u32string &){
+	WARN("Build Util with FreeType to enable FontRenderer.");
+	return std::map<std::pair<uint32_t,uint32_t>, float>();
 }
 
 #endif /* defined(UTIL_HAVE_LIB_FREETYPE) */

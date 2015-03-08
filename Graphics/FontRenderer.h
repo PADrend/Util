@@ -14,6 +14,7 @@
 #include <string>
 #include <utility>
 #include <unordered_map>
+#include <map>
 
 namespace Util {
 class Bitmap;
@@ -81,6 +82,8 @@ class FontRenderer {
 		 */
 		std::pair<Reference<Bitmap>, FontInfo> createGlyphBitmap(unsigned int size,
 																 const std::u32string & chars);
+
+		std::map<std::pair<uint32_t,uint32_t>, float> createKerningMap(const std::u32string & chars);
 };
 
 }
