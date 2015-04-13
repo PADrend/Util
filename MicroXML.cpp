@@ -282,9 +282,20 @@ static bool getNextAttribute(std::string & key, std::string & value, BufferedStr
 	value = readQuotedString(in);
 
 	// convert XML-special character
-	// TODO some nicer way to do this and replace not only &quot; - though it's the most important one.
-	value = StringUtils::replaceAll(value, "&quot;", "\"");
-
+	// \todo some nicer way to do this...
+	if(value.find('&') != std::string::npos ){
+		static const std::deque<std::pair<const std::string,std::string>> findReplace={
+			{ "&quot;", "\""},
+			{ "&apos;", "'"	},
+			{ "&lt;", 	"<"	},
+			{ "&gt;", 	">"	},
+			{ "&amp;",	"&"	},
+			{ "&#10;",	"\n"},
+			{ "&#xA;",	"\n"},
+			{ "&#9;",	"\t"}
+		};
+		value = StringUtils::replaceMultiple(value ,findReplace, -1);
+	}
 	return true;
 }
 
