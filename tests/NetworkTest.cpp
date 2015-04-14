@@ -113,6 +113,36 @@ void NetworkTest::testUDP() {
 	}
 }
 
+void NetworkTest::testUDPgetPort() {
+	// Make sure the socket receive size is large enough.
+	UDPNetworkSocket udpSocketServer(0, 10240);
+	udpSocketServer.open();
+
+	UDPNetworkSocket udpSocketClient;
+	udpSocketClient.open();
+	const IPv4Address toAddress = IPv4Address::resolveHost("127.0.0.1", udpSocketServer.getPort());
+
+	std::default_random_engine engine;
+	std::uniform_int_distribution<uint8_t> distribution(0, 255);
+
+	const size_t sizes[7] = { 128, 256, 512, 1024, 2048, 4096, 8192 };
+	for (uint_fast8_t s = 0; s < 7; ++s) {
+		std::vector<uint8_t> original(sizes[s]);
+		uint8_t * ptr = original.data();
+
+		for (uint_fast8_t run = 0; run < 10; ++run) {
+			for (uint_fast32_t i = 0; i < sizes[s]; ++i) {
+				ptr[i] = distribution(engine);
+			}
+			udpSocketClient.sendData(original.data(), original.size(), toAddress);
+
+			std::unique_ptr<UDPNetworkSocket::Packet> packet(udpSocketServer.receive());
+			CPPUNIT_ASSERT(packet.get() != nullptr);
+			CPPUNIT_ASSERT(packet->packetData == original);
+		}
+	}
+}
+
 void NetworkTest::testDataConnection() {
 	const uint8_t maxTries = 10;
 	const uint16_t numChannels = 10;

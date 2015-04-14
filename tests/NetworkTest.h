@@ -16,6 +16,7 @@ class NetworkTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE(NetworkTest);
 	CPPUNIT_TEST(testTCP);
 	CPPUNIT_TEST(testUDP);
+	CPPUNIT_TEST(testUDPgetPort);
 	CPPUNIT_TEST(testDataConnection);
 // 	CPPUNIT_TEST(testTCPClientExit);
 	CPPUNIT_TEST_SUITE_END();
@@ -23,6 +24,7 @@ class NetworkTest : public CppUnit::TestFixture {
 	public:
 		void testTCP();
 		void testUDP();
+		void testUDPgetPort();
 		void testDataConnection();
 		void testTCPClientExit();
 };
