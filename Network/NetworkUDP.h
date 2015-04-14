@@ -70,6 +70,8 @@ class UDPNetworkSocket {
 
 		void addTarget(const IPv4Address & address);
 		void removeTarget(const IPv4Address & address);
+
+		uint16_t getPort() const;
 	private:
 		std::unique_ptr<InternalUDPSocketData_t> data;
 };

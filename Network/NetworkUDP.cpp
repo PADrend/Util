@@ -275,5 +275,31 @@ void UDPNetworkSocket::removeTarget(const IPv4Address & address) {
 	data->targets.erase(address);
 }
 
+uint16_t UDPNetworkSocket::getPort() const {
+	if(data->port > 0)
+		return data->port;
+#ifdef UTIL_HAVE_LIB_SDL2_NET
+	IPaddress* sdlAddress = SDLNet_UDP_GetPeerAddress(data->udpsock, -1);
+	if(!sdlAddress) {
+		std::cerr << "SDLNet_UDP_GetPeerAddress: " << SDLNet_GetError() << "\n";
+		return 0;
+	}
+	IPv4Address address = fromSDLIPv4Address(*sdlAddress);
+	return address.getPort();
+#elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
+	struct sockaddr_in localAddress;
+	socklen_t addressLength = sizeof(localAddress);
+	if(getsockname(data->udpSocket, reinterpret_cast<struct sockaddr*>(&localAddress), &addressLength)) {
+		int error = errno;
+		WARN(std::string(strerror(error)));
+		return 0;
+	}
+	IPv4Address address = fromSockaddr(localAddress);
+	return address.getPort();
+#else
+	return 0;
+#endif
+}
+
 }
 }
