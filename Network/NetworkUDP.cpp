@@ -183,7 +183,8 @@ UDPNetworkSocket::Packet * UDPNetworkSocket::receive() {
 	const ssize_t bytesReceived = recvfrom(data->udpSocket, buffer.data(), buffer.size(), 0, reinterpret_cast<sockaddr *>(&sockAddr), &len);
 	if (bytesReceived == -1) {
 		int error = errno;
-		WARN(std::string(strerror(error)));
+		if(error != EAGAIN && error != EWOULDBLOCK)
+			WARN(std::string(strerror(error)));
 		return nullptr;
 	}
 	if (bytesReceived == buffer.size()) {
