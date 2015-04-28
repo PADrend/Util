@@ -72,8 +72,8 @@ FontRenderer::~FontRenderer() {
 
 //! Copy the bitmap @p src into the bitmap given by @p dst at position (@p offX, @p offY).
 static void drawBitmap(const FT_Bitmap & src, PixelAccessor & dst, uint32_t offX, uint32_t offY) {
-	for(int y = 0; y < src.rows; ++y) {
-		for(int x = 0; x < src.width; ++x) {
+    for(unsigned int y = 0; y < src.rows; ++y) {
+        for(unsigned int x = 0; x < src.width; ++x) {
 			const uint32_t posX = offX + static_cast<uint32_t>(x);
 			const uint32_t posY = offY + static_cast<uint32_t>(y);
 			// Read the old value and write the maximum of old and new value.
@@ -108,8 +108,8 @@ static std::tuple<int, int, int> calculateRenderSizes(const FT_Face & face, cons
 		} else {
 			width += (slot->advance.x >> 6);
 		}
-		const auto belowBaseline = slot->bitmap.rows - slot->bitmap_top;
-		const auto aboveBaseline = slot->bitmap.rows - belowBaseline;
+        const auto belowBaseline = static_cast<int>(slot->bitmap.rows) - slot->bitmap_top;
+        const auto aboveBaseline = static_cast<int>(slot->bitmap.rows) - belowBaseline;
 		maxAboveBaseline = std::max(maxAboveBaseline, aboveBaseline);
 		maxBelowBaseline = std::max(maxBelowBaseline, belowBaseline);
 	}
@@ -163,8 +163,8 @@ Reference<Bitmap> FontRenderer::renderText(unsigned int size, const std::u32stri
 static std::pair<int, int> calculateGlyphSizes(const FT_Face & face, const std::u32string & chars) {
 	auto slot = face->glyph;
 
-	int width = 0;
-	int height = 0;
+    unsigned int width = 0;
+    unsigned int height = 0;
 
 	// Caculate the width and height required for the bitmap.
 	for(const auto & character : chars) {
