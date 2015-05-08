@@ -34,7 +34,7 @@ class TCPConnection;
  * communications using a single network connection.
  *
  * \note Internally creates an additional thread.
- * \note Is not designed for sending hughe blocks of data at once.
+ * \note Is not designed for sending huge blocks of data at once.
  * \note The maximum length of a key is 256 characters - additional characters are truncated.
  * \note The given TCPConnection must only be accessed by the DataConnection
  *			or the data will get corrupted!
