@@ -72,8 +72,8 @@ FontRenderer::~FontRenderer() {
 
 //! Copy the bitmap @p src into the bitmap given by @p dst at position (@p offX, @p offY).
 static void drawBitmap(const FT_Bitmap & src, PixelAccessor & dst, uint32_t offX, uint32_t offY) {
-    for(unsigned int y = 0; y < src.rows; ++y) {
-        for(unsigned int x = 0; x < src.width; ++x) {
+	for(int y = 0; y < static_cast<int>(src.rows); ++y) {
+		for(int x = 0; x < static_cast<int>(src.width); ++x) {
 			const uint32_t posX = offX + static_cast<uint32_t>(x);
 			const uint32_t posY = offY + static_cast<uint32_t>(y);
 			// Read the old value and write the maximum of old and new value.
@@ -104,12 +104,12 @@ static std::tuple<int, int, int> calculateRenderSizes(const FT_Face & face, cons
 			continue;
 		}
 		if(it == std::prev(text.cend())) {
-			width += slot->bitmap_left + slot->bitmap.width;
+			width += static_cast<int>(slot->bitmap_left) +static_cast<int>(slot->bitmap.width);
 		} else {
 			width += (slot->advance.x >> 6);
 		}
-        const auto belowBaseline = static_cast<int>(slot->bitmap.rows) - slot->bitmap_top;
-        const auto aboveBaseline = static_cast<int>(slot->bitmap.rows) - belowBaseline;
+		const int belowBaseline = static_cast<int>(slot->bitmap.rows) - static_cast<int>(slot->bitmap_top);
+		const int aboveBaseline = static_cast<int>(slot->bitmap.rows) - static_cast<int>(belowBaseline);
 		maxAboveBaseline = std::max(maxAboveBaseline, aboveBaseline);
 		maxBelowBaseline = std::max(maxBelowBaseline, belowBaseline);
 	}
@@ -145,8 +145,8 @@ Reference<Bitmap> FontRenderer::renderText(unsigned int size, const std::u32stri
 
 			drawBitmap(slot->bitmap, 
 					   *accessor.get(), 
-					   static_cast<uint32_t>(cursorX + slot->bitmap_left), 
-					   static_cast<uint32_t>(cursorY - slot->bitmap_top)); 
+					   static_cast<uint32_t>(cursorX + static_cast<int>(slot->bitmap_left)), 
+					   static_cast<uint32_t>(cursorY - static_cast<int>(slot->bitmap_top))); 
 
 			cursorX += slot->advance.x >> 6;
 		}
@@ -163,8 +163,8 @@ Reference<Bitmap> FontRenderer::renderText(unsigned int size, const std::u32stri
 static std::pair<int, int> calculateGlyphSizes(const FT_Face & face, const std::u32string & chars) {
 	auto slot = face->glyph;
 
-    unsigned int width = 0;
-    unsigned int height = 0;
+	int width = 0;
+	int height = 0;
 
 	// Caculate the width and height required for the bitmap.
 	for(const auto & character : chars) {
@@ -174,8 +174,8 @@ static std::pair<int, int> calculateGlyphSizes(const FT_Face & face, const std::
 			WARN("Cannot load font glyph.");
 			continue;
 		}
-		width += slot->bitmap.width;
-		height = std::max(height, slot->bitmap.rows);
+		width += static_cast<int>(slot->bitmap.width);
+		height = std::max(height, static_cast<int>(slot->bitmap.rows));
 	}
 	return std::make_pair(width, height);
 }
@@ -220,13 +220,13 @@ std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned 
 					   static_cast<uint32_t>(cursorY));
 
 			GlyphInfo gInfo;
-			gInfo.position = std::make_pair(cursorX, cursorY);
-			gInfo.size = std::make_pair(slot->bitmap.width, slot->bitmap.rows);
-			gInfo.offset = std::make_pair(slot->bitmap_left, slot->bitmap_top);
+			gInfo.position = std::make_pair(static_cast<int>(cursorX), static_cast<int>(cursorY));
+			gInfo.size = std::make_pair(static_cast<int>(slot->bitmap.width), static_cast<int>(slot->bitmap.rows));
+			gInfo.offset = std::make_pair(static_cast<int>(slot->bitmap_left), static_cast<int>(slot->bitmap_top));
 			gInfo.xAdvance = (slot->advance.x >> 6);
 			glyphMap.emplace(character, gInfo);
 
-			cursorX += slot->bitmap.width;
+			cursorX += static_cast<int>(slot->bitmap.width);
 		}
 		// accessor goes out of scope here
 	}
