@@ -154,8 +154,15 @@ if(CMAKE_SYSTEM_NAME STREQUAL Linux)
 		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_X11)
 		target_include_directories(Util PRIVATE ${X11_INCLUDE_DIR})
 		target_link_libraries(Util LINK_PRIVATE ${X11_LIBRARIES})
+		
+		option(UTIL_X11_JOYSTICK_SUPPORT "Defines if joystick support for X11 should be included.")
+		if(UTIL_X11_JOYSTICK_SUPPORT)
+			target_compile_definitions(Util PRIVATE UTIL_X11_JOYSTICK_SUPPORT)
+		endif()
+			
 	endif()
-
+	
+	
 	# Dependency to EGL
 	find_package(EGL)
 	if(EGL_FOUND)

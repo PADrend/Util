@@ -24,6 +24,17 @@
 #include <unordered_map>
 #include <stdexcept>
 
+#if defined(UTIL_X11_JOYSTICK_SUPPORT)
+#define _INPUT_H
+#include "../StringUtils.h"
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <linux/joystick.h>
+#include <iostream>
+#undef _INPUT_H
+#endif
+
 namespace Util {
 namespace UI {
 
@@ -312,9 +323,54 @@ WindowX11::WindowX11(const Window::Properties & properties) :
 	if (x11Data->display == nullptr) {
 		throw std::runtime_error("Failed to open X display.");
 	}
+
+	// Initialize joystick/-pad input
+#if defined(UTIL_X11_JOYSTICK_SUPPORT)
+	// find available joysticks
+	for(uint32_t joyNr = 0; joyNr < 32; ++joyNr) {
+		std::string joyNrString = StringUtils::toString(joyNr);
+		// possible joystick location
+		std::string devName = "/dev/js" + joyNrString;
+
+		X11JoystickInfo info;
+
+		info.handle = open(devName.c_str(), O_RDONLY);
+		if(-1 == info.handle) {
+			// joystick location for ubuntu, etc...
+			devName = "/dev/input/js" + joyNrString;
+			info.handle = open(devName.c_str(), O_RDONLY);
+			if(-1 == info.handle) {
+				// joystick location for BSD
+				devName = "/dev/joy" + joyNrString;
+				info.handle = open(devName.c_str(), O_RDONLY);
+			}
+		}
+
+		if(-1 == info.handle)
+			continue;
+
+		ioctl(info.handle, JSIOCGAXES, &info.axes);
+		ioctl(info.handle, JSIOCGBUTTONS, &info.buttons);
+		fcntl(info.handle, F_SETFL, O_NONBLOCK);
+
+		x11Data->activeJoysticks.push_back(info);
+	}
+
+	uint32_t i=0;
+	for(auto joystick : x11Data->activeJoysticks) {
+		std::cout << "Found joystick " << (i++) << " " << joystick.axes << " axes, " << joystick.buttons << " buttons" << std::endl;
+	}
+#endif
 }
 
-WindowX11::~WindowX11() = default;
+WindowX11::~WindowX11() {
+#if defined(UTIL_X11_JOYSTICK_SUPPORT)
+	for(auto joystick : x11Data->activeJoysticks) {
+		if(joystick.handle >= 0)
+			close(joystick.handle);
+	}
+#endif
+}
 
 void WindowX11::doSetCursor(const UI::Cursor * cursor) {
 	if(x11Data->cursor != None) {
@@ -487,6 +543,37 @@ std::deque<Event> WindowX11::fetchEvents() {
 		}
 		events.emplace_back(event);
 	}
+
+
+#if defined(UTIL_X11_JOYSTICK_SUPPORT)
+	// poll active joysticks
+	uint8_t jsIndex = 0;
+	for(auto info : x11Data->activeJoysticks) {
+		struct js_event jsev;
+		while( sizeof(jsev) == read(info.handle, &jsev, sizeof(jsev))) {
+			Event event;
+			switch(jsev.type & ~JS_EVENT_INIT) {
+				case JS_EVENT_BUTTON:
+					event.type = EVENT_JOY_BUTTON;
+					event.joyButton.joystick = jsIndex;
+					event.joyButton.button = jsev.number;
+					event.joyButton.pressed = jsev.value;
+					break;
+				case JS_EVENT_AXIS:
+					event.type = EVENT_JOY_AXIS;
+					event.joyAxis.joystick = jsIndex;
+					event.joyAxis.axis = jsev.number;
+					event.joyAxis.value = jsev.value;
+					break;
+				default:
+					continue;
+			}
+			events.emplace_back(event);
+		}
+		++jsIndex;
+	}
+#endif
+
 	return events;
 }
 

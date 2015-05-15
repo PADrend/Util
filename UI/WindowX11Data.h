@@ -14,6 +14,7 @@
 #include "../References.h"
 #include <X11/Xlib.h>
 #include <string>
+#include <vector>
 
 /**
  * @file
@@ -24,6 +25,15 @@
 namespace Util {
 class Bitmap;
 namespace UI {
+
+#if defined(UTIL_X11_JOYSTICK_SUPPORT)
+struct X11JoystickInfo {
+	int handle;
+	int axes;
+	int buttons;
+	X11JoystickInfo() : handle(-1), axes(0), buttons(0) { }
+};
+#endif
 
 /**
  * Container for X11 structures.
@@ -58,6 +68,11 @@ struct WindowX11Data {
 
 	//! Assign an icon to the window.
 	void setWindowIcon(const Bitmap & icon);
+
+
+#if defined(UTIL_X11_JOYSTICK_SUPPORT)
+	std::vector<X11JoystickInfo> activeJoysticks;
+#endif
 };
 
 }
