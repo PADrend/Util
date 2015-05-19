@@ -505,20 +505,20 @@ std::deque<Event> WindowSDL::fetchEvents() {
 			case SDL_JOYHATMOTION:
 				event.type = EVENT_JOY_HAT;
 				event.joyHat.joystick = sdlEvent.jhat.which;
-				event.joyHat.hat = MASK_HAT_CENTER;
-				if(sdlEvent.jhat.hat & SDL_HAT_UP) {
-					event.joyHat.hat |= MASK_HAT_UP;
+				event.joyHat.value = MASK_HAT_CENTER;
+				if(sdlEvent.jhat.value & SDL_HAT_UP) {
+					event.joyHat.value |= MASK_HAT_UP;
 				}
-				if(sdlEvent.jhat.hat & SDL_HAT_RIGHT) {
-					event.joyHat.hat |= MASK_HAT_RIGHT;
+				if(sdlEvent.jhat.value & SDL_HAT_RIGHT) {
+					event.joyHat.value |= MASK_HAT_RIGHT;
 				}
-				if(sdlEvent.jhat.hat & SDL_HAT_DOWN) {
-					event.joyHat.hat |= MASK_HAT_DOWN;
+				if(sdlEvent.jhat.value & SDL_HAT_DOWN) {
+					event.joyHat.value |= MASK_HAT_DOWN;
 				}
-				if(sdlEvent.jhat.hat & SDL_HAT_LEFT) {
-					event.joyHat.hat |= MASK_HAT_LEFT;
+				if(sdlEvent.jhat.value & SDL_HAT_LEFT) {
+					event.joyHat.value |= MASK_HAT_LEFT;
 				}
-				event.joyHat.value = sdlEvent.jhat.value;
+				event.joyHat.hat = sdlEvent.jhat.hat;
 				break;
 			default:
 				continue;
