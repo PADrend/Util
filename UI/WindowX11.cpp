@@ -25,6 +25,7 @@
 #include <stdexcept>
 
 #if defined(UTIL_X11_JOYSTICK_SUPPORT)
+// do not include <linux/input.h>, including it would redefine key mappings
 #define _INPUT_H
 #include "../StringUtils.h"
 #include <unistd.h>
@@ -351,6 +352,7 @@ WindowX11::WindowX11(const Window::Properties & properties) :
 
 		ioctl(info.handle, JSIOCGAXES, &info.axes);
 		ioctl(info.handle, JSIOCGBUTTONS, &info.buttons);
+		ioctl(info.handle, JSIOCGAXMAP, &info.axesMap);
 		fcntl(info.handle, F_SETFL, O_NONBLOCK);
 
 		x11Data->activeJoysticks.push_back(info);
@@ -546,9 +548,10 @@ std::deque<Event> WindowX11::fetchEvents() {
 
 
 #if defined(UTIL_X11_JOYSTICK_SUPPORT)
+
 	// poll active joysticks
 	uint8_t jsIndex = 0;
-	for(auto info : x11Data->activeJoysticks) {
+	for(auto& info : x11Data->activeJoysticks) {
 		struct js_event jsev;
 		while( sizeof(jsev) == read(info.handle, &jsev, sizeof(jsev))) {
 			Event event;
@@ -560,10 +563,45 @@ std::deque<Event> WindowX11::fetchEvents() {
 					event.joyButton.pressed = jsev.value;
 					break;
 				case JS_EVENT_AXIS:
-					event.type = EVENT_JOY_AXIS;
-					event.joyAxis.joystick = jsIndex;
-					event.joyAxis.axis = jsev.number;
-					event.joyAxis.value = jsev.value;
+					switch (info.axesMap[jsev.number]) {
+						case ABS_HAT0X:
+						case ABS_HAT0Y:
+						case ABS_HAT1X:
+						case ABS_HAT1Y:
+						case ABS_HAT2X:
+						case ABS_HAT2Y:
+						case ABS_HAT3X:
+						case ABS_HAT3Y: {
+								event.type = EVENT_JOY_HAT;
+								event.joyHat.joystick = jsIndex;
+								uint8_t hat = (info.axesMap[jsev.number] - ABS_HAT0X) / 2;
+								uint8_t axis = (info.axesMap[jsev.number] - ABS_HAT0X) % 2;
+
+								if(axis == 0) {// x axis
+									info.hat &= ~(MASK_HAT_RIGHT | MASK_HAT_LEFT);
+									if(jsev.value > 0)
+										info.hat |= MASK_HAT_RIGHT;
+									else if(jsev.value < 0)
+										info.hat |= MASK_HAT_LEFT;
+								} else {// y axis
+									info.hat &= ~(MASK_HAT_UP | MASK_HAT_DOWN);
+									if(jsev.value > 0)
+										info.hat |= MASK_HAT_DOWN;
+									else if(jsev.value < 0)
+										info.hat |= MASK_HAT_UP;
+								}
+
+								event.joyHat.hat = hat;
+								event.joyHat.value = info.hat;
+								break;
+							}
+						default:
+							event.type = EVENT_JOY_AXIS;
+							event.joyAxis.joystick = jsIndex;
+							event.joyAxis.axis = jsev.number;
+							event.joyAxis.value = jsev.value;
+							break;
+					}
 					break;
 				default:
 					continue;

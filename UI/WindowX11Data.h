@@ -16,6 +16,20 @@
 #include <string>
 #include <vector>
 
+#if defined(UTIL_X11_JOYSTICK_SUPPORT)
+// taken from <linux/input.h>, including it would redefine key mappings
+#define ABS_HAT0X		0x10
+#define ABS_HAT0Y		0x11
+#define ABS_HAT1X		0x12
+#define ABS_HAT1Y		0x13
+#define ABS_HAT2X		0x14
+#define ABS_HAT2Y		0x15
+#define ABS_HAT3X		0x16
+#define ABS_HAT3Y		0x17
+
+#define ABS_MAX 		0x3f
+#define ABS_CNT			(ABS_MAX+1)
+#endif
 /**
  * @file
  * This file is not part of the public API of Util.
@@ -31,7 +45,9 @@ struct X11JoystickInfo {
 	int handle;
 	int axes;
 	int buttons;
-	X11JoystickInfo() : handle(-1), axes(0), buttons(0) { }
+	uint8_t hat;
+	char axesMap[ABS_CNT];
+	X11JoystickInfo() : handle(-1), axes(0), buttons(0), hat(0) { }
 };
 #endif
 
