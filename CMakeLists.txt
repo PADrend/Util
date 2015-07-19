@@ -112,6 +112,14 @@ if(FREETYPE_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_FREETYPE)
 	target_include_directories(Util PRIVATE ${FREETYPE_INCLUDE_DIRS})
 	target_link_libraries(Util LINK_PRIVATE ${FREETYPE_LIBRARIES})
+	
+	# Dependency to ZLIB
+	find_package(ZLIB QUIET)
+	if(ZLIB_FOUND)
+		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_ZLIB)
+		target_include_directories(Util PRIVATE ${ZLIB_INCLUDE_DIRS})
+		target_link_libraries(Util LINK_PRIVATE ${ZLIB_LIBRARIES})
+	endif()
 endif()
 
 # Dependency to SDL2
