@@ -63,7 +63,7 @@ Reference<Bitmap> loadBitmap(const FileName & url) {
 		WARN("Error opening stream for reading. Path: " + url.toString());
 		return nullptr;
 	}
-	return std::move(loader->loadBitmap(*stream));
+	return loader->loadBitmap(*stream);
 }
 
 Reference<Bitmap> loadBitmap(const std::string & extension, const std::string & data) {
@@ -73,7 +73,7 @@ Reference<Bitmap> loadBitmap(const std::string & extension, const std::string & 
 		return nullptr;
 	}
 	std::istringstream stream(data);
-	return std::move(loader->loadBitmap(stream));
+	return loader->loadBitmap(stream);
 }
 
 bool saveBitmap(const Bitmap & bitmap, const FileName & url) {

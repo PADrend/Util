@@ -284,16 +284,16 @@ std::vector<uint8_t> TCPConnection::extractDataFromInQueue(size_t numBytes) {
 		}
 	}
 	inQueueDataSize -= numBytes;
-	return std::move(data);
+	return data;
 }
 
 
 std::vector<uint8_t> TCPConnection::receiveData() {
 	if(inQueueDataSize>0){ // use without locking!
 		std::lock_guard<std::mutex> lock(inQueueMutex);
-		return std::move(extractDataFromInQueue(inQueueDataSize));
+		return extractDataFromInQueue(inQueueDataSize);
 	}else{
-		return std::move(std::vector<uint8_t>());
+		return std::vector<uint8_t>();
 	}
 }
 
@@ -301,9 +301,9 @@ std::vector<uint8_t> TCPConnection::receiveData() {
 std::vector<uint8_t> TCPConnection::receiveData(size_t numBytes) {
 	if(inQueueDataSize>=numBytes){ // use without locking!
 		std::lock_guard<std::mutex> lock(inQueueMutex);
-		return std::move(extractDataFromInQueue(numBytes));
+		return extractDataFromInQueue(numBytes);
 	}else{
-		return std::move(std::vector<uint8_t>());
+		return std::vector<uint8_t>();
 	}
 }
 

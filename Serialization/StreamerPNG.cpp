@@ -144,7 +144,7 @@ Reference<Bitmap> StreamerPNG::loadBitmap(std::istream & input) {
 	png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
 	delete [] row_pointers;
 
-	return std::move(bitmap);
+	return bitmap;
 }
 
 bool StreamerPNG::saveBitmap(const Bitmap & bitmap, std::ostream & output) {

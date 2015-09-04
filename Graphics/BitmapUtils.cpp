@@ -88,7 +88,7 @@ Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface) {
 
 	SDL_UnlockSurface(surface);
 
-	return std::move(bitmap);
+	return bitmap;
 }
 
 SDL_Surface * createSDLSurfaceFromBitmap(const Bitmap & bitmap) {
@@ -162,7 +162,7 @@ Reference<Bitmap> blendTogether(const PixelFormat & targetFormat,
 				writer->writeColor(x,y,(*(pixel++)) * scale );
 	}
 
-	return std::move(target);
+	return target;
 }
 
 Reference<Bitmap> combineInterleaved(const PixelFormat & targetFormat, 
@@ -189,7 +189,7 @@ Reference<Bitmap> combineInterleaved(const PixelFormat & targetFormat,
 				target->writeColor(x,y,sources[(y%count)*count+(x%count)]->readColor4f(x/count,y/count));
 			}
 	}
-	return std::move(targetBitmap);
+	return targetBitmap;
 }
 
 Reference<Bitmap> convertBitmap(const Bitmap & source, 
@@ -205,7 +205,7 @@ Reference<Bitmap> convertBitmap(const Bitmap & source,
 			for(uint32_t x = 0;x<width;++x )
 				writer->writeColor(x,y,reader->readColor4f(x,y));
 	}
-	return std::move(target);
+	return target;
 }
 
 void alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op) {
@@ -247,7 +247,7 @@ Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
 		}
 		
 	}
-	return std::move(target);
+	return target;
 }
 
 }

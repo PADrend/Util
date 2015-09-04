@@ -111,7 +111,7 @@ std::unique_ptr<std::iostream> FSProvider::open(const FileName & filename) {
 	if(!stream->good()) {
 		return nullptr;
 	}
-	return std::move(stream);
+	return stream;
 }
 
 //! ---|> AbstractFSProvider
@@ -120,7 +120,7 @@ std::unique_ptr<std::istream> FSProvider::openForReading(const FileName & filena
 	if(!stream->good()) {
 		return nullptr;
 	}
-	return std::move(stream);
+	return stream;
 }
 
 //! ---|> AbstractFSProvider
@@ -129,7 +129,7 @@ std::unique_ptr<std::ostream> FSProvider::openForWriting(const FileName & filena
 	if(!stream->good()) {
 		return nullptr;
 	}
-	return std::move(stream);
+	return stream;
 }
 
 //! ---|> AbstractFSProvider
@@ -138,7 +138,7 @@ std::unique_ptr<std::ostream> FSProvider::openForAppending(const FileName & file
 	if(!stream->good()) {
 		return nullptr;
 	}
-	return std::move(stream);
+	return stream;
 }
 
 //! ---|> AbstractFSProvider

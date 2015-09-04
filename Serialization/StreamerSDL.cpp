@@ -61,7 +61,7 @@ Reference<Bitmap> StreamerSDL::loadBitmap(std::istream & input) {
 
 	FileUtils::remove(fileName);
 
-	return std::move(bitmap);
+	return bitmap;
 }
 
 bool StreamerSDL::saveBitmap(const Bitmap & bitmap, std::ostream & output) {

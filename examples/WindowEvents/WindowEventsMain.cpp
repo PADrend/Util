@@ -54,7 +54,7 @@ class Application {
 								bitmap->data()[1] = 0;
 								bitmap->data()[2] = 0;
 								bitmap->data()[3] = 0;
-								window->setCursor(std::move(Util::UI::createCursor(bitmap, 0, 0)));
+								window->setCursor(Util::UI::createCursor(bitmap, 0, 0));
 							}
 						} else if(event.keyboard.key == Util::UI::KEY_W) {
 							// 'w' warps cursor to (10, 10)

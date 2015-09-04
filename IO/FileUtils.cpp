@@ -108,7 +108,7 @@ std::unique_ptr<std::istream> FileUtils::openForReading(const FileName & fileNam
 	AbstractFSProvider * provider = getFSProvider(fileName);
 	auto stream = provider->openForReading(fileName);
 	if(stream) {
-		return std::move(stream);
+		return stream;
 	}
 
 	// Check if file reading is supported.

@@ -152,7 +152,7 @@ Reference<Bitmap> FontRenderer::renderText(unsigned int size, const std::u32stri
 		}
 		// accessor goes out of scope here
 	}
-	return std::move(bitmap);
+	return bitmap;
 }
 
 /**
@@ -251,7 +251,7 @@ std::map<std::pair<uint32_t,uint32_t>, float> FontRenderer::createKerningMap(con
 			}
 		}
 	}
-	return std::move(kMap);
+	return kMap;
 }
 
 #else /* defined(UTIL_HAVE_LIB_FREETYPE) */

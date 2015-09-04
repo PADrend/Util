@@ -54,7 +54,7 @@ Reference<Bitmap> StreamerSDLImage::loadBitmap(std::istream & input) {
 	}
 	auto bitmap = BitmapUtils::createBitmapFromSDLSurface(surface);
 	SDL_FreeSurface(surface);
-	return std::move(bitmap);
+	return bitmap;
 }
 
 #endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
