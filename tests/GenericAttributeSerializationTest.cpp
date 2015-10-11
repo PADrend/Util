@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2012-2013 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2012-2015 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2013 Ralf Petring <ralf@petring.net>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
