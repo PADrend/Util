@@ -20,4 +20,4 @@ before_install:
  - export PATH=/tmp/cmake-3.3.2-Linux-x86_64/bin:$PATH
  - cd -
 before_script: mkdir build && cd build && if [ "${CXX}" = "clang++" ]; then export CXX=/usr/bin/clang++-3.6; fi && if [ "${CXX}" = "g++" ]; then export CXX=/usr/bin/g++-5; fi
-script: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUTIL_BUILD_EXAMPLES=ON -DUTIL_BUILD_TESTS=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror -pedantic" .. && make
+script: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUTIL_BUILD_EXAMPLES=ON -DUTIL_BUILD_TESTS=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" .. && make
