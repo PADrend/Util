@@ -7,12 +7,7 @@
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
 cmake_minimum_required(VERSION 3.1.0)
-project(Util)
-
-set(UTIL_VERSION_MAJOR 0)
-set(UTIL_VERSION_MINOR 2)
-set(UTIL_VERSION_PATCH 0)
-set(UTIL_VERSION_STRING ${UTIL_VERSION_MAJOR}.${UTIL_VERSION_MINOR}.${UTIL_VERSION_PATCH})
+project(Util VERSION 0.2.0)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -232,8 +227,8 @@ if(UTIL_HAVE_OPEN_MEMSTREAM)
 endif()
 
 # Set version of library
-set_target_properties(Util PROPERTIES VERSION ${UTIL_VERSION_STRING}
-                                      SOVERSION ${UTIL_VERSION_MAJOR})
+set_target_properties(Util PROPERTIES VERSION ${Util_VERSION}
+                                      SOVERSION ${Util_VERSION_MAJOR})
 
 include(FeatureSummary)
 set_package_properties(CURL PROPERTIES
@@ -351,13 +346,13 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/UtilConfig.cmake ${CMAKE_CURRENT_BINAR
 # Packaging
 include(InstallRequiredSystemLibraries)
 
-set(CPACK_PACKAGE_NAME "libutil${UTIL_VERSION_MAJOR}")
+set(CPACK_PACKAGE_NAME "libutil${Util_VERSION_MAJOR}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Util library")
 set(CPACK_PACKAGE_VENDOR "Benjamin Eikel; Claudius Jaehn; Ralf Petring")
 set(CPACK_PACKAGE_CONTACT "Benjamin Eikel <benjamin@eikel.org>")
-set(CPACK_PACKAGE_VERSION_MAJOR ${UTIL_VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${UTIL_VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${UTIL_VERSION_PATCH})
+set(CPACK_PACKAGE_VERSION_MAJOR ${Util_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${Util_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${Util_VERSION_PATCH})
 set(CPACK_PACKAGE_FILE_NAME "libUtil")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_STRIP_FILES ON)
