@@ -14,11 +14,15 @@
 
 class GenericConversionTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE(GenericConversionTest);
-	CPPUNIT_TEST(testJSON);
+	CPPUNIT_TEST(testBasicSerialization);
+	CPPUNIT_TEST(testArraySerialization);
+	CPPUNIT_TEST(testMapSerialization);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
-		void testJSON();
+		void testBasicSerialization();
+		void testArraySerialization();
+		void testMapSerialization();
 };
 
 #endif /* GENERICCONVERSIONTEST_H_ */
