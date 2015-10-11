@@ -30,7 +30,61 @@ static Generic fromGenericAttribute(const GenericAttribute * attr) {
 		}
 	}
 	{
+		auto numberAttr = dynamic_cast<const _NumberAttribute<double> *>(attr);
+		if(numberAttr != nullptr) {
+			return Generic(numberAttr->get());
+		}
+	}
+	{
 		auto numberAttr = dynamic_cast<const _NumberAttribute<float> *>(attr);
+		if(numberAttr != nullptr) {
+			return Generic(numberAttr->get());
+		}
+	}
+	{
+		auto numberAttr = dynamic_cast<const _NumberAttribute<long> *>(attr);
+		if(numberAttr != nullptr) {
+			return Generic(numberAttr->get());
+		}
+	}
+	{
+		auto numberAttr = dynamic_cast<const _NumberAttribute<unsigned long> *>(attr);
+		if(numberAttr != nullptr) {
+			return Generic(numberAttr->get());
+		}
+	}
+	{
+		auto numberAttr = dynamic_cast<const _NumberAttribute<int> *>(attr);
+		if(numberAttr != nullptr) {
+			return Generic(numberAttr->get());
+		}
+	}
+	{
+		auto numberAttr = dynamic_cast<const _NumberAttribute<unsigned int> *>(attr);
+		if(numberAttr != nullptr) {
+			return Generic(numberAttr->get());
+		}
+	}
+	{
+		auto numberAttr = dynamic_cast<const _NumberAttribute<short> *>(attr);
+		if(numberAttr != nullptr) {
+			return Generic(numberAttr->get());
+		}
+	}
+	{
+		auto numberAttr = dynamic_cast<const _NumberAttribute<unsigned short> *>(attr);
+		if(numberAttr != nullptr) {
+			return Generic(numberAttr->get());
+		}
+	}
+	{
+		auto numberAttr = dynamic_cast<const _NumberAttribute<char> *>(attr);
+		if(numberAttr != nullptr) {
+			return Generic(numberAttr->get());
+		}
+	}
+	{
+		auto numberAttr = dynamic_cast<const _NumberAttribute<unsigned char> *>(attr);
 		if(numberAttr != nullptr) {
 			return Generic(numberAttr->get());
 		}
@@ -90,9 +144,72 @@ void toJSON(const Generic & data, std::ostream & out) {
 		}
 	}
 	{
+		auto numberData = data.get<double>();
+		if(numberData != nullptr) {
+			out << *numberData;
+			return;
+		}
+	}
+	{
 		auto numberData = data.get<float>();
 		if(numberData != nullptr) {
 			out << *numberData;
+			return;
+		}
+	}
+	{
+		auto numberData = data.get<long>();
+		if(numberData != nullptr) {
+			out << *numberData;
+			return;
+		}
+	}
+	{
+		auto numberData = data.get<unsigned long>();
+		if(numberData != nullptr) {
+			out << *numberData;
+			return;
+		}
+	}
+	{
+		auto numberData = data.get<int>();
+		if(numberData != nullptr) {
+			out << *numberData;
+			return;
+		}
+	}
+	{
+		auto numberData = data.get<unsigned int>();
+		if(numberData != nullptr) {
+			out << *numberData;
+			return;
+		}
+	}
+	{
+		auto numberData = data.get<short>();
+		if(numberData != nullptr) {
+			out << *numberData;
+			return;
+		}
+	}
+	{
+		auto numberData = data.get<unsigned short>();
+		if(numberData != nullptr) {
+			out << *numberData;
+			return;
+		}
+	}
+	{
+		auto numberData = data.get<char>();
+		if(numberData != nullptr) {
+			out << static_cast<short>(*numberData);
+			return;
+		}
+	}
+	{
+		auto numberData = data.get<unsigned char>();
+		if(numberData != nullptr) {
+			out << static_cast<unsigned short>(*numberData);
 			return;
 		}
 	}
