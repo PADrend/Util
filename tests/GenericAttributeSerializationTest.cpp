@@ -62,6 +62,8 @@ void GenericAttributeSerializationTest::testStandardSerialization() {
 	testGenericAttributeSerialization<Util::_StringAttribute<std::string>>("a\nb\nc", "a\\nb\\nc", "string", &Util::GenericAttribute::toString);
 }
 
+static void checkGenericAttributeMapsEqual(const Util::GenericAttributeMap * expected, const Util::GenericAttributeMap * actual);
+
 static void checkGenericAttributeListsEqual(const Util::GenericAttributeList * expected, const Util::GenericAttributeList * actual) {
 	CPPUNIT_ASSERT(expected != nullptr);
 	CPPUNIT_ASSERT(actual != nullptr);
@@ -69,7 +71,17 @@ static void checkGenericAttributeListsEqual(const Util::GenericAttributeList * e
 	auto actualIt = actual->begin();
 	for(auto expectedIt = expected->begin(); expectedIt != expected->end(); ++expectedIt) {
 		CPPUNIT_ASSERT(typeid(**expectedIt) == typeid(**actualIt));
-		CPPUNIT_ASSERT_EQUAL((*expectedIt)->toJSON(), (*actualIt)->toJSON());
+		const Util::GenericAttributeList * expectedList = dynamic_cast<const Util::GenericAttributeList *>(expectedIt->get());
+		const Util::GenericAttributeList * actualList = dynamic_cast<const Util::GenericAttributeList *>(actualIt->get());
+		const Util::GenericAttributeMap * expectedMap = dynamic_cast<const Util::GenericAttributeMap *>(expectedIt->get());
+		const Util::GenericAttributeMap * actualMap = dynamic_cast<const Util::GenericAttributeMap *>(actualIt->get());
+		if((nullptr != expectedList) && (nullptr != actualList)) {
+			checkGenericAttributeListsEqual(expectedList, actualList);
+		} else if((nullptr != expectedMap) && (nullptr != actualMap)) {
+			checkGenericAttributeMapsEqual(expectedMap, actualMap);
+		} else {
+			CPPUNIT_ASSERT_EQUAL((*expectedIt)->toJSON(), (*actualIt)->toJSON());
+		}
 		++actualIt;
 	}
 }
@@ -99,12 +111,21 @@ static void checkGenericAttributeMapsEqual(const Util::GenericAttributeMap * exp
 	CPPUNIT_ASSERT(expected != nullptr);
 	CPPUNIT_ASSERT(actual != nullptr);
 	CPPUNIT_ASSERT_EQUAL(expected->size(), actual->size());
-	auto actualIt = actual->begin();
 	for(auto expectedIt = expected->begin(); expectedIt != expected->end(); ++expectedIt) {
-		CPPUNIT_ASSERT(typeid(*(expectedIt->second)) == typeid(*(actualIt->second)));
-		CPPUNIT_ASSERT(expectedIt->first == actualIt->first);
-		CPPUNIT_ASSERT_EQUAL(expectedIt->second->toJSON(), actualIt->second->toJSON());
-		++actualIt;
+		CPPUNIT_ASSERT(actual->contains(expectedIt->first));
+		const Util::GenericAttribute * actualElement = actual->getValue(expectedIt->first);
+		CPPUNIT_ASSERT(typeid(*(expectedIt->second)) == typeid(*(actualElement)));
+		const Util::GenericAttributeList * expectedList = dynamic_cast<const Util::GenericAttributeList *>(expectedIt->second.get());
+		const Util::GenericAttributeList * actualList = dynamic_cast<const Util::GenericAttributeList *>(actualElement);
+		const Util::GenericAttributeMap * expectedMap = dynamic_cast<const Util::GenericAttributeMap *>(expectedIt->second.get());
+		const Util::GenericAttributeMap * actualMap = dynamic_cast<const Util::GenericAttributeMap *>(actualElement);
+		if((nullptr != expectedList) && (nullptr != actualList)) {
+			checkGenericAttributeListsEqual(expectedList, actualList);
+		} else if((nullptr != expectedMap) && (nullptr != actualMap)) {
+			checkGenericAttributeMapsEqual(expectedMap, actualMap);
+		} else {
+			CPPUNIT_ASSERT_EQUAL(expectedIt->second->toJSON(), actualElement->toJSON());
+		}
 	}
 }
 
