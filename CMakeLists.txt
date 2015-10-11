@@ -14,6 +14,10 @@ set(UTIL_VERSION_MINOR 2)
 set(UTIL_VERSION_PATCH 0)
 set(UTIL_VERSION_STRING ${UTIL_VERSION_MAJOR}.${UTIL_VERSION_MINOR}.${UTIL_VERSION_PATCH})
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # Set up install directories
 include(GNUInstallDirs)
 set(CMAKE_INSTALL_CMAKECONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Util)
@@ -225,18 +229,6 @@ endif()
 check_symbol_exists(open_memstream stdio.h UTIL_HAVE_OPEN_MEMSTREAM)
 if(UTIL_HAVE_OPEN_MEMSTREAM)
 	set_property(TARGET Util APPEND PROPERTY COMPILE_DEFINITIONS UTIL_HAVE_OPEN_MEMSTREAM)
-endif()
-
-
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-	set_property(TARGET Util APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11 ")
-elseif(COMPILER_SUPPORTS_CXX0X)
-	set_property(TARGET Util APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++0x ")
-else()
-	message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
 # Set version of library
