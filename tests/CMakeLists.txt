@@ -6,7 +6,7 @@
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.1.0)
 
 option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built.")
 if(UTIL_BUILD_TESTS)
