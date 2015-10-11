@@ -30,19 +30,19 @@ if(UTIL_BUILD_TESTS)
 		UtilTestMain.cpp
 	)
 
-	target_link_libraries(UtilTest LINK_PRIVATE Util)
+	target_link_libraries(UtilTest PRIVATE Util)
 
 	# Dependency to CppUnit
 	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 	find_package(CppUnit REQUIRED)
 	target_include_directories(UtilTest PRIVATE ${CPPUNIT_INCLUDE_DIRS})
-	target_link_libraries(UtilTest LINK_PRIVATE ${CPPUNIT_LIBRARIES})
+	target_link_libraries(UtilTest PRIVATE ${CPPUNIT_LIBRARIES})
 
 	# Dependency to pthread
 	set(CMAKE_THREAD_PREFER_PTHREAD ON)
 	find_package(Threads)
 	if(CMAKE_USE_PTHREADS_INIT AND (NOT DEFINED XCODE_VERSION OR XCODE_VERSION LESS 5.0))
-		target_link_libraries(UtilTest LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+		target_link_libraries(UtilTest PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 	endif()
 
 	install(TARGETS UtilTest

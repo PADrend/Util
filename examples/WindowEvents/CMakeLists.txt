@@ -12,4 +12,4 @@ add_executable(WindowEvents
 	WindowEventsMain.cpp
 )
 
-target_link_libraries(WindowEvents LINK_PRIVATE Util)
+target_link_libraries(WindowEvents PRIVATE Util)
