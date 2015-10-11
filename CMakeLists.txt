@@ -290,7 +290,15 @@ set_package_properties(ZLIB PROPERTIES
 feature_summary(DESCRIPTION "The following packages have been found:" WHAT PACKAGES_FOUND)
 feature_summary(DESCRIPTION "The following packages have *not* been found:" WHAT PACKAGES_NOT_FOUND)
 
-add_subdirectory(tests)
+option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built.")
+if(UTIL_BUILD_TESTS)
+	if(UNIX AND NOT APPLE)
+	        find_program(MEMORYCHECK_COMMAND NAMES valgrind)
+		set(MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --leak-check=summary --num-callers=1 --vgdb=no")
+	endif()
+	include(CTest)
+	add_subdirectory(tests)
+endif()
 
 # Install the header files
 file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Concurrency/*.h")

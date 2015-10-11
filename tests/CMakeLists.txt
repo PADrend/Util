@@ -8,7 +8,6 @@
 #
 cmake_minimum_required(VERSION 3.1.0)
 
-option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built.")
 if(UTIL_BUILD_TESTS)
 	add_executable(UtilTest 
 		BidirectionalMapTest.cpp
@@ -51,6 +50,5 @@ if(UTIL_BUILD_TESTS)
 		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT tests
 	)
 
-	enable_testing()
 	add_test(NAME UtilUnitTests COMMAND UtilTest)
 endif()
