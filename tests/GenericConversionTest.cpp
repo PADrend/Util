@@ -51,7 +51,6 @@ static bool checkGenericsEqual(const Util::Generic & expected, const Util::Gener
 
 static bool checkGenericArraysEqual(const GenericArray & expected, const GenericArray & actual) {
 	CPPUNIT_ASSERT_EQUAL(expected.size(), actual.size());
-	auto actualIt = actual.begin();
 	return std::equal(expected.cbegin(), expected.cend(), actual.cbegin(), &checkGenericsEqual);
 }
 
