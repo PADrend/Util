@@ -1,18 +1,17 @@
 #
 # This file is part of the Util library.
-# Copyright (C) 2009-2013 Benjamin Eikel <benjamin@eikel.org>
+# Copyright (C) 2009-2015 Benjamin Eikel <benjamin@eikel.org>
 #
 # This library is subject to the terms of the Mozilla Public License, v. 2.0.
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-cmake_minimum_required(VERSION 2.8.11)
-project(Util)
+cmake_minimum_required(VERSION 3.1.0)
+project(Util VERSION 0.2.0)
 
-set(UTIL_VERSION_MAJOR 0)
-set(UTIL_VERSION_MINOR 2)
-set(UTIL_VERSION_PATCH 0)
-set(UTIL_VERSION_STRING ${UTIL_VERSION_MAJOR}.${UTIL_VERSION_MINOR}.${UTIL_VERSION_PATCH})
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set up install directories
 include(GNUInstallDirs)
@@ -50,10 +49,10 @@ get_property(Util_SOURCES GLOBAL PROPERTY Util_SRCS)
 add_library(Util ${Util_SOURCES})
 
 if(WIN32)
-	target_link_libraries(Util LINK_PRIVATE "-lpsapi -gdi32")
+	target_link_libraries(Util PRIVATE "-lpsapi -gdi32")
 endif()
 if(UNIX AND NOT APPLE)
-	target_link_libraries(Util LINK_PRIVATE rt)
+	target_link_libraries(Util PRIVATE rt)
 endif()
 
 # Dependency to SQLite3
@@ -61,7 +60,7 @@ find_package(SQLite3)
 if(SQLITE3_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SQLITE)
 	target_include_directories(Util PRIVATE ${SQLITE3_INCLUDE_DIRS})
-	target_link_libraries(Util LINK_PRIVATE ${SQLITE3_LIBRARIES})
+	target_link_libraries(Util PRIVATE ${SQLITE3_LIBRARIES})
 endif()
 
 # Dependency to libpng
@@ -70,7 +69,7 @@ if(PNG_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_PNG)
 	target_compile_definitions(Util PRIVATE "${PNG_DEFINITIONS}")
 	target_include_directories(Util PRIVATE ${PNG_INCLUDE_DIR})
-	target_link_libraries(Util LINK_PRIVATE ${PNG_LIBRARIES})
+	target_link_libraries(Util PRIVATE ${PNG_LIBRARIES})
 endif()
 
 # Dependency to libarchive
@@ -78,7 +77,7 @@ find_package(LibArchive)
 if(LibArchive_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_ARCHIVE)
 	target_include_directories(Util PRIVATE ${LibArchive_INCLUDE_DIRS})
-	target_link_libraries(Util LINK_PRIVATE ${LibArchive_LIBRARIES})
+	target_link_libraries(Util PRIVATE ${LibArchive_LIBRARIES})
 endif()
 
 # Dependency to libzip
@@ -86,7 +85,7 @@ find_package(libzip)
 if(LIBZIP_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_ZIP)
 	target_include_directories(Util PRIVATE ${LIBZIP_INCLUDE_DIRS})
-	target_link_libraries(Util LINK_PRIVATE ${LIBZIP_LIBRARIES})
+	target_link_libraries(Util PRIVATE ${LIBZIP_LIBRARIES})
 endif()
 
 # Dependency to libxml2
@@ -95,7 +94,7 @@ if(LIBXML2_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_XML2)
 	target_compile_definitions(Util PRIVATE "${LIBXML2_DEFINITIONS}")
 	target_include_directories(Util PRIVATE ${LIBXML2_INCLUDE_DIR})
-	target_link_libraries(Util LINK_PRIVATE ${LIBXML2_LIBRARIES})
+	target_link_libraries(Util PRIVATE ${LIBXML2_LIBRARIES})
 endif()
 
 # Dependency to libcurl
@@ -103,7 +102,7 @@ find_package(CURL)
 if(CURL_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_CURL)
 	target_include_directories(Util PRIVATE ${CURL_INCLUDE_DIRS})
-	target_link_libraries(Util LINK_PRIVATE ${CURL_LIBRARIES})
+	target_link_libraries(Util PRIVATE ${CURL_LIBRARIES})
 endif()
 
 # Dependency to FreeType
@@ -111,14 +110,14 @@ find_package(Freetype)
 if(FREETYPE_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_FREETYPE)
 	target_include_directories(Util PRIVATE ${FREETYPE_INCLUDE_DIRS})
-	target_link_libraries(Util LINK_PRIVATE ${FREETYPE_LIBRARIES})
+	target_link_libraries(Util PRIVATE ${FREETYPE_LIBRARIES})
 	
 	# Dependency to ZLIB
 	find_package(ZLIB QUIET)
 	if(ZLIB_FOUND)
 		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_ZLIB)
 		target_include_directories(Util PRIVATE ${ZLIB_INCLUDE_DIRS})
-		target_link_libraries(Util LINK_PRIVATE ${ZLIB_LIBRARIES})
+		target_link_libraries(Util PRIVATE ${ZLIB_LIBRARIES})
 	endif()
 endif()
 
@@ -128,7 +127,7 @@ find_package(SDL2 2.0.0)
 if(SDL2_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2)
 	target_include_directories(Util PRIVATE ${SDL2_INCLUDE_DIRS})
-	target_link_libraries(Util LINK_PRIVATE ${SDL2_LIBRARIES})
+	target_link_libraries(Util PRIVATE ${SDL2_LIBRARIES})
 endif()
 
 # Dependency to SDL2_image
@@ -136,7 +135,7 @@ find_package(SDL2_image 2.0.0)
 if(SDL2_IMAGE_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2_IMAGE)
 	target_include_directories(Util PRIVATE ${SDL2_IMAGE_INCLUDE_DIRS})
-	target_link_libraries(Util LINK_PRIVATE ${SDL2_IMAGE_LIBRARIES})
+	target_link_libraries(Util PRIVATE ${SDL2_IMAGE_LIBRARIES})
 endif()
 
 # Dependency to SDL2_net
@@ -144,14 +143,14 @@ find_package(SDL2_net 2.0.0)
 if(SDL2_NET_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2_NET)
 	target_include_directories(Util PRIVATE ${SDL2_NET_INCLUDE_DIRS})
-	target_link_libraries(Util LINK_PRIVATE ${SDL2_NET_LIBRARIES})
+	target_link_libraries(Util PRIVATE ${SDL2_NET_LIBRARIES})
 endif()
 
 # Dependency to pthread
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 find_package(Threads)
 if(CMAKE_USE_PTHREADS_INIT AND (NOT DEFINED XCODE_VERSION OR XCODE_VERSION LESS 5.0))
-	target_link_libraries(Util LINK_PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(Util PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # Only use X11 on Linux. There were problems with X11 on Mac OS X
@@ -161,7 +160,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL Linux)
 	if(X11_FOUND)
 		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_X11)
 		target_include_directories(Util PRIVATE ${X11_INCLUDE_DIR})
-		target_link_libraries(Util LINK_PRIVATE ${X11_LIBRARIES})
+		target_link_libraries(Util PRIVATE ${X11_LIBRARIES})
 		
 		option(UTIL_X11_JOYSTICK_SUPPORT "Defines if joystick support for X11 should be included.")
 		if(UTIL_X11_JOYSTICK_SUPPORT)
@@ -176,7 +175,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL Linux)
 	if(EGL_FOUND)
 		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_EGL)
 		target_include_directories(Util PRIVATE ${EGL_INCLUDE_DIRS})
-		target_link_libraries(Util LINK_PRIVATE ${EGL_LIBRARIES})
+		target_link_libraries(Util PRIVATE ${EGL_LIBRARIES})
 	endif()
 
 	# Dependency to GLX
@@ -184,64 +183,52 @@ if(CMAKE_SYSTEM_NAME STREQUAL Linux)
 	if(GLX_FOUND)
 		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_GLX)
 		target_include_directories(Util PRIVATE ${GLX_INCLUDE_DIRS})
-		target_link_libraries(Util LINK_PRIVATE ${GLX_LIBRARIES})
+		target_link_libraries(Util PRIVATE ${GLX_LIBRARIES})
 
-		include(CheckSymbolExists)
+		include(CheckCXXSymbolExists)
 		set(CMAKE_REQUIRED_INCLUDES ${GLX_INCLUDE_DIRS})
 		set(CMAKE_REQUIRED_LIBRARIES ${GLX_LIBRARIES})
-		check_symbol_exists(glXGetProcAddressARB "GL/glx.h" UTIL_HAVE_GLX_GETPROCADDRESSARB)
+		check_cxx_symbol_exists(glXGetProcAddressARB "GL/glx.h" UTIL_HAVE_GLX_GETPROCADDRESSARB)
 		if(UTIL_HAVE_GLX_GETPROCADDRESSARB)
 			target_compile_definitions(Util PRIVATE UTIL_HAVE_GLX_GETPROCADDRESSARB)
 		endif()
 	endif()
 endif()
 
-include(CheckIncludeFile)
-include(CheckSymbolExists)
+include(CheckIncludeFileCXX)
+include(CheckCXXSymbolExists)
 
 # Test if the header execinfo.h exists
-check_include_file(execinfo.h UTIL_HAVE_EXECINFO_H)
+check_include_file_cxx(execinfo.h UTIL_HAVE_EXECINFO_H)
 if(UTIL_HAVE_EXECINFO_H)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_EXECINFO_H)
 endif()
 
 # Test if the header malloc.h exists
-check_include_file(malloc.h UTIL_HAVE_MALLOC_H)
+check_include_file_cxx(malloc.h UTIL_HAVE_MALLOC_H)
 if(UTIL_HAVE_MALLOC_H)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_MALLOC_H)
 endif()
 # Test if mallinfo exists
-check_symbol_exists(mallinfo malloc.h UTIL_HAVE_MALLINFO)
+check_cxx_symbol_exists(mallinfo malloc.h UTIL_HAVE_MALLINFO)
 if(UTIL_HAVE_MALLINFO)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_MALLINFO)
 endif()
 # Test if malloc_info exists
-check_symbol_exists(malloc_info malloc.h UTIL_HAVE_MALLOC_INFO)
+check_cxx_symbol_exists(malloc_info malloc.h UTIL_HAVE_MALLOC_INFO)
 if(UTIL_HAVE_MALLOC_INFO)
 	set_property(TARGET Util APPEND PROPERTY COMPILE_DEFINITIONS UTIL_HAVE_MALLOC_INFO)
 endif()
 
 # Test if open_memstream exists
-check_symbol_exists(open_memstream stdio.h UTIL_HAVE_OPEN_MEMSTREAM)
+check_cxx_symbol_exists(open_memstream stdio.h UTIL_HAVE_OPEN_MEMSTREAM)
 if(UTIL_HAVE_OPEN_MEMSTREAM)
 	set_property(TARGET Util APPEND PROPERTY COMPILE_DEFINITIONS UTIL_HAVE_OPEN_MEMSTREAM)
 endif()
 
-
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-	set_property(TARGET Util APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11 ")
-elseif(COMPILER_SUPPORTS_CXX0X)
-	set_property(TARGET Util APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++0x ")
-else()
-	message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-endif()
-
 # Set version of library
-set_target_properties(Util PROPERTIES VERSION ${UTIL_VERSION_STRING}
-                                      SOVERSION ${UTIL_VERSION_MAJOR})
+set_target_properties(Util PROPERTIES VERSION ${Util_VERSION}
+                                      SOVERSION ${Util_VERSION_MAJOR})
 
 include(FeatureSummary)
 set_package_properties(CURL PROPERTIES
@@ -303,7 +290,15 @@ set_package_properties(ZLIB PROPERTIES
 feature_summary(DESCRIPTION "The following packages have been found:" WHAT PACKAGES_FOUND)
 feature_summary(DESCRIPTION "The following packages have *not* been found:" WHAT PACKAGES_NOT_FOUND)
 
-add_subdirectory(tests)
+option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built.")
+if(UTIL_BUILD_TESTS)
+	if(UNIX AND NOT APPLE)
+	        find_program(MEMORYCHECK_COMMAND NAMES valgrind)
+		set(MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --leak-check=summary --num-callers=1 --vgdb=no")
+	endif()
+	include(CTest)
+	add_subdirectory(tests)
+endif()
 
 # Install the header files
 file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Concurrency/*.h")
@@ -359,13 +354,13 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/UtilConfig.cmake ${CMAKE_CURRENT_BINAR
 # Packaging
 include(InstallRequiredSystemLibraries)
 
-set(CPACK_PACKAGE_NAME "libutil${UTIL_VERSION_MAJOR}")
+set(CPACK_PACKAGE_NAME "libutil${Util_VERSION_MAJOR}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Util library")
 set(CPACK_PACKAGE_VENDOR "Benjamin Eikel; Claudius Jaehn; Ralf Petring")
 set(CPACK_PACKAGE_CONTACT "Benjamin Eikel <benjamin@eikel.org>")
-set(CPACK_PACKAGE_VERSION_MAJOR ${UTIL_VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${UTIL_VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${UTIL_VERSION_PATCH})
+set(CPACK_PACKAGE_VERSION_MAJOR ${Util_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${Util_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${Util_VERSION_PATCH})
 set(CPACK_PACKAGE_FILE_NAME "libUtil")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_STRIP_FILES ON)
