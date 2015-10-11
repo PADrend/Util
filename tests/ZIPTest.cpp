@@ -20,6 +20,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(ZIPTest);
 
 using namespace CppUnit;
 
+#ifdef UTIL_HAVE_LIB_ZIP
 static const std::string zipArchive("zip://test.zip$");
 
 static void threadWriterFun(const char thread) {
@@ -47,8 +48,10 @@ static void threadReaderFun() {
 		}
 	}
 }
+#endif
 
 void ZIPTest::test() {
+#ifdef UTIL_HAVE_LIB_ZIP
 	{
 		const std::string one = Util::StringUtils::toString<uint32_t>(1);
 		const std::string two = Util::StringUtils::toString<uint32_t>(2);
@@ -91,4 +94,7 @@ void ZIPTest::test() {
 	threadReaderC.join();
 
 	Util::FileUtils::remove(zipFile);
+#else
+	// No support for ZIP, nothing to test.
+#endif
 }
