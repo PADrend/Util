@@ -185,43 +185,43 @@ if(CMAKE_SYSTEM_NAME STREQUAL Linux)
 		target_include_directories(Util PRIVATE ${GLX_INCLUDE_DIRS})
 		target_link_libraries(Util PRIVATE ${GLX_LIBRARIES})
 
-		include(CheckSymbolExists)
+		include(CheckCXXSymbolExists)
 		set(CMAKE_REQUIRED_INCLUDES ${GLX_INCLUDE_DIRS})
 		set(CMAKE_REQUIRED_LIBRARIES ${GLX_LIBRARIES})
-		check_symbol_exists(glXGetProcAddressARB "GL/glx.h" UTIL_HAVE_GLX_GETPROCADDRESSARB)
+		check_cxx_symbol_exists(glXGetProcAddressARB "GL/glx.h" UTIL_HAVE_GLX_GETPROCADDRESSARB)
 		if(UTIL_HAVE_GLX_GETPROCADDRESSARB)
 			target_compile_definitions(Util PRIVATE UTIL_HAVE_GLX_GETPROCADDRESSARB)
 		endif()
 	endif()
 endif()
 
-include(CheckIncludeFile)
-include(CheckSymbolExists)
+include(CheckIncludeFileCXX)
+include(CheckCXXSymbolExists)
 
 # Test if the header execinfo.h exists
-check_include_file(execinfo.h UTIL_HAVE_EXECINFO_H)
+check_include_file_cxx(execinfo.h UTIL_HAVE_EXECINFO_H)
 if(UTIL_HAVE_EXECINFO_H)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_EXECINFO_H)
 endif()
 
 # Test if the header malloc.h exists
-check_include_file(malloc.h UTIL_HAVE_MALLOC_H)
+check_include_file_cxx(malloc.h UTIL_HAVE_MALLOC_H)
 if(UTIL_HAVE_MALLOC_H)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_MALLOC_H)
 endif()
 # Test if mallinfo exists
-check_symbol_exists(mallinfo malloc.h UTIL_HAVE_MALLINFO)
+check_cxx_symbol_exists(mallinfo malloc.h UTIL_HAVE_MALLINFO)
 if(UTIL_HAVE_MALLINFO)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_MALLINFO)
 endif()
 # Test if malloc_info exists
-check_symbol_exists(malloc_info malloc.h UTIL_HAVE_MALLOC_INFO)
+check_cxx_symbol_exists(malloc_info malloc.h UTIL_HAVE_MALLOC_INFO)
 if(UTIL_HAVE_MALLOC_INFO)
 	set_property(TARGET Util APPEND PROPERTY COMPILE_DEFINITIONS UTIL_HAVE_MALLOC_INFO)
 endif()
 
 # Test if open_memstream exists
-check_symbol_exists(open_memstream stdio.h UTIL_HAVE_OPEN_MEMSTREAM)
+check_cxx_symbol_exists(open_memstream stdio.h UTIL_HAVE_OPEN_MEMSTREAM)
 if(UTIL_HAVE_OPEN_MEMSTREAM)
 	set_property(TARGET Util APPEND PROPERTY COMPILE_DEFINITIONS UTIL_HAVE_OPEN_MEMSTREAM)
 endif()
