@@ -296,9 +296,10 @@ void NetworkTest::testDataConnection() {
 			const DataConnection::channelId_t checkChannelId;
 			const Util::StringIdentifier checkKey;
 			const DataConnection::dataPacket_t checkData;
-			const uint32_t checkCount;
-			uint32_t numberOfValueChecks;
-			uint32_t numberOfKeyValueChecks;
+			const uint32_t expectedNumberOfValueChecks;
+			uint32_t maximumNumberOfKeyValueChecks;
+			uint32_t actualNumberOfValueChecks;
+			uint32_t actualNumberOfKeyValueChecks;
 
 		public:
 			HandlerChecker(DataConnection::channelId_t channelId, 
@@ -308,31 +309,36 @@ void NetworkTest::testDataConnection() {
 				checkChannelId(channelId), 
 				checkKey(key), 
 				checkData(data), 
-				checkCount(checks), 
-				numberOfValueChecks(0), 
-				numberOfKeyValueChecks(0) {
+				expectedNumberOfValueChecks(checks),
+				maximumNumberOfKeyValueChecks(0),
+				actualNumberOfValueChecks(0),
+				actualNumberOfKeyValueChecks(0) {
 			}
 			~HandlerChecker() {
-				CPPUNIT_ASSERT_EQUAL(checkCount, numberOfValueChecks);
-				// Multiple messages with the same key must only arrive ones.
-				CPPUNIT_ASSERT_EQUAL(1u, numberOfKeyValueChecks);
+				CPPUNIT_ASSERT_EQUAL(expectedNumberOfValueChecks, actualNumberOfValueChecks);
+				// Multiple messages with the same key must only arrive once per receive call.
+				CPPUNIT_ASSERT(maximumNumberOfKeyValueChecks >= actualNumberOfKeyValueChecks);
 			}
 
 			void checkValue(DataConnection::channelId_t channelId, const DataConnection::dataPacket_t & data) {
 				CPPUNIT_ASSERT_EQUAL(channelId, checkChannelId);
 				CPPUNIT_ASSERT(checkData == data);
-				++numberOfValueChecks;
+				++actualNumberOfValueChecks;
 			}
-			
+
 			void checkKeyValue(DataConnection::channelId_t channelId, const Util::StringIdentifier & key, const DataConnection::dataPacket_t & data) {
 				CPPUNIT_ASSERT_EQUAL(channelId, checkChannelId);
 				CPPUNIT_ASSERT_EQUAL(checkKey.toString(), key.toString());
 				CPPUNIT_ASSERT(checkData == data);
-				++numberOfKeyValueChecks;
+				++actualNumberOfKeyValueChecks;
+			}
+
+			void allowAdditionalKeyValueCheck() {
+				++maximumNumberOfKeyValueChecks;
 			}
 
 			bool finished() const {
-				return numberOfValueChecks >= checkCount && numberOfKeyValueChecks >= 1;
+				return actualNumberOfValueChecks >= expectedNumberOfValueChecks;
 			}
 	};
 	for (const auto & size : sizes) {
@@ -357,6 +363,8 @@ void NetworkTest::testDataConnection() {
 			tryCount = 0;
 			while (!checker.finished() && tryCount < maxTries) {
 				serverDataConnection.handleIncomingData();
+				// Keys are only unique during one receive call.
+				checker.allowAdditionalKeyValueCheck();
 				Util::Utils::sleep(5);
 				++tryCount;
 			}
