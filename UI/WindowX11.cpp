@@ -1,9 +1,9 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
-	
+
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
-	You should have received a copy of the MPL along with this library; see the 
+	You should have received a copy of the MPL along with this library; see the
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #if defined(UTIL_HAVE_LIB_X11)
@@ -15,14 +15,18 @@
 #include "WindowX11Data.h"
 #include "../Graphics/Bitmap.h"
 #include "../Graphics/PixelAccessor.h"
+#include "../Macros.h"
+#include "../Timer.h"
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <X11/Xutil.h>
+#include <X11/Xatom.h>
 #include <cstdint>
 #include <locale>
 #include <memory>
 #include <unordered_map>
 #include <stdexcept>
+#include <limits>
 
 #if defined(UTIL_X11_JOYSTICK_SUPPORT)
 // do not include <linux/input.h>, including it would redefine key mappings
@@ -34,6 +38,13 @@
 #include <linux/joystick.h>
 #include <iostream>
 #undef _INPUT_H
+#endif
+
+// If you don't support UTF-8, you might use XA_STRING here
+#ifdef X_HAVE_UTF8_STRING
+#define TEXT_FORMAT XInternAtom(x11Data->display, "UTF8_STRING", False)
+#else
+#define TEXT_FORMAT XA_STRING
 #endif
 
 namespace Util {
@@ -308,7 +319,7 @@ static ::Cursor convertBitmapToX11Cursor(Display * display, ::Window window, con
 		return None;
 	}
 	::Cursor x11Cursor = XCreatePixmapCursor(display, dataPixmap, maskPixmap,
-											 &fgColor, &bgColor, 
+											 &fgColor, &bgColor,
 											 hotSpotX, hotSpotY);
 	XFreePixmap(display, dataPixmap);
 	XFreePixmap(display, maskPixmap);
@@ -382,7 +393,7 @@ void WindowX11::doSetCursor(const UI::Cursor * cursor) {
 	if(cursor == nullptr) {
 		XUndefineCursor(x11Data->display, x11Data->window);
 	} else {
-		x11Data->cursor = convertBitmapToX11Cursor(x11Data->display, x11Data->window, 
+		x11Data->cursor = convertBitmapToX11Cursor(x11Data->display, x11Data->window,
 												   cursor->getBitmap(), cursor->getHotSpotX(), cursor->getHotSpotY());
 		XDefineCursor(x11Data->display, x11Data->window, x11Data->cursor);
 	}
@@ -407,13 +418,13 @@ void WindowX11::warpCursor(int x, int y) {
 }
 
 void WindowX11::grabInput() {
-	XGrabPointer(x11Data->display, x11Data->window, 
-				 False, ButtonPressMask | ButtonReleaseMask | PointerMotionMask, 
-				 GrabModeAsync, GrabModeAsync, 
+	XGrabPointer(x11Data->display, x11Data->window,
+				 False, ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+				 GrabModeAsync, GrabModeAsync,
 				 x11Data->window, None, CurrentTime);
-	XGrabKeyboard(x11Data->display, x11Data->window, 
-				  False, 
-				  GrabModeAsync, GrabModeAsync, 
+	XGrabKeyboard(x11Data->display, x11Data->window,
+				  False,
+				  GrabModeAsync, GrabModeAsync,
 				  CurrentTime);
 }
 
@@ -540,6 +551,51 @@ std::deque<Event> WindowX11::fetchEvents() {
 				lastX = xev.xmotion.x;
 				lastY = xev.xmotion.y;
 				break;
+			case SelectionRequest: {
+				XSelectionEvent reply;
+			  reply.type = SelectionNotify;
+			  reply.display = xev.xselectionrequest.display;
+			  reply.requestor = xev.xselectionrequest.requestor;
+			  reply.selection = xev.xselectionrequest.selection;
+			  reply.target = xev.xselectionrequest.target;
+			  reply.property = None;
+			  reply.time = xev.xselectionrequest.time;
+
+				Atom aPrimary = XInternAtom(x11Data->display, "PRIMARY", False);
+				Atom aClipboard = XInternAtom(x11Data->display, "CLIPBOARD", False);
+				Atom aUtf8String = XInternAtom(x11Data->display, "UTF8_STRING", False);
+				Atom aGtkTextBuffer = XInternAtom(x11Data->display, "GTK_TEXT_BUFFER_CONTENTS", False);
+				Atom aTargets = XInternAtom(x11Data->display, "TARGETS", False);
+
+				if(reply.selection == aPrimary || reply.selection == aClipboard) {
+					if(reply.target == XA_STRING || reply.target == aUtf8String || reply.target == aGtkTextBuffer) {
+						// TODO: handle utf8 strings correctly
+						if(!x11Data->clipboard.empty() && xev.xselectionrequest.property != None) {
+							std::string str = x11Data->clipboard;
+							reply.property = xev.xselectionrequest.property;
+							XChangeProperty(reply.display, reply.requestor,
+				                      reply.property, reply.target,
+				                      8, PropModeReplace,
+				                      reinterpret_cast<const unsigned char*>(str.c_str()), str.length());
+						}
+					} else if(reply.target == aTargets) {
+						if(xev.xselectionrequest.property != None) {
+							std::vector<Atom> atoms = {aUtf8String, XA_STRING};
+							reply.property = xev.xselectionrequest.property;
+							XChangeProperty(reply.display, reply.requestor,
+				                      reply.property, reply.target,
+				                      32, PropModeReplace,
+				                      reinterpret_cast<const unsigned char*>(atoms.data()), 2*4);
+						}
+					}
+				} else {
+					WARN("requested unsupported clipboard");
+				}
+
+				XSendEvent(reply.display, reply.requestor, 0, NoEventMask, reinterpret_cast<XEvent*>(&reply));
+
+				break;
+			}
 			default:
 				continue;
 		}
@@ -620,11 +676,84 @@ void WindowX11::setIcon(const Bitmap & icon) {
 }
 
 std::string WindowX11::getClipboardText() const {
+	Atom aClipboard = XInternAtom(x11Data->display, "CLIPBOARD", True);
+
+	if(aClipboard == None) {
+		//WARN("Couldn't access X clipboard.");
+		return x11Data->clipboard;
+	}
+
+	Atom format = TEXT_FORMAT;
+	Atom selection;
+	::Window owner = XGetSelectionOwner(x11Data->display, aClipboard);
+	if(owner == None || owner == x11Data->window) {
+			owner = x11Data->window;
+			//owner = XDefaultRootWindow(x11Data->display);
+			selection = XA_CUT_BUFFER0;
+	} else {
+    // Request that the selection owner copy the data to our window
+    owner = x11Data->window;
+    selection = XInternAtom(x11Data->display, "PADREND_SELECTION", False);
+    XConvertSelection(x11Data->display, aClipboard, format, selection, owner, CurrentTime);
+
+		/* When using synergy on Linux and when data has been put in the clipboard
+			 on the remote (Windows anyway) machine then selection_waiting may never
+			 be set to False. Time out after a while. */
+		Timer timer;
+		bool waiting = true;
+		while (waiting) {
+			// Pump events
+			XFlush(x11Data->display);
+			while (XPending(x11Data->display) > 0) {
+				XEvent xev;
+				XNextEvent(x11Data->display, &xev);
+				if(xev.type == SelectionNotify)
+					waiting = false;
+			}
+			/* Wait one second for a clipboard response. */
+			if (timer.getSeconds() > 1.0f) {
+					waiting = false;
+					WARN("Clipboard timeout");
+					x11Data->clipboard = "";
+					return x11Data->clipboard;
+			}
+    }
+	}
+
+	Atom seln_type;
+	int seln_format;
+	unsigned long nbytes;
+	unsigned long overflow;
+	unsigned char *src;
+  if(XGetWindowProperty(x11Data->display, owner, selection, 0, std::numeric_limits<int>::max()/4, False, format, &seln_type, &seln_format, &nbytes, &overflow, &src) == Success) {
+      if(seln_type == format) {
+          x11Data->clipboard = std::string(src, src+nbytes);
+      }
+      XFree(src);
+  }
+
 	return x11Data->clipboard;
 }
 
 void WindowX11::setClipboardText(const std::string & text) {
 	x11Data->clipboard = text;
+
+	Atom aPrimary = XInternAtom(x11Data->display, "PRIMARY", False);
+	Atom aClipboard = XInternAtom(x11Data->display, "CLIPBOARD", False);
+	//Atom format = TEXT_FORMAT;
+	//::Window target = XDefaultRootWindow(x11Data->display);
+	//::Window target = x11Data->window;
+
+	/*XChangeProperty(x11Data->display, target, XA_CUT_BUFFER0, format, 8,
+									PropModeReplace, reinterpret_cast<const unsigned char *>(text.c_str()), text.length());*/
+
+	if (aClipboard != None && XGetSelectionOwner(x11Data->display, aClipboard) != x11Data->window) {
+			XSetSelectionOwner(x11Data->display, aClipboard, x11Data->window, CurrentTime);
+	}
+
+	if (aPrimary != None && XGetSelectionOwner(x11Data->display, aPrimary) != x11Data->window) {
+			XSetSelectionOwner(x11Data->display, aPrimary, x11Data->window, CurrentTime);
+	}
 }
 
 }
