@@ -256,8 +256,6 @@ void sleep(unsigned long int ms) {
 	t.tv_sec = numSeconds;
 	t.tv_nsec = 1000000ul * ms;
 	clock_nanosleep(CLOCK_MONOTONIC, 0, &t, nullptr);
-#elif defined(__USE_XOPEN_EXTENDED) || defined(__APPLE__) || defined(BSD)
-	usleep(1000ul * ms);
 #elif defined(ANDROID)
 	timespec t;
 	const unsigned long int numSeconds = ms / 1000ul;
@@ -265,6 +263,8 @@ void sleep(unsigned long int ms) {
 	t.tv_sec = numSeconds;
 	t.tv_nsec = 1000000ul * ms;
 	nanosleep(&t, nullptr);
+#elif defined(__USE_XOPEN_EXTENDED) || defined(__APPLE__) || defined(__unix__)
+	usleep(1000ul * ms)
 #else
 #error "Not implemented for your system.";
 #endif
