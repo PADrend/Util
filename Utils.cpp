@@ -264,7 +264,7 @@ void sleep(unsigned long int ms) {
 	t.tv_nsec = 1000000ul * ms;
 	nanosleep(&t, nullptr);
 #elif defined(__USE_XOPEN_EXTENDED) || defined(__APPLE__) || defined(__unix__)
-	usleep(1000ul * ms)
+	usleep(1000ul * ms);
 #else
 #error "Not implemented for your system.";
 #endif
