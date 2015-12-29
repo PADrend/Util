@@ -51,7 +51,7 @@ add_library(Util ${Util_SOURCES})
 if(WIN32)
 	target_link_libraries(Util PRIVATE "-lpsapi -gdi32")
 endif()
-if(UNIX AND NOT APPLE)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	target_link_libraries(Util PRIVATE rt)
 endif()
 
