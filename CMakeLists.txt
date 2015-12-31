@@ -154,7 +154,7 @@ if(CMAKE_USE_PTHREADS_INIT AND (NOT DEFINED XCODE_VERSION OR XCODE_VERSION LESS 
 endif()
 
 # Only use X11 on Linux. There were problems with X11 on Mac OS X
-if(CMAKE_SYSTEM_NAME STREQUAL Linux)
+if(UNIX AND NOT APPLE)
 	# Dependency to X11
 	find_package(X11)
 	if(X11_FOUND)
