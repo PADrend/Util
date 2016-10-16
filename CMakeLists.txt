@@ -217,13 +217,13 @@ endif()
 # Test if malloc_info exists
 check_cxx_symbol_exists(malloc_info malloc.h UTIL_HAVE_MALLOC_INFO)
 if(UTIL_HAVE_MALLOC_INFO)
-	set_property(TARGET Util APPEND PROPERTY COMPILE_DEFINITIONS UTIL_HAVE_MALLOC_INFO)
+	target_compile_definitions(Util PRIVATE UTIL_HAVE_MALLOC_INFO)
 endif()
 
 # Test if open_memstream exists
 check_cxx_symbol_exists(open_memstream stdio.h UTIL_HAVE_OPEN_MEMSTREAM)
 if(UTIL_HAVE_OPEN_MEMSTREAM)
-	set_property(TARGET Util APPEND PROPERTY COMPILE_DEFINITIONS UTIL_HAVE_OPEN_MEMSTREAM)
+	target_compile_definitions(Util PRIVATE UTIL_HAVE_OPEN_MEMSTREAM)
 endif()
 
 # Set version of library
