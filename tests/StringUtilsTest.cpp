@@ -7,7 +7,7 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "StringUtilsTest.h"
-#include <Util/StringUtils.h>
+#include "StringUtils.h"
 #include <cppunit/TestAssert.h>
 #include <cstdint>
 #include <string>

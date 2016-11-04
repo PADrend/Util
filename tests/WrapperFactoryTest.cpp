@@ -10,8 +10,8 @@
 */
 #include "WrapperFactoryTest.h"
 #include <cppunit/TestAssert.h>
-#include <Util/TypeNameMacro.h>
-#include <Util/Factory/WrapperFactory.h>
+#include "TypeNameMacro.h"
+#include "Factory/WrapperFactory.h"
 #include <cstddef>
 #include <functional>
 #include <typeindex>

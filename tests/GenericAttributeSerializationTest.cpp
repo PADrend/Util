@@ -9,9 +9,9 @@
 */
 #include "GenericAttributeSerializationTest.h"
 #include <cppunit/TestAssert.h>
-#include <Util/GenericAttribute.h>
-#include <Util/GenericAttributeSerialization.h>
-#include <Util/StringIdentifier.h>
+#include "GenericAttribute.h"
+#include "GenericAttributeSerialization.h"
+#include "StringIdentifier.h"
 #include <functional>
 #include <sstream>
 #include <tuple>

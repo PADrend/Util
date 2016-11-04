@@ -9,7 +9,7 @@
 */
 #include "UpdatableHeapTest.h"
 #include <cppunit/TestAssert.h>
-#include <Util/UpdatableHeap.h>
+#include "UpdatableHeap.h"
 #include <cstddef>
 #include <cstdint>
 #include <deque>

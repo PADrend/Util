@@ -8,7 +8,7 @@
 */
 #include "EncodingTest.h"
 #include <cppunit/TestAssert.h>
-#include <Util/Encoding.h>
+#include "Encoding.h"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>

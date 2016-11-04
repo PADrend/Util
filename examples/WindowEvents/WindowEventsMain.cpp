@@ -8,11 +8,11 @@
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include <Util/Graphics/Bitmap.h>
-#include <Util/UI/EventQueue.h>
-#include <Util/UI/Event.h>
-#include <Util/UI/UI.h>
-#include <Util/UI/Window.h>
+#include "Graphics/Bitmap.h"
+#include "UI/EventQueue.h"
+#include "UI/Event.h"
+#include "UI/UI.h"
+#include "UI/Window.h"
 #include <functional>
 #include <iostream>
 #include <memory>

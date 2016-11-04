@@ -7,11 +7,11 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "FileUtilsTest.h"
-#include <Util/IO/FileName.h>
-#include <Util/IO/FileUtils.h>
-#include <Util/IO/TemporaryDirectory.h>
-#include <Util/StringUtils.h>
-#include <Util/Utils.h>
+#include "IO/FileName.h"
+#include "IO/FileUtils.h"
+#include "IO/TemporaryDirectory.h"
+#include "StringUtils.h"
+#include "Utils.h"
 #include <cppunit/TestAssert.h>
 CPPUNIT_TEST_SUITE_REGISTRATION(FileUtilsTest);
 

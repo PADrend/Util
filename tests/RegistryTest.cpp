@@ -8,7 +8,7 @@
 */
 #include "RegistryTest.h"
 #include <cppunit/TestAssert.h>
-#include <Util/Registry.h>
+#include "Registry.h"
 #include <algorithm>
 #include <cstdint>
 #include <functional>

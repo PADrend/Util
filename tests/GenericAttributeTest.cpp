@@ -8,7 +8,7 @@
 */
 #include "GenericAttributeTest.h"
 #include <cppunit/TestAssert.h>
-#include <Util/GenericAttribute.h>
+#include "GenericAttribute.h"
 #include <cstdint>
 #include <memory>
 #include <string>
