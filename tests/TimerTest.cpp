@@ -7,8 +7,8 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "TimerTest.h"
-#include <Util/Timer.h>
-#include <Util/Utils.h>
+#include "Timer.h"
+#include "Utils.h"
 CPPUNIT_TEST_SUITE_REGISTRATION(TimerTest);
 
 void TimerTest::test() {

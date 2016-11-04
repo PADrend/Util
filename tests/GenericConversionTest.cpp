@@ -8,10 +8,10 @@
 */
 #include "GenericConversionTest.h"
 #include <cppunit/TestAssert.h>
-#include <Util/Generic.h>
-#include <Util/GenericConversion.h>
-#include <Util/StringIdentifier.h>
-#include <Util/StringUtils.h>
+#include "Generic.h"
+#include "GenericConversion.h"
+#include "StringIdentifier.h"
+#include "StringUtils.h"
 #include <sstream>
 #include <string>
 #include <unordered_map>

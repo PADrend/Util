@@ -8,7 +8,7 @@
 */
 #include "GenericTest.h"
 #include <cppunit/TestAssert.h>
-#include <Util/Generic.h>
+#include "Generic.h"
 #include <array>
 #include <cstdint>
 #include <string>

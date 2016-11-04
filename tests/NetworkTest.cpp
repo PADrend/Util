@@ -8,12 +8,12 @@
 */
 #include "NetworkTest.h"
 #include <cppunit/TestAssert.h>
-#include <Util/Network/DataConnection.h>
-#include <Util/Network/Network.h>
-#include <Util/Network/NetworkTCP.h>
-#include <Util/Network/NetworkUDP.h>
-#include <Util/StringIdentifier.h>
-#include <Util/Utils.h>
+#include "Network/DataConnection.h"
+#include "Network/Network.h"
+#include "Network/NetworkTCP.h"
+#include "Network/NetworkUDP.h"
+#include "StringIdentifier.h"
+#include "Utils.h"
 #include <cstddef>
 #include <cstdint>
 #include <functional>

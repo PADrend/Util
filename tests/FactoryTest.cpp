@@ -8,8 +8,8 @@
 */
 #include "FactoryTest.h"
 #include <cppunit/TestAssert.h>
-#include <Util/TypeNameMacro.h>
-#include <Util/Factory/Factory.h>
+#include "TypeNameMacro.h"
+#include "Factory/Factory.h"
 #include <cstddef>
 #include <functional>
 #include <typeinfo>

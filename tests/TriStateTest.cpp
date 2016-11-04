@@ -9,7 +9,7 @@
 */
 #include "TriStateTest.h"
 
-#include <Util/TriState.h>
+#include "TriState.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TriStateTest);
 
