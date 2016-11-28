@@ -373,6 +373,8 @@ WindowX11::WindowX11(const Window::Properties & properties) :
 	for(auto joystick : x11Data->activeJoysticks) {
 		std::cout << "Found joystick " << (i++) << " " << joystick.axes << " axes, " << joystick.buttons << " buttons" << std::endl;
 	}
+	// Joystick events needs to be fetched once to initialize it
+	fetchEvents();
 #endif
 }
 
