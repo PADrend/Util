@@ -77,17 +77,19 @@ void Util::unloadLibrary(const StringIdentifier& libraryId) {
 
 #else
 
-const StringIdentifier Util::loadLibrary(const std::string& filename) {
+using namespace Util;
+
+const StringIdentifier Util::loadLibrary(const std::string&) {
 	WARN("Util::loadLibrary requires SDL to work!");
 	return StringIdentifier(0);
 }
 
-void* Util::loadFunction(const StringIdentifier& libraryId, const std::string& name) {
+void* Util::loadFunction(const StringIdentifier&, const std::string&) {
 	WARN("Util::loadFunction requires SDL to work!");
 	return nullptr;
 }
 
-void Util::unloadLibrary(const StringIdentifier& libraryId) {
+void Util::unloadLibrary(const StringIdentifier&) {
 	WARN("Util::unloadLibrary requires SDL to work!");
 }
 
