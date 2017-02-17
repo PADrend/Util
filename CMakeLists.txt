@@ -27,6 +27,7 @@ add_sources(Util
 	GenericConversion.cpp
 	JSON_Parser.cpp
 	LibRegistry.cpp
+	LoadLibrary.cpp
 	Macros.cpp
 	MicroXML.cpp
 	ProgressIndicator.cpp
