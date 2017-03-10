@@ -38,7 +38,8 @@ class Window {
 					fullscreen,				//! Create a fullscreen window.
 					multisampled,			//! Create a rendering context with a multisample buffer.
 					positioned,				//! The window's location is determined by the given posX,posY value.
-					resizable;				//! The window should be resizable.
+					resizable,				//! The window should be resizable.
+					shareContext;			//! Share the window's gl context if there is already one available.
 			uint32_t clientAreaWidth,clientAreaHeight;	//! The size of the client area of the window.
 			int32_t posX,posY;				//! (if positioned == true) The position of the upper left corner of the window 
 			uint32_t multisamples;			//! (if multisampled == true) Number of samples used for multisampling; default is 4.
@@ -112,16 +113,19 @@ class Window {
 		 * @param text String that is written to the clipboard.
 		 */
 		virtual void setClipboardText(const std::string & text) = 0;
-
+		
+		//! Enables rendering to this window.
+		virtual void makeCurrent() = 0;
 	protected:
 		//! Stores the size of the window's client area.
 		uint32_t width,height;
+		bool shareContext;
 
 		/**
 		 * Create the window and initialize a rendering context.
 		 */
 		Window(const Properties & properties) :
-			 width(properties.clientAreaWidth), height(properties.clientAreaHeight),cursorHidden(false),activeCursor(nullptr) {
+			 width(properties.clientAreaWidth), height(properties.clientAreaHeight),shareContext(properties.shareContext),cursorHidden(false),activeCursor(nullptr) {
 		}
 
 		//! Allow access to members from factory.

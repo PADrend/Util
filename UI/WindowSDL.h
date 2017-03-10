@@ -60,7 +60,9 @@ class WindowSDL : public Window {
 
 		//! Write text to the clipboard.
 		void setClipboardText(const std::string & text) override;
-
+		
+		//! Enables rendering to this window.
+		virtual void makeCurrent() override;
 	private:
 		//! Create a new window.
 		WindowSDL(const Properties & properties);

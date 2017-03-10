@@ -32,7 +32,9 @@ class WindowEGL : public WindowX11 {
 
 		//! Swap front and back buffer of the window.
 		void swapBuffers() override;
-
+		
+		//! Enables rendering to this window.
+		virtual void makeCurrent() override;
 	protected:
 		//! Create a new window.
 		WindowEGL(const Properties & properties);

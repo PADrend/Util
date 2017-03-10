@@ -28,9 +28,10 @@ struct WindowEGL::WindowEGLData {
 		EGLDisplay display;
 		EGLContext context;
 		EGLSurface surface;
+		bool shareContext;
 
 		WindowEGLData() :
-			display(EGL_NO_DISPLAY), context(EGL_NO_CONTEXT), surface(EGL_NO_SURFACE) {
+			display(EGL_NO_DISPLAY), context(EGL_NO_CONTEXT), surface(EGL_NO_SURFACE), shareContext(false) {
 		}
 
 		~WindowEGLData() {
@@ -39,7 +40,7 @@ struct WindowEGL::WindowEGLData {
 				if (surface != EGL_NO_SURFACE) {
 					eglDestroySurface(display, surface);
 				}
-				if (context != EGL_NO_CONTEXT) {
+				if (context != EGL_NO_CONTEXT && !shareContext) {
 					eglDestroyContext(display, context);
 				}
 				eglTerminate(display);
@@ -87,7 +88,8 @@ static std::string eglErrorToString(const EGLint errorCode) {
 
 WindowEGL::WindowEGL(const Window::Properties & properties) :
 		WindowX11(properties), eglData(new WindowEGLData) {
-
+			
+	eglData->shareContext = properties.shareContext;
 	eglData->display = eglGetDisplay(x11Data->display);
 	if (eglData->display == EGL_NO_DISPLAY) {
 		throw std::runtime_error("Failed to open display.");
@@ -171,7 +173,13 @@ WindowEGL::WindowEGL(const Window::Properties & properties) :
 		contextAttribs[0] = EGL_NONE;
 		contextAttribs[1] = EGL_NONE;
 	}
-	eglData->context = eglCreateContext(eglData->display, fbConfig, EGL_NO_CONTEXT, contextAttribs);
+	// Check for existing GL context
+	if(properties.shareContext) {
+		eglData->context = eglGetCurrentContext();
+	}
+	if (eglData->context == EGL_NO_CONTEXT) {
+		eglData->context = eglCreateContext(eglData->display, fbConfig, EGL_NO_CONTEXT, contextAttribs);
+	}
 	if (eglData->context == EGL_NO_CONTEXT) {
 		throw std::runtime_error("Failed to create context: " +
 								 eglErrorToString(eglGetError()));
@@ -252,6 +260,11 @@ WindowEGL::~WindowEGL() = default;
 
 void WindowEGL::swapBuffers() {
 	eglSwapBuffers(eglData->display, eglData->surface);
+}
+
+void WindowGLX::makeCurrent() {
+	if(!eglMakeCurrent(eglData->display, eglData->surface, eglData->surface, eglData->context))
+		throw std::runtime_error("Failed to attach OpenGL context to window.");
 }
 
 }

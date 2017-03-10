@@ -57,15 +57,16 @@ static bool isExtensionSupported(const char * extensionList, const char * extens
 struct WindowGLX::WindowGLXData {
 	Display * display;
 	GLXContext context;
+	bool shareContext;
 
 	static bool errorOccurred;
 
 	WindowGLXData() :
-		display(nullptr), context(nullptr) {
+		display(nullptr), context(nullptr), shareContext(false) {
 	}
 
 	~WindowGLXData() {
-		if(context != nullptr) {
+		if(context != nullptr && !shareContext) {
 			glXDestroyContext(display, context);
 		}
 	}
@@ -80,6 +81,7 @@ bool WindowGLX::WindowGLXData::errorOccurred = false;
 WindowGLX::WindowGLX(const Window::Properties & properties) :
 		WindowX11(properties), glxData(new WindowGLXData) {
 	glxData->display = x11Data->display;
+	glxData->shareContext = properties.shareContext;
 
 	// At least GLX version 1.3 is required for glXChooseFBConfig.
 	int glxVersionMajor, glxVersionMinor;
@@ -185,37 +187,44 @@ WindowGLX::WindowGLX(const Window::Properties & properties) :
 	// Register an error handler that is called in the case that the context creation fails.
 	WindowGLXData::errorOccurred = false;
 	int (*oldErrorHandler)(Display*, XErrorEvent*) = XSetErrorHandler(&WindowGLXData::handleError);
+	
+	// Check for existing GL context
+	if(properties.shareContext) {
+		glxData->context = glXGetCurrentContext();
+	}
+	
+	if(!glxData->context) {		
+		if (!isExtensionSupported(glxExtensions, "GLX_ARB_create_context") || !glXCreateContextAttribsARB) {
+			// Use GLX 1.3 context creation
+			glxData->context = glXCreateNewContext(x11Data->display, fbConfig, GLX_RGBA_TYPE, nullptr, True);
+		} else {
+			// Use advanced context creation
+			int profileMask = GLX_CONTEXT_CORE_PROFILE_BIT_ARB;
+			if (properties.compatibilityProfile) {
+				profileMask |= GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
+			}
+			int contextFlags = GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
+			if (properties.debug) {
+				contextFlags |= GLX_CONTEXT_DEBUG_BIT_ARB;
+			}
+			const int contextAttribs[] = 	{
+												GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+												GLX_CONTEXT_MINOR_VERSION_ARB, 3,
+												GLX_CONTEXT_PROFILE_MASK_ARB, profileMask,
+												GLX_CONTEXT_FLAGS_ARB, contextFlags,
+												None
+											};
+			glxData->context = glXCreateContextAttribsARB(x11Data->display, fbConfig, nullptr, True, contextAttribs);
 
-	if (!isExtensionSupported(glxExtensions, "GLX_ARB_create_context") || !glXCreateContextAttribsARB) {
-		// Use GLX 1.3 context creation
-		glxData->context = glXCreateNewContext(x11Data->display, fbConfig, GLX_RGBA_TYPE, nullptr, True);
-	} else {
-		// Use advanced context creation
-		int profileMask = GLX_CONTEXT_CORE_PROFILE_BIT_ARB;
-		if (properties.compatibilityProfile) {
-			profileMask |= GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
-		}
-		int contextFlags = GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
-		if (properties.debug) {
-			contextFlags |= GLX_CONTEXT_DEBUG_BIT_ARB;
-		}
-		const int contextAttribs[] = 	{
-											GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
-											GLX_CONTEXT_MINOR_VERSION_ARB, 3,
-											GLX_CONTEXT_PROFILE_MASK_ARB, profileMask,
-											GLX_CONTEXT_FLAGS_ARB, contextFlags,
-											None
-										};
-		glxData->context = glXCreateContextAttribsARB(x11Data->display, fbConfig, nullptr, True, contextAttribs);
 
-
-		// Make sure that errors are reported
-		XSync(x11Data->display, False);
-		if (WindowGLXData::errorOccurred || !glxData->context) {
-			// Try to create a context that is backwards compatible with OpenGL 1.0.
-			// This will create the newest version available.
-			WindowGLXData::errorOccurred = false;
-			glxData->context = glXCreateContextAttribsARB(x11Data->display, fbConfig, nullptr, True, nullptr);
+			// Make sure that errors are reported
+			XSync(x11Data->display, False);
+			if (WindowGLXData::errorOccurred || !glxData->context) {
+				// Try to create a context that is backwards compatible with OpenGL 1.0.
+				// This will create the newest version available.
+				WindowGLXData::errorOccurred = false;
+				glxData->context = glXCreateContextAttribsARB(x11Data->display, fbConfig, nullptr, True, nullptr);
+			}
 		}
 	}
 
@@ -247,6 +256,11 @@ int32_t WindowGLX::getSwapInterval() const {
 	unsigned int interval;
 	glXQueryDrawable(x11Data->display, x11Data->window, GLX_SWAP_INTERVAL_EXT, &interval);
 	return static_cast<int32_t>(interval);
+}
+
+void WindowGLX::makeCurrent() {
+	if(!glXMakeCurrent(x11Data->display, x11Data->window, glxData->context))
+		throw std::runtime_error("Failed to attach OpenGL context to window.");
 }
 
 }

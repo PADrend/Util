@@ -298,10 +298,17 @@ WindowSDL::WindowSDL(const Window::Properties & properties) :
 	}
 	#endif
 	
-	sdlGlContext = SDL_GL_CreateContext(sdlWindow);
+	if(properties.shareContext) {
+		sdlGlContext = SDL_GL_GetCurrentContext();	
+	}
+	
+	if (sdlGlContext == nullptr) {
+		sdlGlContext = SDL_GL_CreateContext(sdlWindow);
+	}
 	if (sdlGlContext == nullptr) {
 		throw std::runtime_error(std::string("SDL_GL_CreateContext failed: ") + SDL_GetError());
 	}
+	SDL_GL_MakeCurrent(sdlWindow, sdlGlContext);
 
 	// Initialize joystick/-pad input
 	if (SDL_WasInit(SDL_INIT_JOYSTICK) == 0) {
@@ -321,7 +328,7 @@ WindowSDL::WindowSDL(const Window::Properties & properties) :
 }
 
 WindowSDL::~WindowSDL() {
-	if(sdlGlContext != nullptr) {
+	if(sdlGlContext != nullptr && !shareContext) {
 		SDL_GL_DeleteContext(sdlGlContext);
 	}
 	if(sdlCursor != nullptr) {
@@ -552,6 +559,11 @@ void WindowSDL::setClipboardText(const std::string & text) {
 	if(result != 0) {
 		WARN(std::string("SDL_SetClipboardText failed: ") + SDL_GetError());
 	}
+}
+
+void WindowSDL::makeCurrent() {
+	if(SDL_GL_MakeCurrent(sdlWindow, sdlGlContext) != 0)
+		throw std::runtime_error(std::string("Failed to attach OpenGL context to window. ") + SDL_GetError());
 }
 
 }

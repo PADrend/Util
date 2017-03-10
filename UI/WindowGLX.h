@@ -35,7 +35,9 @@ class WindowGLX : public WindowX11 {
 
 		//! @see GLX_EXT_swap_control
 		int32_t getSwapInterval() const override;
-
+		
+		//! Enables rendering to this window.
+		void makeCurrent() override;
 	private:
 		//! Create a new window.
 		WindowGLX(const Properties & properties);
