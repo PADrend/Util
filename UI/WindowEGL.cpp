@@ -262,7 +262,7 @@ void WindowEGL::swapBuffers() {
 	eglSwapBuffers(eglData->display, eglData->surface);
 }
 
-void WindowGLX::makeCurrent() {
+void WindowEGL::makeCurrent() {
 	if(!eglMakeCurrent(eglData->display, eglData->surface, eglData->surface, eglData->context))
 		throw std::runtime_error("Failed to attach OpenGL context to window.");
 }
