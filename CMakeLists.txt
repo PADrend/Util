@@ -50,7 +50,7 @@ get_property(Util_SOURCES GLOBAL PROPERTY Util_SRCS)
 add_library(Util ${Util_SOURCES})
 
 if(WIN32)
-	target_link_libraries(Util PRIVATE "-lpsapi -gdi32")
+	target_link_libraries(Util PRIVATE "-lpsapi -lgdi32")
 endif()
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	target_link_libraries(Util PRIVATE rt)

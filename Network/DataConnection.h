@@ -21,6 +21,7 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
+#include <functional>
 
 namespace Util {
 namespace Network {

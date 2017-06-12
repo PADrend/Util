@@ -14,6 +14,7 @@
 #include "../References.h"
 #include <memory>
 #include <string>
+#include <functional>
 
 namespace Util {
 // Forward declarations.
