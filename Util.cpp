@@ -18,6 +18,7 @@
 #include "Serialization/StreamerPNG.h"
 #include "Serialization/StreamerSDL.h"
 #include "Serialization/StreamerSDLImage.h"
+#include "Serialization/StreamerTGA.h"
 #include "GenericAttributeSerialization.h"
 
 #include <iostream>
@@ -68,6 +69,9 @@ bool init() {
 				result = false;
 			}
 			if(!StreamerSDLImage::init()) {
+				result = false;
+			}
+			if(!StreamerTGA::init()) {
 				result = false;
 			}
 		}

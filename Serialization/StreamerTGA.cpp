@@ -3,12 +3,13 @@
 	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
+  Copyright (C) 2017 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "StreamerSDLImage.h"
+#include "StreamerTGA.h"
 #include "Serialization.h"
 #include "../Factory/Factory.h"
 #include "../Graphics/Bitmap.h"
@@ -25,21 +26,11 @@ COMPILER_WARN_OFF_GCC(-Wswitch-default)
 COMPILER_WARN_POP
 #endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
 
-#include "../LibRegistry.h"
-#define STR_HELPER(x) #x
-#define STR(x) STR_HELPER(x)
-#define SDL_IMAGE_FULL_VERSION_STRING  "SDL_image " STR(SDL_IMAGE_MAJOR_VERSION) "." STR(SDL_IMAGE_MINOR_VERSION) "." STR(SDL_IMAGE_PATCHLEVEL) " (www.libsdl.org/projects/SDL_image/)"
-
-static bool libNameInitailized = [](){	
-	Util::LibRegistry::registerLibVersionString("LibSDL2Image",SDL_IMAGE_FULL_VERSION_STRING); 
-	return true;
-}();
-
 namespace Util {
 
 #if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
 
-Reference<Bitmap> StreamerSDLImage::loadBitmap(std::istream & input) {
+Reference<Bitmap> StreamerTGA::loadBitmap(std::istream & input) {
 	input.seekg(0, std::ios::end);
 	std::streampos size = input.tellg();
 	input.seekg(0, std::ios::beg);
@@ -47,7 +38,8 @@ Reference<Bitmap> StreamerSDLImage::loadBitmap(std::istream & input) {
 	std::vector<uint8_t> data(size);
 	input.read(reinterpret_cast<char *>(data.data()), size);
 
-	SDL_Surface * surface = IMG_Load_RW(SDL_RWFromConstMem(data.data(), data.size()), true);
+	// IMG_Load_RW cannot handle tga files because they have no "magic" identifier
+	SDL_Surface * surface = IMG_LoadTyped_RW(SDL_RWFromConstMem(data.data(), data.size()), true, "TGA");
 	if (surface == nullptr) {
 		WARN(std::string("Could not create image. ") + IMG_GetError());
 		return nullptr;
@@ -59,12 +51,9 @@ Reference<Bitmap> StreamerSDLImage::loadBitmap(std::istream & input) {
 
 #endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
 
-bool StreamerSDLImage::init() {
+bool StreamerTGA::init() {
 #if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
-	static const std::string fileExtensions[18] = { "bmp", "gif", "iff", "jpeg", "jpg", "lbm", "pbm", "pcx", "pgm", "png", "pnm", "ppm", "tif", "tiff", "xcf", "xpm", "xv" };
-	for(auto & fileExtension : fileExtensions) {
-		Serialization::registerBitmapLoader(fileExtension, ObjectCreator<StreamerSDLImage>());
-	}
+	Serialization::registerBitmapLoader("tga", ObjectCreator<StreamerTGA>());
 #endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
 	return true;
 }

@@ -11,4 +11,5 @@ add_sources(Util
 	StreamerPNG.cpp
 	StreamerSDL.cpp
 	StreamerSDLImage.cpp
+	StreamerTGA.cpp
 )
