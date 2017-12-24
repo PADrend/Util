@@ -1,6 +1,6 @@
 #
 # This file is part of the Util library.
-# Copyright (C) 2009-2015 Benjamin Eikel <benjamin@eikel.org>
+# Copyright (C) 2009-2017 Benjamin Eikel <benjamin@eikel.org>
 #
 # This library is subject to the terms of the Mozilla Public License, v. 2.0.
 # You should have received a copy of the MPL along with this library; see the 
