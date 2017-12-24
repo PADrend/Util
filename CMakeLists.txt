@@ -332,6 +332,9 @@ target_include_directories(Util
                            "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
 # Library export
+#   to use from the build tree
+export(EXPORT LibraryExport FILE UtilTargets.cmake)
+#   to use from installation tree
 install(EXPORT LibraryExport DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR} FILE UtilTargets.cmake COMPONENT developmentlibraries)
 
 # Create the configuration files
