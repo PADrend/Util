@@ -6,13 +6,13 @@
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-add_sources(Util
-	Bitmap.cpp
-	BitmapUtils.cpp
-	ColorLibrary.cpp
-	EmbeddedFont.cpp
-	FontRenderer.cpp
-	NoiseGenerator.cpp
-	PixelAccessor.cpp
-	PixelFormat.cpp
+target_sources(Util PRIVATE
+	Graphics/Bitmap.cpp
+	Graphics/BitmapUtils.cpp
+	Graphics/ColorLibrary.cpp
+	Graphics/EmbeddedFont.cpp
+	Graphics/FontRenderer.cpp
+	Graphics/NoiseGenerator.cpp
+	Graphics/PixelAccessor.cpp
+	Graphics/PixelFormat.cpp
 )

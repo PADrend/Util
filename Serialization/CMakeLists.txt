@@ -6,10 +6,10 @@
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-add_sources(Util
-	Serialization.cpp
-	StreamerPNG.cpp
-	StreamerSDL.cpp
-	StreamerSDLImage.cpp
-	StreamerTGA.cpp
+target_sources(Util PRIVATE
+	Serialization/Serialization.cpp
+	Serialization/StreamerPNG.cpp
+	Serialization/StreamerSDL.cpp
+	Serialization/StreamerSDLImage.cpp
+	Serialization/StreamerTGA.cpp
 )

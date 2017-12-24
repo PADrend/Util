@@ -6,16 +6,16 @@
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-add_sources(Util
-	Cursor.cpp
-	EventContext.cpp
-	EventQueue.cpp
-	UI.cpp
-	SplashScreenWin.cpp
-	SplashScreenX11.cpp
-	WindowEGL.cpp
-	WindowGLX.cpp
-	WindowSDL.cpp
-	WindowX11.cpp
-	WindowX11Data.cpp
+target_sources(Util PRIVATE
+	UI/Cursor.cpp
+	UI/EventContext.cpp
+	UI/EventQueue.cpp
+	UI/UI.cpp
+	UI/SplashScreenWin.cpp
+	UI/SplashScreenX11.cpp
+	UI/WindowEGL.cpp
+	UI/WindowGLX.cpp
+	UI/WindowSDL.cpp
+	UI/WindowX11.cpp
+	UI/WindowX11Data.cpp
 )

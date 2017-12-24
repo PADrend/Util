@@ -19,8 +19,8 @@ set(CMAKE_INSTALL_CMAKECONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Util)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-include(SubdirectorySources)
-add_sources(Util
+add_library(Util "")
+target_sources(Util PRIVATE
 	Encoding.cpp
 	GenericAttribute.cpp
 	GenericAttributeSerialization.cpp
@@ -44,10 +44,6 @@ add_subdirectory(Network)
 add_subdirectory(Serialization)
 add_subdirectory(UI)
 add_subdirectory(examples)
-
-get_property(Util_SOURCES GLOBAL PROPERTY Util_SRCS)
-
-add_library(Util ${Util_SOURCES})
 
 if(WIN32)
 	target_link_libraries(Util PRIVATE "-lpsapi -lgdi32")

@@ -6,10 +6,10 @@
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-add_sources(Util
-	ClockSynchronizer.cpp
-	DataConnection.cpp
-	Network.cpp
-	NetworkTCP.cpp
-	NetworkUDP.cpp
+target_sources(Util PRIVATE
+	Network/ClockSynchronizer.cpp
+	Network/DataConnection.cpp
+	Network/Network.cpp
+	Network/NetworkTCP.cpp
+	Network/NetworkUDP.cpp
 )
