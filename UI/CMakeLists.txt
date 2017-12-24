@@ -10,12 +10,31 @@ target_sources(Util PRIVATE
 	UI/Cursor.cpp
 	UI/EventContext.cpp
 	UI/EventQueue.cpp
-	UI/UI.cpp
 	UI/SplashScreenWin.cpp
 	UI/SplashScreenX11.cpp
+	UI/UI.cpp
 	UI/WindowEGL.cpp
 	UI/WindowGLX.cpp
 	UI/WindowSDL.cpp
 	UI/WindowX11.cpp
 	UI/WindowX11Data.cpp
+)
+# Install the header files
+install(FILES
+	Cursor.h
+	Event.h
+	EventContext.h
+	EventQueue.h
+	SplashScreen.h
+	SplashScreenWin.h
+	SplashScreenX11.h
+	UI.h
+	Window.h
+	WindowEGL.h
+	WindowGLX.h
+	WindowSDL.h
+	WindowX11.h
+	WindowX11Data.h
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/UI
+	COMPONENT headers
 )

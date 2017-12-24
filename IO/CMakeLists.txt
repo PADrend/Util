@@ -9,13 +9,29 @@
 target_sources(Util PRIVATE
 	IO/AbstractFSProvider.cpp
 	IO/ArchiveProvider.cpp
-	IO/FileName.cpp
+	IO/DBFSProvider.cpp
 	IO/FileLocator.cpp
+	IO/FileName.cpp
 	IO/FileUtils.cpp
 	IO/FSProvider.cpp
-	IO/DBFSProvider.cpp
 	IO/NetProvider.cpp
 	IO/SerialProvider.cpp
 	IO/TemporaryDirectory.cpp
 	IO/ZIPProvider.cpp
+)
+# Install the header files
+install(FILES
+	AbstractFSProvider.h
+	ArchiveProvider.h
+	DBFSProvider.h
+	FileLocator.h
+	FileName.h
+	FileUtils.h
+	FSProvider.h
+	NetProvider.h
+	SerialProvider.h
+	TemporaryDirectory.h
+	ZIPProvider.h
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/IO
+	COMPONENT headers
 )

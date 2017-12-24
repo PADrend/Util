@@ -13,3 +13,14 @@ target_sources(Util PRIVATE
 	Network/NetworkTCP.cpp
 	Network/NetworkUDP.cpp
 )
+# Install the header files
+install(FILES
+	ClockSynchronizer.h
+	DataBroadcaster.h
+	DataConnection.h
+	Network.h
+	NetworkTCP.h
+	NetworkUDP.h
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Network
+	COMPONENT headers
+)

@@ -13,3 +13,15 @@ target_sources(Util PRIVATE
 	Serialization/StreamerSDLImage.cpp
 	Serialization/StreamerTGA.cpp
 )
+# Install the header files
+install(FILES
+	AbstractBitmapStreamer.h
+	AbstractStreamer.h
+	Serialization.h
+	StreamerPNG.h
+	StreamerSDL.h
+	StreamerSDLImage.h
+	StreamerTGA.h
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Serialization
+	COMPONENT headers
+)

@@ -38,6 +38,41 @@ target_sources(Util PRIVATE
 	Util.cpp
 	Utils.cpp
 )
+# Install the header files
+install(FILES
+	AttributeProvider.h
+	BidirectionalMap.h
+	CountedObjectWrapper.h
+	Encoding.h
+	GenericAttribute.h
+	GenericAttributeSerialization.h
+	GenericConversion.h
+	Generic.h
+	JSON_Parser.h
+	LibRegistry.h
+	LoadLibrary.h
+	Macros.h
+	MicroXML.h
+	Numeric.h
+	ObjectExtension.h
+	ProgressIndicator.h
+	ReferenceCounter.h
+	References.h
+	Registry.h
+	RegistryHelper.h
+	StringIdentifier.h
+	StringUtils.h
+	Timer.h
+	TriState.h
+	TypeConstant.h
+	TypeNameMacro.h
+	UpdatableHeap.h
+	Util.h
+	Utils.h
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util
+	COMPONENT headers
+)
+add_subdirectory(Factory)
 add_subdirectory(Graphics)
 add_subdirectory(IO)
 add_subdirectory(Network)
@@ -296,26 +331,6 @@ if(UTIL_BUILD_TESTS)
 	include(CTest)
 	add_subdirectory(tests)
 endif()
-
-# Install the header files
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Concurrency/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Concurrency COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Concurrency/DataStructures/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Concurrency/DataStructures COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Factory/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Factory COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Graphics/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Graphics COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/IO/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/IO COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Network/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Network COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Serialization/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Serialization COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/UI/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/UI COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util COMPONENT headers)
 
 # Install the library
 install(TARGETS Util EXPORT LibraryExport

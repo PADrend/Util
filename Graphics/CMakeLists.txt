@@ -16,3 +16,17 @@ target_sources(Util PRIVATE
 	Graphics/PixelAccessor.cpp
 	Graphics/PixelFormat.cpp
 )
+# Install the header files
+install(FILES
+	Bitmap.h
+	BitmapUtils.h
+	Color.h
+	ColorLibrary.h
+	EmbeddedFont.h
+	FontRenderer.h
+	NoiseGenerator.h
+	PixelAccessor.h
+	PixelFormat.h
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Graphics
+	COMPONENT headers
+)
