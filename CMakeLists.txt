@@ -179,10 +179,10 @@ if(SDL2_NET_FOUND)
 endif()
 
 # Dependency to pthread
-set(CMAKE_THREAD_PREFER_PTHREAD ON)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
-if(CMAKE_USE_PTHREADS_INIT AND (NOT DEFINED XCODE_VERSION OR XCODE_VERSION LESS 5.0))
-	target_link_libraries(Util PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+if(TARGET Threads::Threads)
+	target_link_libraries(Util PRIVATE Threads::Threads)
 endif()
 
 # Only use X11 on Linux. There were problems with X11 on Mac OS X
