@@ -354,7 +354,7 @@ install(EXPORT LibraryExport DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR} FILE Ut
 include(CMakePackageConfigHelpers)
 configure_file(UtilConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/UtilConfig.cmake COPYONLY)
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/UtilConfigVersion.cmake
-                                 VERSION ${UTIL_VERSION_STRING}
+                                 VERSION ${Util_VERSION}
                                  COMPATIBILITY SameMajorVersion)
 
 # Install the configuration files
