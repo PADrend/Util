@@ -121,11 +121,10 @@ if(LIBZIP_FOUND)
 endif()
 
 # Dependency to libxml2
-find_package(LibXml2)
+find_package(LibXml2 NO_MODULE)
 if(LIBXML2_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_XML2)
-	target_compile_definitions(Util PRIVATE "${LIBXML2_DEFINITIONS}")
-	target_include_directories(Util PRIVATE ${LIBXML2_INCLUDE_DIR})
+	target_include_directories(Util PRIVATE ${LIBXML2_INCLUDE_DIRS})
 	target_link_libraries(Util PRIVATE ${LIBXML2_LIBRARIES})
 endif()
 
