@@ -294,7 +294,7 @@ feature_summary(DESCRIPTION "The following packages have *not* been found:" WHAT
 option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built.")
 if(UTIL_BUILD_TESTS)
 	if(UNIX AND NOT APPLE)
-	        find_program(MEMORYCHECK_COMMAND NAMES valgrind)
+		find_program(MEMORYCHECK_COMMAND NAMES valgrind)
 		set(MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --leak-check=summary --num-callers=1 --vgdb=no")
 	endif()
 	include(CTest)
