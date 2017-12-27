@@ -1,6 +1,6 @@
 #
 # This file is part of the Util library.
-# Copyright (C) 2009-2015 Benjamin Eikel <benjamin@eikel.org>
+# Copyright (C) 2009-2017 Benjamin Eikel <benjamin@eikel.org>
 #
 # This library is subject to the terms of the Mozilla Public License, v. 2.0.
 # You should have received a copy of the MPL along with this library; see the 
@@ -19,8 +19,8 @@ set(CMAKE_INSTALL_CMAKECONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Util)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-include(SubdirectorySources)
-add_sources(Util
+add_library(Util "")
+target_sources(Util PRIVATE
 	Encoding.cpp
 	GenericAttribute.cpp
 	GenericAttributeSerialization.cpp
@@ -38,16 +38,47 @@ add_sources(Util
 	Util.cpp
 	Utils.cpp
 )
+# Install the header files
+install(FILES
+	AttributeProvider.h
+	BidirectionalMap.h
+	CountedObjectWrapper.h
+	Encoding.h
+	GenericAttribute.h
+	GenericAttributeSerialization.h
+	GenericConversion.h
+	Generic.h
+	JSON_Parser.h
+	LibRegistry.h
+	LoadLibrary.h
+	Macros.h
+	MicroXML.h
+	Numeric.h
+	ObjectExtension.h
+	ProgressIndicator.h
+	ReferenceCounter.h
+	References.h
+	Registry.h
+	RegistryHelper.h
+	StringIdentifier.h
+	StringUtils.h
+	Timer.h
+	TriState.h
+	TypeConstant.h
+	TypeNameMacro.h
+	UpdatableHeap.h
+	Util.h
+	Utils.h
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util
+	COMPONENT headers
+)
+add_subdirectory(Factory)
 add_subdirectory(Graphics)
 add_subdirectory(IO)
 add_subdirectory(Network)
 add_subdirectory(Serialization)
 add_subdirectory(UI)
 add_subdirectory(examples)
-
-get_property(Util_SOURCES GLOBAL PROPERTY Util_SRCS)
-
-add_library(Util ${Util_SOURCES})
 
 if(WIN32)
 	target_link_libraries(Util PRIVATE "-lpsapi -lgdi32")
@@ -90,11 +121,10 @@ if(LIBZIP_FOUND)
 endif()
 
 # Dependency to libxml2
-find_package(LibXml2)
+find_package(LibXml2 NO_MODULE)
 if(LIBXML2_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_XML2)
-	target_compile_definitions(Util PRIVATE "${LIBXML2_DEFINITIONS}")
-	target_include_directories(Util PRIVATE ${LIBXML2_INCLUDE_DIR})
+	target_include_directories(Util PRIVATE ${LIBXML2_INCLUDE_DIRS})
 	target_link_libraries(Util PRIVATE ${LIBXML2_LIBRARIES})
 endif()
 
@@ -123,8 +153,7 @@ if(FREETYPE_FOUND)
 endif()
 
 # Dependency to SDL2
-set(SDL2_BUILDING_LIBRARY ON)
-find_package(SDL2 2.0.0)
+find_package(SDL2 NO_MODULE)
 if(SDL2_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2)
 	target_include_directories(Util PRIVATE ${SDL2_INCLUDE_DIRS})
@@ -148,10 +177,10 @@ if(SDL2_NET_FOUND)
 endif()
 
 # Dependency to pthread
-set(CMAKE_THREAD_PREFER_PTHREAD ON)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
-if(CMAKE_USE_PTHREADS_INIT AND (NOT DEFINED XCODE_VERSION OR XCODE_VERSION LESS 5.0))
-	target_link_libraries(Util PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+if(TARGET Threads::Threads)
+	target_link_libraries(Util PRIVATE Threads::Threads)
 endif()
 
 # Only use X11 on Linux. There were problems with X11 on Mac OS X
@@ -294,38 +323,19 @@ feature_summary(DESCRIPTION "The following packages have *not* been found:" WHAT
 option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built.")
 if(UTIL_BUILD_TESTS)
 	if(UNIX AND NOT APPLE)
-	        find_program(MEMORYCHECK_COMMAND NAMES valgrind)
+		find_program(MEMORYCHECK_COMMAND NAMES valgrind)
 		set(MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --leak-check=summary --num-callers=1 --vgdb=no")
 	endif()
 	include(CTest)
 	add_subdirectory(tests)
 endif()
 
-# Install the header files
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Concurrency/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Concurrency COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Concurrency/DataStructures/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Concurrency/DataStructures COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Factory/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Factory COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Graphics/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Graphics COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/IO/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/IO COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Network/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Network COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/Serialization/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Serialization COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/UI/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/UI COMPONENT headers)
-file(GLOB UTIL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-install(FILES ${UTIL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util COMPONENT headers)
-
 # Install the library
 install(TARGETS Util EXPORT LibraryExport
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtimelibraries
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT runtimelibraries
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT developmentlibraries
+	INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 # Set include directories for users of this library
@@ -335,17 +345,16 @@ target_include_directories(Util
                            "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
 # Library export
+#   to use from the build tree
+export(EXPORT LibraryExport FILE UtilTargets.cmake)
+#   to use from installation tree
 install(EXPORT LibraryExport DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR} FILE UtilTargets.cmake COMPONENT developmentlibraries)
 
 # Create the configuration files
 include(CMakePackageConfigHelpers)
-configure_package_config_file(UtilConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/UtilConfig.cmake
-                              INSTALL_DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR}
-							  PATH_VARS CMAKE_INSTALL_CMAKECONFIGDIR
-							  NO_SET_AND_CHECK_MACRO
-							  NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+configure_file(UtilConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/UtilConfig.cmake COPYONLY)
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/UtilConfigVersion.cmake
-                                 VERSION ${UTIL_VERSION_STRING}
+                                 VERSION ${Util_VERSION}
                                  COMPATIBILITY SameMajorVersion)
 
 # Install the configuration files

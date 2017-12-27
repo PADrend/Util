@@ -2,7 +2,5 @@
 # It defines the target "Util".
 #
 
-@PACKAGE_INIT@
-
 # Import the exported targets
-include("@PACKAGE_CMAKE_INSTALL_CMAKECONFIGDIR@/UtilTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/UtilTargets.cmake")
