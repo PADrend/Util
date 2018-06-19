@@ -83,6 +83,14 @@ namespace Util {
 #define COMPILER_WARN_OFF_CLANG(x)
 
 #endif
-	
+
+//! Macro for simplifying creation of getter/setter methods
+#define GETSET(type, var, _default)\
+private:\
+	type _##var = _default;\
+public:\
+	inline type get##var() const { return _##var; }\
+	inline void set##var(const type& val) { _##var = val; }
+
 
 #endif // MACROS_H_INCLUDED
