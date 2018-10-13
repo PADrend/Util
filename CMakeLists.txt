@@ -124,7 +124,7 @@ endif()
 find_package(LibXml2)
 if(LIBXML2_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_XML2)
-	target_include_directories(Util PRIVATE ${LIBXML2_INCLUDE_DIRS})
+	target_include_directories(Util PRIVATE ${LIBXML2_INCLUDE_DIR})
 	target_link_libraries(Util PRIVATE ${LIBXML2_LIBRARIES})
 endif()
 
