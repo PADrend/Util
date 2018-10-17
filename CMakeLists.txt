@@ -185,43 +185,49 @@ endif()
 
 # Only use X11 on Linux. There were problems with X11 on Mac OS X
 if(UNIX AND NOT APPLE)
-	# Dependency to X11
-	find_package(X11)
-	if(X11_FOUND)
-		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_X11)
-		target_include_directories(Util PRIVATE ${X11_INCLUDE_DIR})
-		target_link_libraries(Util PRIVATE ${X11_LIBRARIES})
+	
+	option(UTIL_PREFER_SDL_CONTEXT "Defines wether SDL is used for window & GL context creation.")
+	if(UTIL_PREFER_SDL_CONTEXT)
+		target_compile_definitions(Util PRIVATE UTIL_PREFER_SDL_CONTEXT)
+	else(UTIL_PREFER_SDL_CONTEXT)
 		
-		option(UTIL_X11_JOYSTICK_SUPPORT "Defines if joystick support for X11 should be included.")
-		if(UTIL_X11_JOYSTICK_SUPPORT)
-			target_compile_definitions(Util PRIVATE UTIL_X11_JOYSTICK_SUPPORT)
-		endif()
+		# Dependency to X11
+		find_package(X11)
+		if(X11_FOUND)		
+			target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_X11)
+			target_include_directories(Util PRIVATE ${X11_INCLUDE_DIR})
+			target_link_libraries(Util PRIVATE ${X11_LIBRARIES})
 			
-	endif()
-	
-	
-	# Dependency to EGL
-	find_package(EGL)
-	if(EGL_FOUND)
-		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_EGL)
-		target_include_directories(Util PRIVATE ${EGL_INCLUDE_DIRS})
-		target_link_libraries(Util PRIVATE ${EGL_LIBRARIES})
-	endif()
-
-	# Dependency to GLX
-	find_package(GLX)
-	if(GLX_FOUND)
-		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_GLX)
-		target_include_directories(Util PRIVATE ${GLX_INCLUDE_DIRS})
-		target_link_libraries(Util PRIVATE ${GLX_LIBRARIES})
-
-		include(CheckCXXSymbolExists)
-		set(CMAKE_REQUIRED_INCLUDES ${GLX_INCLUDE_DIRS})
-		set(CMAKE_REQUIRED_LIBRARIES ${GLX_LIBRARIES})
-		check_cxx_symbol_exists(glXGetProcAddressARB "GL/glx.h" UTIL_HAVE_GLX_GETPROCADDRESSARB)
-		if(UTIL_HAVE_GLX_GETPROCADDRESSARB)
-			target_compile_definitions(Util PRIVATE UTIL_HAVE_GLX_GETPROCADDRESSARB)
+			option(UTIL_X11_JOYSTICK_SUPPORT "Defines if joystick support for X11 should be included.")
+			if(UTIL_X11_JOYSTICK_SUPPORT)
+				target_compile_definitions(Util PRIVATE UTIL_X11_JOYSTICK_SUPPORT)
+			endif()			
 		endif()
+		
+		
+		# Dependency to EGL
+		find_package(EGL)
+		if(EGL_FOUND)
+			target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_EGL)
+			target_include_directories(Util PRIVATE ${EGL_INCLUDE_DIRS})
+			target_link_libraries(Util PRIVATE ${EGL_LIBRARIES})
+		endif()
+
+		# Dependency to GLX
+		find_package(GLX)
+		if(GLX_FOUND)
+			target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_GLX)
+			target_include_directories(Util PRIVATE ${GLX_INCLUDE_DIRS})
+			target_link_libraries(Util PRIVATE ${GLX_LIBRARIES})
+
+			include(CheckCXXSymbolExists)
+			set(CMAKE_REQUIRED_INCLUDES ${GLX_INCLUDE_DIRS})
+			set(CMAKE_REQUIRED_LIBRARIES ${GLX_LIBRARIES})
+			check_cxx_symbol_exists(glXGetProcAddressARB "GL/glx.h" UTIL_HAVE_GLX_GETPROCADDRESSARB)
+			if(UTIL_HAVE_GLX_GETPROCADDRESSARB)
+				target_compile_definitions(Util PRIVATE UTIL_HAVE_GLX_GETPROCADDRESSARB)
+			endif()
+		endif()			
 	endif()
 endif()
 

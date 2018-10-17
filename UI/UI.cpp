@@ -23,7 +23,9 @@
 #include "SplashScreenWin.h"
 #endif
 
-#if defined(UTIL_HAVE_LIB_X11) and defined(UTIL_HAVE_LIB_GLX) and defined(UTIL_HAVE_GLX_GETPROCADDRESSARB)
+#if defined(UTIL_PREFER_SDL_CONTEXT) and defined(UTIL_HAVE_LIB_SDL2)
+#include "WindowSDL.h"
+#elif defined(UTIL_HAVE_LIB_X11) and defined(UTIL_HAVE_LIB_GLX) and defined(UTIL_HAVE_GLX_GETPROCADDRESSARB)
 #include "WindowGLX.h"
 #elif defined(UTIL_HAVE_LIB_X11) and defined(UTIL_HAVE_LIB_EGL)
 #include "WindowEGL.h"
@@ -55,7 +57,9 @@ std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle
 std::unique_ptr<Window> createWindow(const Window::Properties & properties) {
 	std::unique_ptr<Window> window;
 	try {
-#if defined(UTIL_HAVE_LIB_X11) and defined(UTIL_HAVE_LIB_GLX) and defined(UTIL_HAVE_GLX_GETPROCADDRESSARB)
+#if defined(UTIL_PREFER_SDL_CONTEXT) and defined(UTIL_HAVE_LIB_SDL2)
+		window.reset(new WindowSDL(properties));
+#elif defined(UTIL_HAVE_LIB_X11) and defined(UTIL_HAVE_LIB_GLX) and defined(UTIL_HAVE_GLX_GETPROCADDRESSARB)
 		window.reset(new WindowGLX(properties));
 #elif defined(UTIL_HAVE_LIB_X11) and defined(UTIL_HAVE_LIB_EGL)
 		window.reset(new WindowEGL(properties));
