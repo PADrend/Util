@@ -153,7 +153,7 @@ if(FREETYPE_FOUND)
 endif()
 
 # Dependency to SDL2
-find_package(SDL2 NO_MODULE)
+find_package(SDL2)
 if(SDL2_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2)
 	target_include_directories(Util PRIVATE ${SDL2_INCLUDE_DIRS})
