@@ -255,6 +255,12 @@ WindowSDL::WindowSDL(const Window::Properties & properties) :
 	}
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	
+	if(properties.compatibilityProfile) {
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+	} else {
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	}
 
 	if (properties.multisampled) {
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -262,8 +268,6 @@ WindowSDL::WindowSDL(const Window::Properties & properties) :
 	} else {
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
 	}
-
-
 
 	auto windowPosX = properties.posX;
 	auto windowPosY = properties.posY;
