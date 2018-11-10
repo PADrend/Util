@@ -65,9 +65,9 @@ NoiseGenerator::NoiseGenerator(uint32_t seed) {
 
 float NoiseGenerator::get(const float _x, const float _y, const float _z) const {
 	// FIND UNIT CUBE THAT CONTAINS POINT.
-	const uint8_t X = static_cast<uint32_t>(_x) & 255;
-	const uint8_t Y = static_cast<uint32_t>(_y) & 255;
-	const uint8_t Z = static_cast<uint32_t>(_z) & 255;
+	const uint8_t X = static_cast<uint32_t>(std::floor(_x)) & 255;
+	const uint8_t Y = static_cast<uint32_t>(std::floor(_y)) & 255;
+	const uint8_t Z = static_cast<uint32_t>(std::floor(_z)) & 255;
 
 	// FIND RELATIVE X,Y,Z OF POINT IN CUBE.
 	const float x = _x - std::floor(_x);
