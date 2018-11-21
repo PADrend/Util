@@ -237,6 +237,35 @@ static SDL_Cursor * convertBitmapToSDLCursor(const Reference<Bitmap> & image, un
 WindowSDL::WindowSDL(const Window::Properties & properties) :
 		Window(properties), sdlWindow(nullptr), sdlGlContext(nullptr), sdlCursor(nullptr) {
 
+			
+
+#if defined(_WIN32)
+	// workaround against high DPI scaling (https://discourse.libsdl.org/t/sdl-getdesktopdisplaymode-resolution-reported-in-windows-10-when-using-app-scaling/22389)
+	typedef enum PROCESS_DPI_AWARENESS {
+	    PROCESS_DPI_UNAWARE = 0,
+	    PROCESS_SYSTEM_DPI_AWARE = 1,
+	    PROCESS_PER_MONITOR_DPI_AWARE = 2
+	} PROCESS_DPI_AWARENESS;
+	BOOL(WINAPI *SetProcessDPIAware)(void) = nullptr; // Vista and later
+	HRESULT(WINAPI *SetProcessDpiAwareness)(PROCESS_DPI_AWARENESS dpiAwareness) = nullptr; // Windows 8.1 and later
+	void* userDLL = SDL_LoadObject("USER32.DLL");
+	if (userDLL)
+	    SetProcessDPIAware = (BOOL(WINAPI *)(void)) SDL_LoadFunction(userDLL, "SetProcessDPIAware");
+	void* shcoreDLL = SDL_LoadObject("SHCORE.DLL");
+	if (shcoreDLL)
+	    SetProcessDpiAwareness = (HRESULT(WINAPI *)(PROCESS_DPI_AWARENESS)) SDL_LoadFunction(shcoreDLL, "SetProcessDpiAwareness");
+	bool success = true;
+	if (SetProcessDpiAwareness) {
+	    // Try Windows 8.1+ version
+	    success = SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE) == S_OK;
+	} else if (SetProcessDPIAware) {
+	    // Try Vista - Windows 8 version. This has a constant scale factor for all monitors.
+	    success = SetProcessDPIAware();
+	}
+	if(!success)
+		WARN("Failed to set DPI Awareness.");
+#endif
+
 	if(SDL_WasInit(SDL_INIT_VIDEO) == 0) {
 		if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 			throw std::runtime_error(std::string("SDL_INIT_VIDEO failed: ") + SDL_GetError());
