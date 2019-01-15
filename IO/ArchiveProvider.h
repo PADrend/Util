@@ -29,6 +29,7 @@ class Archive;
  *
  * @author Benjamin Eikel
  * @date 2012-10-11
+ * @ingroup io
  */
 class ArchiveProvider : public AbstractFSProvider {
 	public:

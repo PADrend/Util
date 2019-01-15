@@ -29,6 +29,7 @@ class PixelFormat;
 
 /**
  * Collection of Bitmap related operations.
+ * @ingroup graphics
  */
 namespace BitmapUtils {
 

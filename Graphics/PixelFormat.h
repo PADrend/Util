@@ -17,7 +17,8 @@
 namespace Util {
 
 /*!	Representation of the pixel data format.
-\note if a color component (r,g,b or a) is not set, its byteOffset is set to the constant NONE. */
+\note if a color component (r,g,b or a) is not set, its byteOffset is set to the constant NONE. 
+@ingroup graphics */
 class PixelFormat {
 	TypeConstant valueType;
 	uint8_t byteOffset_r, byteOffset_g, byteOffset_b, byteOffset_a;

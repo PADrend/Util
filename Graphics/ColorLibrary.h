@@ -14,7 +14,8 @@
 #include "Color.h"
 
 namespace Util{
-
+	
+//! @ingroup graphics
 struct ColorLibrary{
 	static const Color4ub BLACK;
 	static const Color4ub WHITE;

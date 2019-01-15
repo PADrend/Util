@@ -25,6 +25,7 @@ namespace Util {
  *
  * @author Benjamin Eikel
  * @date 2011-01-21
+ * @ingroup io
  */
 class NetProvider : public AbstractFSProvider {
 	public:

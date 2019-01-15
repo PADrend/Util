@@ -27,6 +27,7 @@ namespace Util {
 		all corresponding PixelAccessors become invalid and may no longer be used.
 	\note A PixelAccessor keeps a Reference to the associated Bitmap. If there exists no other reference to
 		the Bitmap, it will be deleted if the PixelAccessor is deleted.
+	@ingroup graphics
 */
 class PixelAccessor : public ReferenceCounter<PixelAccessor> {
 		Reference<Bitmap> myBitmap;

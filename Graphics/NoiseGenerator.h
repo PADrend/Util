@@ -19,6 +19,7 @@ namespace Util {
 
 	Improved Noise reference implementation
 	http://mrl.nyu.edu/~perlin/noise/
+	@ingroup graphics
 */
 class NoiseGenerator{
 	public:

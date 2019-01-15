@@ -1,7 +1,7 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
-	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
+	Copyright (C) 2007-2012 Claudius Jï¿½hn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
@@ -22,7 +22,8 @@
 
 namespace Util {
 
-/*! ObjectExtensions can be used to dynamically extend objects inheriting from AttributeProvider
+/*! @defgroup objext ObjectExtensions
+	ObjectExtensions can be used to dynamically extend objects inheriting from AttributeProvider
 	with data and functionality at runtime. Internally, it is a unified interface
 	for several different GenericAttributes.
 	There are two types of extensions: 1. non polymorphic and 2. polymorphic.
@@ -87,9 +88,10 @@ namespace Util {
 		...
 		Util::requireObjectExtension<MyExtensionBase>(a)->calcSomething();
 	\endcode
+	@{
 */
 // ------------------------------------------------------------------------------
-// (internal)
+//! @internal
 namespace _Internals{
 	
 template<typename extension_t> 
@@ -213,5 +215,6 @@ template<typename extension_t> bool hasObjectExtension(const StringIdentifier & 
 	return getObjectExtension<extension_t>(extName,obj)!=nullptr;
 }
 
+//! @}
 }
 #endif // OBJECTEXTENSION_H_INCLUDED

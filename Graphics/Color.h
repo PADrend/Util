@@ -24,7 +24,9 @@ namespace Util {
 
 class Color4f;
 
-//! Representation of an RGBA color that is stored as four bytes.
+/** Representation of an RGBA color that is stored as four bytes.
+ * @ingroup graphics
+ */
 class Color4ub {
 		std::array<uint8_t, 4> values;
 

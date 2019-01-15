@@ -24,6 +24,9 @@
 namespace Util{
 class FileName;
 
+//! @defgroup io IO
+
+//! @ingroup io
 class AbstractFSProvider : public ReferenceCounter<AbstractFSProvider> {
 public:
 	AbstractFSProvider();

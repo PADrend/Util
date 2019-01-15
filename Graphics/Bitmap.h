@@ -17,6 +17,8 @@
 #include <cstdint>
 #include <vector>
 
+//! @defgroup graphics Graphics
+
 namespace Util {
 
 /*! Bitmap
@@ -33,7 +35,7 @@ namespace Util {
 	(0,height)            (width,height)
 
 	\note the coordinates are the same as for SDL Surfaces, but not for OpenGl Textures!
-
+	@ingroup graphics
 */
 class Bitmap : public ReferenceCounter<Bitmap> {
 	public:

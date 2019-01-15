@@ -23,6 +23,7 @@ namespace Util {
 	E.g. "file://bla/foo.txt"
 
 	[FSProvider] ---|> [AbstractFSProvider]
+	@ingroup io
 */
 class FSProvider : public AbstractFSProvider {
 	public:

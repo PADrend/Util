@@ -28,6 +28,7 @@ namespace Util {
  *
  * @author Benjamin Eikel
  * @date 2010-03-11
+ * @ingroup io
  */
 class ZIPProvider : public AbstractFSProvider {
 	public:

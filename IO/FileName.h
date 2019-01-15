@@ -15,9 +15,9 @@
 #include <sstream>
 namespace Util{
 
-/***
- **
- **/
+/**
+ * @ingroup io
+ */
 class FileName{
 
 		/**

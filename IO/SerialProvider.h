@@ -29,6 +29,7 @@ namespace Util {
 		serial://com1:115200:::s
 
 	[SerialProvider] ---|> [AbstractFSProvider]
+	@ingroup io
 */
 class SerialProvider : public AbstractFSProvider {
 	public:

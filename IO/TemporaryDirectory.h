@@ -25,6 +25,7 @@ namespace Util {
  * @brief Creation and deletion of temporary directories
  * @author Benjamin Eikel
  * @date 2011-08-15
+ * @ingroup io
  */
 class TemporaryDirectory : public ReferenceCounter<TemporaryDirectory>{
 	private:

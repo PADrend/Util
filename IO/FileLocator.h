@@ -18,6 +18,7 @@ namespace Util {
 /** 
  * A FileLocator locates a file that is placed relative to a search path.
  * It can be applied to locate resources using only relative paths.
+ * @ingroup io
  */
 class FileLocator{
 	private:	

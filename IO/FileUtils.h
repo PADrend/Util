@@ -25,7 +25,8 @@ class AbstractFSProvider;
 class FileName;
 
 /*! Utility class with functions for file reading and writing.
-	\note initFSProvider() is called by Util::init() */
+	\note initFSProvider() is called by Util::init() 
+	@ingroup io */
 struct FileUtils {
 
 // -------------------------------------------------------------------

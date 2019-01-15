@@ -30,6 +30,7 @@ namespace Util {
 	E.g. "file://bla/foo.txt"
 
 	[DBFSProvider] ---|> [AbstractFSProvider]
+	@ingroup io
 */
 class DBFSProvider : public AbstractFSProvider {
 	public:

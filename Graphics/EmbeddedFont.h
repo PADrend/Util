@@ -16,7 +16,9 @@ namespace Util {
 class Bitmap;
 struct FontInfo;
 
-//! Single font embedded in source code
+/** Single font embedded in source code
+ * @ingroup graphics
+ */
 namespace EmbeddedFont {
 
 /**

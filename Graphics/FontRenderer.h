@@ -47,6 +47,7 @@ struct FontInfo {
  * 
  * @author Benjamin Eikel
  * @date 2013-07-10
+ * @ingroup graphics
  */
 class FontRenderer {
 	private:
