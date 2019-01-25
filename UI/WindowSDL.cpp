@@ -37,6 +37,23 @@ COMPILER_WARN_POP
 #include <sstream>
 #include "../LibRegistry.h"
 
+/*#if defined(__GNUC__)
+#define DLLEXPORT __attribute__((dllexport))
+#elif defined(_MSC_VER)
+#define DLLEXPORT __declspec(dllexport)
+#else
+#define DLLEXPORT
+#endif*/
+#define DLLEXPORT
+
+#if defined(_WIN32)
+extern "C" {
+	// Tells the driver to prefer dedicated GPU instead of integrated when available
+	DLLEXPORT unsigned long NvOptimusEnablement = 0x00000001;
+	DLLEXPORT int AmdPowerXpressRequestHighPerformance = 1;
+}
+#endif
+
 static bool libNameInitailized = [](){	
 	SDL_version version;
 	SDL_GetVersion(&version);
