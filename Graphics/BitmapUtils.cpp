@@ -250,6 +250,34 @@ Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
 	return target;
 }
 
+void normalizeBitmap(Bitmap & bitmap) {
+	const uint32_t width = bitmap.getWidth();
+	const uint32_t height = bitmap.getHeight();
+	Reference<PixelAccessor> pixels = PixelAccessor::create(&bitmap);
+	Color4f max(0,0,0,0);
+	// get max
+	for(uint32_t y = 0; y < height; ++y) {
+		for(uint32_t x = 0; x < width; ++x) {
+			auto p = pixels->readColor4f(x, y);
+			max.r(std::max(max.r(), p.r()));
+			max.g(std::max(max.g(), p.g()));
+			max.b(std::max(max.b(), p.b()));
+			max.a(std::max(max.a(), p.a()));
+		}
+	}
+	// normalize
+	for(uint32_t y = 0; y < height; ++y) {
+		for(uint32_t x = 0; x < width; ++x) {
+			auto p = pixels->readColor4f(x, y);
+			p.r(p.r() / max.r());
+			p.g(p.g() / max.g());
+			p.b(p.b() / max.b());
+			p.a(p.a() / max.a());
+			pixels->writeColor(x, y, p);
+		}
+	}
+}
+
 }
 }
 

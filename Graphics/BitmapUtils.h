@@ -84,6 +84,9 @@ Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
 												 const size_t dataSize,
 												 const uint8_t * data);
 
+//! Normalizes each pixel to the range [0,1]
+void normalizeBitmap(Bitmap & bitmap);
+
 #ifdef UTIL_HAVE_LIB_SDL2
 //! Conversion between Bitmap and SDL_Surface
 Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface);
