@@ -180,7 +180,7 @@ endif()
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
 if(TARGET Threads::Threads)
-	target_link_libraries(Util PRIVATE Threads::Threads)
+	target_link_libraries(Util PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # Only use X11 on Linux. There were problems with X11 on Mac OS X
