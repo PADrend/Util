@@ -21,6 +21,7 @@ set(CMAKE_INSTALL_CMAKECONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Util)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 add_library(Util "")
+
 target_sources(Util PRIVATE
 	Encoding.cpp
 	GenericAttribute.cpp
@@ -80,6 +81,19 @@ add_subdirectory(Network)
 add_subdirectory(Serialization)
 add_subdirectory(UI)
 add_subdirectory(examples)
+
+option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built.")
+
+add_subdirectory(extern)
+
+if(UTIL_BUILD_TESTS)
+	if(UNIX AND NOT APPLE)
+		find_program(MEMORYCHECK_COMMAND NAMES valgrind)
+		set(MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --leak-check=summary --num-callers=1 --vgdb=no")
+	endif()
+	include(CTest)
+	add_subdirectory(tests)
+endif()
 
 if(WIN32)
 	target_link_libraries(Util PRIVATE "-lpsapi -lgdi32")
@@ -327,16 +341,6 @@ set_package_properties(ZLIB PROPERTIES
 feature_summary(DESCRIPTION "The following packages have been found:" WHAT PACKAGES_FOUND)
 feature_summary(DESCRIPTION "The following packages have *not* been found:" WHAT PACKAGES_NOT_FOUND)
 
-option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built.")
-if(UTIL_BUILD_TESTS)
-	if(UNIX AND NOT APPLE)
-		find_program(MEMORYCHECK_COMMAND NAMES valgrind)
-		set(MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --leak-check=summary --num-callers=1 --vgdb=no")
-	endif()
-	include(CTest)
-	add_subdirectory(tests)
-endif()
-
 # Install the library
 install(TARGETS Util EXPORT LibraryExport
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtimelibraries
@@ -373,7 +377,7 @@ include(InstallRequiredSystemLibraries)
 
 set(CPACK_PACKAGE_NAME "libutil${Util_VERSION_MAJOR}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Util library")
-set(CPACK_PACKAGE_VENDOR "Benjamin Eikel; Claudius Jaehn; Ralf Petring")
+set(CPACK_PACKAGE_VENDOR "Benjamin Eikel; Claudius Jaehn; Ralf Petring; Sascha Brandt")
 set(CPACK_PACKAGE_CONTACT "Benjamin Eikel <benjamin@eikel.org>")
 set(CPACK_PACKAGE_VERSION_MAJOR ${Util_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${Util_VERSION_MINOR})

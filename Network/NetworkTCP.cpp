@@ -169,6 +169,26 @@ class TCPConnection::Implementation {
 			tcpSocket = 0;
 		}
 };
+#else
+
+// Dummy implementation
+class TCPConnection::Implementation {
+public:
+	const IPv4Address remoteIp;
+	Implementation(const IPv4Address & remoteIp_) : remoteIp(remoteIp_) { }
+	Implementation(int clientSocket, const IPv4Address & remoteIp_) : remoteIp(remoteIp_) { }
+	
+	bool doSendData(std::vector<uint8_t> & data){
+		WARN("Networking is not supported.");
+		return false;
+	}
+	std::tuple<std::vector<uint8_t>,bool> doReceiveData(){
+		WARN("Networking is not supported.");
+		return std::make_tuple(std::vector<uint8_t>(),false);
+	}
+	void doClose(){ }
+};
+
 #endif
 
 // ----------------------------------------------------------------------------------------
@@ -461,6 +481,21 @@ class TCPServer::Implementation {
 			}
 			tcpServerSocket = 0;
 		}		
+};
+#else
+
+// Dummy implementation
+class TCPServer::Implementation {
+public:
+	static Implementation* create(uint16_t port) {
+		return new Implementation(0);
+	}
+	Implementation(int socket) {}	
+	std::tuple<Reference<TCPConnection>,bool> doGetIncomingConnection() {
+		WARN("Networking is not supported.");
+		return std::make_tuple(nullptr,true);
+	}
+	void doClose() {}
 };
 #endif
 

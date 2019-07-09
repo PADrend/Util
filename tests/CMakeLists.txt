@@ -6,36 +6,37 @@
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.13.0)
+project(UtilTest)
 
 if(UTIL_BUILD_TESTS)
 	add_executable(UtilTest 
-		BidirectionalMapTest.cpp
-		EncodingTest.cpp
-		FactoryTest.cpp
-		FileUtilsTest.cpp
-		GenericAttributeSerializationTest.cpp
-		GenericAttributeTest.cpp
-		GenericConversionTest.cpp
-		GenericTest.cpp
-		NetworkTest.cpp
-		RegistryTest.cpp
-		StringUtilsTest.cpp
-		TimerTest.cpp
-		TriStateTest.cpp
-		UpdatableHeapTest.cpp
-		WrapperFactoryTest.cpp
-		ZIPTest.cpp
+		#BidirectionalMapTest.cpp
+		#EncodingTest.cpp
+		#FactoryTest.cpp
+		#FileUtilsTest.cpp
+		#GenericAttributeSerializationTest.cpp
+		#GenericAttributeTest.cpp
+		#GenericConversionTest.cpp
+		#GenericTest.cpp
+		#NetworkTest.cpp
+		#RegistryTest.cpp
+		#StringUtilsTest.cpp
+		#TimerTest.cpp
+		#TriStateTest.cpp
+		#UpdatableHeapTest.cpp
+		#WrapperFactoryTest.cpp
+		#ZIPTest.cpp
 		UtilTestMain.cpp
 	)
-
+		
 	target_link_libraries(UtilTest PRIVATE Util)
-
-	# Dependency to CppUnit
+	set_target_properties(UtilTest PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
-	find_package(CppUnit REQUIRED)
-	target_include_directories(UtilTest PRIVATE ${CPPUNIT_INCLUDE_DIRS})
-	target_link_libraries(UtilTest PRIVATE ${CPPUNIT_LIBRARIES})
+
+	target_link_libraries(UtilTest PRIVATE Catch)
+	#message(${catch2_SOURCE_DIR}/single_include/catch2)
+  #target_include_directories(UtilTest PRIVATE ${catch2_SOURCE_DIR}/single_include/catch2)
 
 	# Dependency to pthread
 	set(CMAKE_THREAD_PREFER_PTHREAD ON)
