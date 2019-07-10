@@ -2,53 +2,52 @@
 	This file is part of the Util library.
 	Copyright (C) 2013 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2013 Ralf Petring <ralf@petring.net>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "TriStateTest.h"
+#include <catch2/catch.hpp>
 
 #include "TriState.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TriStateTest);
 
-
-void TriStateTest::test() {
+TEST_CASE("TriStateTest", "[TriStateTest]") {
 	
 	using Util::TriState;
 
-	CPPUNIT_ASSERT(sizeof(TriState)==1);
+	REQUIRE(sizeof(TriState)==1);
 
 	TriState x;
-	CPPUNIT_ASSERT(x==TriState());
-	CPPUNIT_ASSERT(x!=true);
-	CPPUNIT_ASSERT(x!=false);
-	CPPUNIT_ASSERT(!x.isTrue());
-	CPPUNIT_ASSERT(!x.isFalse());
-	CPPUNIT_ASSERT(x.isUndefined());
-	CPPUNIT_ASSERT(!x.isDefined());
+	REQUIRE(x==TriState());
+	REQUIRE(x!=true);
+	REQUIRE(x!=false);
+	REQUIRE(!x.isTrue());
+	REQUIRE(!x.isFalse());
+	REQUIRE(x.isUndefined());
+	REQUIRE(!x.isDefined());
 
 	TriState y(true);
-	CPPUNIT_ASSERT(y!=TriState());
-	CPPUNIT_ASSERT(y!=x);
-	CPPUNIT_ASSERT(y==true);
-	CPPUNIT_ASSERT(y.isTrue());
-	CPPUNIT_ASSERT(y!=false);
-	CPPUNIT_ASSERT(!y.isUndefined());
-	CPPUNIT_ASSERT(y.isDefined());
+	REQUIRE(y!=TriState());
+	REQUIRE(y!=x);
+	REQUIRE(y==true);
+	REQUIRE(y.isTrue());
+	REQUIRE(y!=false);
+	REQUIRE(!y.isUndefined());
+	REQUIRE(y.isDefined());
 
-	CPPUNIT_ASSERT(TriState(y) == y);
-	CPPUNIT_ASSERT(TriState(x) != y);
+	REQUIRE(TriState(y) == y);
+	REQUIRE(TriState(x) != y);
 
 	y.undefine();
-	CPPUNIT_ASSERT(y==x);
+	REQUIRE(y==x);
 
 	y = true;
-	CPPUNIT_ASSERT(x!=y);
+	REQUIRE(x!=y);
 	x = false;
-	CPPUNIT_ASSERT(x.isFalse());
-	CPPUNIT_ASSERT(x!=y);
+	REQUIRE(x.isFalse());
+	REQUIRE(x!=y);
 	y = false;
-	CPPUNIT_ASSERT(x==y);
+	REQUIRE(x==y);
 }

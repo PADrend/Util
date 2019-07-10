@@ -1,24 +1,21 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2011-2013 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "ZIPTest.h"
 #include "IO/FileName.h"
 #include "IO/FileUtils.h"
 #include "StringUtils.h"
-#include <cppunit/TestAssert.h>
+#include <catch2/catch.hpp>
 #include <cstdint>
 #include <cstdlib>
 #include <mutex>
 #include <thread>
 #include <vector>
-CPPUNIT_TEST_SUITE_REGISTRATION(ZIPTest);
-
-using namespace CppUnit;
 
 #ifdef UTIL_HAVE_LIB_ZIP
 static const std::string zipArchive("zip://test.zip$");
@@ -42,15 +39,15 @@ static void threadReaderFun() {
 			}
 			// Check if the file has been written correctly.
 			const std::vector<uint8_t> data = Util::FileUtils::loadFile(testFile);
-			CPPUNIT_ASSERT(!data.empty());
+			REQUIRE(!data.empty());
 			const std::string testString(std::string("Test by Thread ") + thread + ".\n");
-			CPPUNIT_ASSERT(data == std::vector<uint8_t>(testString.begin(), testString.end()));
+			REQUIRE(data == std::vector<uint8_t>(testString.begin(), testString.end()));
 		}
 	}
 }
 #endif
 
-void ZIPTest::test() {
+TEST_CASE("ZIPTest", "[ZIPTest]") {
 #ifdef UTIL_HAVE_LIB_ZIP
 	{
 		const std::string one = Util::StringUtils::toString<uint32_t>(1);

@@ -7,17 +7,17 @@
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
 target_sources(Util PRIVATE
-Cursor.cpp
-EventContext.cpp
-EventQueue.cpp
-SplashScreenWin.cpp
-SplashScreenX11.cpp
-UI.cpp
-WindowEGL.cpp
-WindowGLX.cpp
-WindowSDL.cpp
-WindowX11.cpp
-WindowX11Data.cpp
+	UI/Cursor.cpp
+	UI/EventContext.cpp
+	UI/EventQueue.cpp
+	UI/SplashScreenWin.cpp
+	UI/SplashScreenX11.cpp
+	UI/UI.cpp
+	UI/WindowEGL.cpp
+	UI/WindowGLX.cpp
+	UI/WindowSDL.cpp
+	UI/WindowX11.cpp
+	UI/WindowX11Data.cpp
 )
 # Install the header files
 install(FILES

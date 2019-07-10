@@ -3,13 +3,13 @@
 	Copyright (C) 2012-2013 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "WrapperFactoryTest.h"
-#include <cppunit/TestAssert.h>
+#include <catch2/catch.hpp>
 #include "TypeNameMacro.h"
 #include "Factory/WrapperFactory.h"
 #include <cstddef>
@@ -17,7 +17,6 @@
 #include <typeindex>
 #include <typeinfo>
 #include <sstream>
-CPPUNIT_TEST_SUITE_REGISTRATION(WrapperFactoryTest);
 
 struct Base {
 	virtual ~Base() {
@@ -52,7 +51,7 @@ struct WrapperDerivedB : public WrapperBase {
 	}
 };
 
-void WrapperFactoryTest::test() {
+TEST_CASE("WrapperFactoryTest_test", "[WrapperFactoryTest]") {
 	Util::WrapperFactory<Base *, WrapperBase *, std::type_index> factory;
 	factory.registerType(typeid(Base), Util::PolymorphicWrapperCreator<Base, Base, WrapperBase>());
 	factory.registerType(typeid(DerivedA), Util::PolymorphicWrapperCreator<Base, DerivedA, WrapperDerivedA>());
@@ -65,13 +64,13 @@ void WrapperFactoryTest::test() {
 	WrapperBase * wrapperV = factory.create(typeid(*v), v);
 	WrapperBase * wrapperW = factory.create(typeid(*w), w);
 
-	CPPUNIT_ASSERT(wrapperU != nullptr);
-	CPPUNIT_ASSERT(wrapperV != nullptr);
-	CPPUNIT_ASSERT(wrapperW != nullptr);
+	REQUIRE(wrapperU != nullptr);
+	REQUIRE(wrapperV != nullptr);
+	REQUIRE(wrapperW != nullptr);
 
-	CPPUNIT_ASSERT(typeid(WrapperBase) == typeid(*wrapperU));
-	CPPUNIT_ASSERT(typeid(WrapperDerivedA) == typeid(*wrapperV));
-	CPPUNIT_ASSERT(typeid(WrapperDerivedB) == typeid(*wrapperW));
+	REQUIRE(typeid(WrapperBase) == typeid(*wrapperU));
+	REQUIRE(typeid(WrapperDerivedA) == typeid(*wrapperV));
+	REQUIRE(typeid(WrapperDerivedB) == typeid(*wrapperW));
 
 	delete wrapperW;
 	delete wrapperV;
@@ -81,7 +80,7 @@ void WrapperFactoryTest::test() {
 	delete u;
 }
 
-void WrapperFactoryTest::testUnknown() {
+TEST_CASE("WrapperFactoryTest_testUnknown", "[WrapperFactoryTest]") {
 	struct IntFactory {
 		static int * timesOne(int * factor) {
 			int * result = new int;
@@ -114,22 +113,22 @@ void WrapperFactoryTest::testUnknown() {
 		int * productB = factory.create(2, &two);
 		int * productC = factory.create(1, &three);
 
-		CPPUNIT_ASSERT(productA != nullptr);
-		CPPUNIT_ASSERT(productB != nullptr);
-		CPPUNIT_ASSERT(productC != nullptr);
+		REQUIRE(productA != nullptr);
+		REQUIRE(productB != nullptr);
+		REQUIRE(productC != nullptr);
 
-		CPPUNIT_ASSERT_EQUAL(3, *productA);
-		CPPUNIT_ASSERT_EQUAL(4, *productB);
-		CPPUNIT_ASSERT_EQUAL(3, *productC);
+		REQUIRE(3 == *productA);
+		REQUIRE(4 == *productB);
+		REQUIRE(3 == *productC);
 
 		delete productC;
 		delete productB;
 		delete productA;
 
 		typedef Util::FallbackPolicies::ExceptionFallback<int *, int>::Exception FactoryException;
-		CPPUNIT_ASSERT_THROW(factory.create(0, &one), FactoryException);
-		CPPUNIT_ASSERT_THROW(factory.create(4, &two), FactoryException);
-		CPPUNIT_ASSERT_THROW(factory.create(17, &three), FactoryException);
+		REQUIRE_THROWS_AS(factory.create(0, &one), FactoryException);
+		REQUIRE_THROWS_AS(factory.create(4, &two), FactoryException);
+		REQUIRE_THROWS_AS(factory.create(17, &three), FactoryException);
 	}
 	{
 		Util::WrapperFactory<int *, int *, int, IntCreator, Util::FallbackPolicies::NULLFallback> factory;
@@ -141,13 +140,13 @@ void WrapperFactoryTest::testUnknown() {
 		int two = 2;
 		int three = 3;
 
-		CPPUNIT_ASSERT_EQUAL(static_cast<int *>(nullptr), factory.create(0, &one));
-		CPPUNIT_ASSERT_EQUAL(static_cast<int *>(nullptr), factory.create(4, &two));
-		CPPUNIT_ASSERT_EQUAL(static_cast<int *>(nullptr), factory.create(17, &three));
+		REQUIRE(static_cast<int *>(nullptr) == factory.create(0, &one));
+		REQUIRE(static_cast<int *>(nullptr) == factory.create(4, &two));
+		REQUIRE(static_cast<int *>(nullptr) == factory.create(17, &three));
 
-		CPPUNIT_ASSERT_NO_THROW(factory.create(0, &one));
-		CPPUNIT_ASSERT_NO_THROW(factory.create(4, &two));
-		CPPUNIT_ASSERT_NO_THROW(factory.create(17, &three));
+		REQUIRE_NOTHROW(factory.create(0, &one));
+		REQUIRE_NOTHROW(factory.create(4, &two));
+		REQUIRE_NOTHROW(factory.create(17, &three));
 	}
 	{
 		std::ostringstream outputStream;
@@ -165,16 +164,16 @@ void WrapperFactoryTest::testUnknown() {
 		int * productB = factory.create(4, &two);
 		int * productC = factory.create(17, &three);
 		
-		CPPUNIT_ASSERT(outputStream.good());
-		CPPUNIT_ASSERT(!outputStream.str().empty());
+		REQUIRE(outputStream.good());
+		REQUIRE(!outputStream.str().empty());
 
-		CPPUNIT_ASSERT(productA != nullptr);
-		CPPUNIT_ASSERT(productB != nullptr);
-		CPPUNIT_ASSERT(productC != nullptr);
+		REQUIRE(productA != nullptr);
+		REQUIRE(productB != nullptr);
+		REQUIRE(productC != nullptr);
 
-		CPPUNIT_ASSERT_EQUAL(2, *productA);
-		CPPUNIT_ASSERT_EQUAL(4, *productB);
-		CPPUNIT_ASSERT_EQUAL(6, *productC);
+		REQUIRE(2 == *productA);
+		REQUIRE(4 == *productB);
+		REQUIRE(6 == *productC);
 
 		delete productC;
 		delete productB;

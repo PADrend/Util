@@ -6,7 +6,13 @@
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-include(FetchContent)
+
+if(${CMAKE_VERSION} VERSION_LESS "3.11.0") 
+  message("Please consider to switch to CMake 3.11.0")
+  include(FetchContentFallback)
+else()
+  include(FetchContent)
+endif()
 
 # ------------------------------------------------------------------------------
 # A modern, C++-native, header-only, test framework for unit-tests,
@@ -19,7 +25,7 @@ if(UTIL_BUILD_TESTS)
   FetchContent_Declare(
     catch2
     GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_TAG        v2.2.3
+    GIT_TAG        v2.9.1
   )
 
   FetchContent_GetProperties(catch2)
@@ -30,5 +36,4 @@ if(UTIL_BUILD_TESTS)
     execute_process(COMMAND ${CMAKE_COMMAND} -E echo "Done")
   endif()
   
-  #set(catch2_SOURCE_DIR "${catch2_SOURCE_DIR}" PARENT_SCOPE)
 endif(UTIL_BUILD_TESTS)

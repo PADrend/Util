@@ -1,17 +1,22 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2011 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "TimerTest.h"
+#include <catch2/catch.hpp>
 #include "Timer.h"
 #include "Utils.h"
-CPPUNIT_TEST_SUITE_REGISTRATION(TimerTest);
 
-void TimerTest::test() {
+template<typename T>
+static bool approxEquals(T value, T cmp, T dev) {
+	return value > (cmp-dev) && value < (cmp+dev);
+}
+
+TEST_CASE("TimerTest", "[TimerTest]") {
 	Util::Timer timer;
 	Util::Timer resumeTimer;
 	resumeTimer.stop();
@@ -24,13 +29,14 @@ void TimerTest::test() {
 		timer.stop();
 		resumeTimer.stop();
 		const uint64_t ns = timer.getNanoseconds();
-		CPPUNIT_ASSERT(ns > 99000000 && ns < 103000000);
+		REQUIRE((ns > 99000000 && ns < 103000000));
+		
 		const double us = timer.getMicroseconds();
-		CPPUNIT_ASSERT_DOUBLES_EQUAL(us, 100000.0, 3000.0);
+		REQUIRE(approxEquals(us, 100000.0, 3000.0));
 		const double ms = timer.getMilliseconds();
-		CPPUNIT_ASSERT_DOUBLES_EQUAL(ms, 100.0, 3.0);
+		REQUIRE(approxEquals(ms, 100.0, 3.0));
 		const double s = timer.getSeconds();
-		CPPUNIT_ASSERT_DOUBLES_EQUAL(s, 0.1, 0.003);
+		REQUIRE(approxEquals(s, 0.1, 0.003));
 
 		nsSum += ns;
 	}
@@ -42,5 +48,5 @@ void TimerTest::test() {
 	} else {
 		nsDiff = nsResume - nsSum;
 	}
-	CPPUNIT_ASSERT(nsDiff < 20000);
+	REQUIRE(nsDiff < 30000);
 }

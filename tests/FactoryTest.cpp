@@ -1,20 +1,19 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2012-2013 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "FactoryTest.h"
-#include <cppunit/TestAssert.h>
 #include "TypeNameMacro.h"
 #include "Factory/Factory.h"
+#include <catch2/catch.hpp>
 #include <cstddef>
 #include <functional>
 #include <typeinfo>
 #include <sstream>
-CPPUNIT_TEST_SUITE_REGISTRATION(FactoryTest);
 
 struct Base {
 	virtual ~Base() {
@@ -29,7 +28,7 @@ struct DerivedB : public Base {
 	}
 };
 
-void FactoryTest::test() {
+TEST_CASE("FactoryTest", "[FactoryTest]") {
 	Util::Factory<Base *, std::string> factory;
 	factory.registerType("BaseType", Util::ObjectCreator<Base>());
 	factory.registerType("DerivedAType", Util::ObjectCreator<DerivedA>());
@@ -39,20 +38,20 @@ void FactoryTest::test() {
 	Base * objectV = factory.create("DerivedAType");
 	Base * objectW = factory.create("DerivedBType");
 
-	CPPUNIT_ASSERT(objectU != nullptr);
-	CPPUNIT_ASSERT(objectV != nullptr);
-	CPPUNIT_ASSERT(objectW != nullptr);
+	REQUIRE(objectU != nullptr);
+	REQUIRE(objectV != nullptr);
+	REQUIRE(objectW != nullptr);
 
-	CPPUNIT_ASSERT(typeid(Base) == typeid(*objectU));
-	CPPUNIT_ASSERT(typeid(DerivedA) == typeid(*objectV));
-	CPPUNIT_ASSERT(typeid(DerivedB) == typeid(*objectW));
+	REQUIRE(typeid(Base) == typeid(*objectU));
+	REQUIRE(typeid(DerivedA) == typeid(*objectV));
+	REQUIRE(typeid(DerivedB) == typeid(*objectW));
 
 	delete objectW;
 	delete objectV;
 	delete objectU;
 }
 
-void FactoryTest::testUnknown() {
+TEST_CASE("FactoryTestUnknown", "[FactoryTest]") {
 	struct IntFactory {
 		static int * setOne() {
 			int * result = new int;
@@ -81,22 +80,22 @@ void FactoryTest::testUnknown() {
 		int * objectB = factory.create(2);
 		int * objectC = factory.create(1);
 
-		CPPUNIT_ASSERT(objectA != nullptr);
-		CPPUNIT_ASSERT(objectB != nullptr);
-		CPPUNIT_ASSERT(objectC != nullptr);
+		REQUIRE(objectA != nullptr);
+		REQUIRE(objectB != nullptr);
+		REQUIRE(objectC != nullptr);
 
-		CPPUNIT_ASSERT_EQUAL(3, *objectA);
-		CPPUNIT_ASSERT_EQUAL(2, *objectB);
-		CPPUNIT_ASSERT_EQUAL(1, *objectC);
+		REQUIRE(3 == *objectA);
+		REQUIRE(2 == *objectB);
+		REQUIRE(1 == *objectC);
 
 		delete objectC;
 		delete objectB;
 		delete objectA;
 
 		typedef Util::FallbackPolicies::ExceptionFallback<int *, int>::Exception FactoryException;
-		CPPUNIT_ASSERT_THROW(factory.create(0), FactoryException);
-		CPPUNIT_ASSERT_THROW(factory.create(4), FactoryException);
-		CPPUNIT_ASSERT_THROW(factory.create(17), FactoryException);
+		REQUIRE_THROWS_AS(factory.create(0), FactoryException);
+		REQUIRE_THROWS_AS(factory.create(4), FactoryException);
+		REQUIRE_THROWS_AS(factory.create(17), FactoryException);
 	}
 	{
 		Util::Factory<int *, int, IntCreator, Util::FallbackPolicies::NULLFallback> factory;
@@ -104,13 +103,13 @@ void FactoryTest::testUnknown() {
 		factory.registerType(2, IntFactory::setTwo);
 		factory.registerType(3, IntFactory::setThree);
 
-		CPPUNIT_ASSERT_EQUAL(static_cast<int *>(nullptr), factory.create(0));
-		CPPUNIT_ASSERT_EQUAL(static_cast<int *>(nullptr), factory.create(4));
-		CPPUNIT_ASSERT_EQUAL(static_cast<int *>(nullptr), factory.create(17));
+		REQUIRE(static_cast<int *>(nullptr) == factory.create(0));
+		REQUIRE(static_cast<int *>(nullptr) == factory.create(4));
+		REQUIRE(static_cast<int *>(nullptr) == factory.create(17));
 
-		CPPUNIT_ASSERT_NO_THROW(factory.create(0));
-		CPPUNIT_ASSERT_NO_THROW(factory.create(4));
-		CPPUNIT_ASSERT_NO_THROW(factory.create(17));
+		REQUIRE_NOTHROW(factory.create(0));
+		REQUIRE_NOTHROW(factory.create(4));
+		REQUIRE_NOTHROW(factory.create(17));
 	}
 	{
 		std::ostringstream outputStream;
@@ -124,16 +123,16 @@ void FactoryTest::testUnknown() {
 		int * objectB = factory.create(4);
 		int * objectC = factory.create(17);
 		
-		CPPUNIT_ASSERT(outputStream.good());
-		CPPUNIT_ASSERT(!outputStream.str().empty());
+		REQUIRE(outputStream.good());
+		REQUIRE(!outputStream.str().empty());
 
-		CPPUNIT_ASSERT(objectA != nullptr);
-		CPPUNIT_ASSERT(objectB != nullptr);
-		CPPUNIT_ASSERT(objectC != nullptr);
+		REQUIRE(objectA != nullptr);
+		REQUIRE(objectB != nullptr);
+		REQUIRE(objectC != nullptr);
 
-		CPPUNIT_ASSERT_EQUAL(2, *objectA);
-		CPPUNIT_ASSERT_EQUAL(2, *objectB);
-		CPPUNIT_ASSERT_EQUAL(2, *objectC);
+		REQUIRE(2 == *objectA);
+		REQUIRE(2 == *objectB);
+		REQUIRE(2 == *objectC);
 
 		delete objectC;
 		delete objectB;
