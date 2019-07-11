@@ -14,13 +14,18 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# options
+option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built." OFF)
+option(UTIL_PREFER_SDL_CONTEXT "Defines wether SDL is used for window & GL context creation." OFF)
+
 # Set up install directories
 include(GNUInstallDirs)
 set(CMAKE_INSTALL_CMAKECONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Util)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-add_library(Util "")
+
+add_library(Util SHARED "")
 
 target_sources(Util PRIVATE
 	Encoding.cpp
@@ -81,8 +86,6 @@ add_subdirectory(Network)
 add_subdirectory(Serialization)
 add_subdirectory(UI)
 add_subdirectory(examples)
-
-option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built.")
 
 add_subdirectory(extern)
 
@@ -168,11 +171,17 @@ if(FREETYPE_FOUND)
 endif()
 
 # Dependency to SDL2
-find_package(SDL2)
-if(SDL2_FOUND)
-	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2)
-	target_include_directories(Util PRIVATE ${SDL2_INCLUDE_DIRS})
-	target_link_libraries(Util PRIVATE ${SDL2_LIBRARIES})
+if(UTIL_PREFER_SDL_CONTEXT)
+	find_package(SDL2)
+	if(SDL2_FOUND)
+		target_compile_definitions(Util PRIVATE UTIL_PREFER_SDL_CONTEXT)
+		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2)
+		target_include_directories(Util PRIVATE ${SDL2_INCLUDE_DIRS})
+		target_link_libraries(Util PRIVATE ${SDL2_LIBRARIES})
+	endif()
+else()
+	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_GLFW)
+	target_link_libraries(Util PRIVATE glfw)
 endif()
 
 # Dependency to SDL2_image
@@ -196,54 +205,6 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
 if(TARGET Threads::Threads)
 	target_link_libraries(Util PRIVATE ${CMAKE_THREAD_LIBS_INIT})
-endif()
-
-# Only use X11 on Linux. There were problems with X11 on Mac OS X
-if(UNIX AND NOT APPLE)
-	
-	option(UTIL_PREFER_SDL_CONTEXT "Defines wether SDL is used for window & GL context creation.")
-	if(UTIL_PREFER_SDL_CONTEXT)
-		target_compile_definitions(Util PRIVATE UTIL_PREFER_SDL_CONTEXT)
-	else(UTIL_PREFER_SDL_CONTEXT)
-		
-		# Dependency to X11
-		find_package(X11)
-		if(X11_FOUND)		
-			target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_X11)
-			target_include_directories(Util PRIVATE ${X11_INCLUDE_DIR})
-			target_link_libraries(Util PRIVATE ${X11_LIBRARIES})
-			
-			option(UTIL_X11_JOYSTICK_SUPPORT "Defines if joystick support for X11 should be included.")
-			if(UTIL_X11_JOYSTICK_SUPPORT)
-				target_compile_definitions(Util PRIVATE UTIL_X11_JOYSTICK_SUPPORT)
-			endif()			
-		endif()
-		
-		
-		# Dependency to EGL
-		find_package(EGL)
-		if(EGL_FOUND)
-			target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_EGL)
-			target_include_directories(Util PRIVATE ${EGL_INCLUDE_DIRS})
-			target_link_libraries(Util PRIVATE ${EGL_LIBRARIES})
-		endif()
-
-		# Dependency to GLX
-		find_package(GLX)
-		if(GLX_FOUND)
-			target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_GLX)
-			target_include_directories(Util PRIVATE ${GLX_INCLUDE_DIRS})
-			target_link_libraries(Util PRIVATE ${GLX_LIBRARIES})
-
-			include(CheckCXXSymbolExists)
-			set(CMAKE_REQUIRED_INCLUDES ${GLX_INCLUDE_DIRS})
-			set(CMAKE_REQUIRED_LIBRARIES ${GLX_LIBRARIES})
-			check_cxx_symbol_exists(glXGetProcAddressARB "GL/glx.h" UTIL_HAVE_GLX_GETPROCADDRESSARB)
-			if(UTIL_HAVE_GLX_GETPROCADDRESSARB)
-				target_compile_definitions(Util PRIVATE UTIL_HAVE_GLX_GETPROCADDRESSARB)
-			endif()
-		endif()			
-	endif()
 endif()
 
 include(CheckIncludeFileCXX)
