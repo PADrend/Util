@@ -155,6 +155,8 @@ void disableInfo();
 
 uint32_t calcHash(const uint8_t * ptr,size_t size);
 
+std::string md5(const std::string& str);
+
 //    void useStdInfo();
 //    void useInternalInfo();
 //    std::string getInfo();

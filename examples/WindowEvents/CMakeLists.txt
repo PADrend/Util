@@ -12,4 +12,6 @@ add_executable(WindowEvents
 	WindowEventsMain.cpp
 )
 
+set_target_properties(WindowEvents PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+
 target_link_libraries(WindowEvents PRIVATE Util)

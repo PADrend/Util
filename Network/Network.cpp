@@ -21,6 +21,8 @@ COMPILER_WARN_PUSH
 COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL_net.h>
 COMPILER_WARN_POP
+#elif UTIL_HAVE_LIB_ASIO
+#include <asio.hpp>
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -41,7 +43,10 @@ static bool libNameInitailized = [](){
 
 namespace Util {
 namespace Network {
-
+	
+#ifdef UTIL_HAVE_LIB_ASIO
+using namespace asio::ip;
+#endif
 /**
  * (static) Init network system (SDL_net).
  */
@@ -57,10 +62,21 @@ bool init() {
 // -----------------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------
 
+#ifdef UTIL_HAVE_LIB_ASIO
+asio::io_context& getAsioContext() {
+	static asio::io_context context;
+	if(context.stopped())
+		context.run();
+	return context;
+}
+#endif
 
 struct InternalIPv4AddressData_t {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 		IPaddress sdlAddress;
+#elif UTIL_HAVE_LIB_ASIO
+	address_v4 host;
+	uint16_t port;
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 		sockaddr_in address;
 #endif
@@ -77,6 +93,25 @@ IPaddress toSDLIPv4Address(const IPv4Address & address);
 IPaddress toSDLIPv4Address(const IPv4Address & address) {
 	return address.getData()->sdlAddress;
 }
+#elif UTIL_HAVE_LIB_ASIO
+IPv4Address fromAsioUdpEndpoint(const udp::endpoint & ep) {
+	InternalIPv4AddressData_t data;
+	data.host = ep.address().to_v4();
+	data.port = ep.port();
+	return IPv4Address(data);
+}
+IPv4Address fromAsioTcpEndpoint(const tcp::endpoint & ep) {
+	InternalIPv4AddressData_t data;
+	data.host = ep.address().to_v4();
+	data.port = ep.port();
+	return IPv4Address(data);
+}
+udp::endpoint toAsioUdpEndpoint(const IPv4Address & address) {
+	return udp::endpoint(address.getData()->host, address.getData()->port);
+}
+tcp::endpoint toAsioTcpEndpoint(const IPv4Address & address) {
+	return tcp::endpoint(address.getData()->host, address.getData()->port);
+}
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 IPv4Address fromSockaddr(const sockaddr_in & sockAddr);
 IPv4Address fromSockaddr(const sockaddr_in & sockAddr) {
@@ -92,7 +127,7 @@ sockaddr_in toSockaddr(const IPv4Address & address) {
 
 IPv4Address::IPv4Address() :
 	data(new InternalIPv4AddressData_t) {
-#ifdef UTIL_HAVE_LIB_SDL2_NET
+#if defined(UTIL_HAVE_LIB_SDL2_NET) || defined(UTIL_HAVE_LIB_ASIO)
 	setHost(0);
 	setPort(0);
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
@@ -121,6 +156,8 @@ IPv4Address & IPv4Address::operator=(const IPv4Address & source) {
 void IPv4Address::setHost(uint32_t host) {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	data->sdlAddress.host = ((host & 0x000000FF) << 24) + ((host & 0x0000FF00) << 8) + ((host & 0x00FF0000) >> 8) + ((host & 0xFF000000) >> 24);
+#elif UTIL_HAVE_LIB_ASIO
+	data->host = make_address_v4(host);
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	data->address.sin_addr.s_addr = htonl(host);
 #endif
@@ -128,6 +165,8 @@ void IPv4Address::setHost(uint32_t host) {
 void IPv4Address::setPort(uint16_t port) {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	data->sdlAddress.port = ((port & 0x00FF) << 8) + ((port & 0xFF00) >> 8);
+#elif UTIL_HAVE_LIB_ASIO
+	data->port = port;
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	data->address.sin_port = htons(port);
 #endif
@@ -153,6 +192,8 @@ uint32_t IPv4Address::getHost() const {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	const uint32_t & host = data->sdlAddress.host;
 	return ((host & 0x000000FF) << 24) + ((host & 0x0000FF00) << 8) + ((host & 0x00FF0000) >> 8) + ((host & 0xFF000000) >> 24);
+#elif UTIL_HAVE_LIB_ASIO
+	return data->host.to_uint();
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	return ntohl(data->address.sin_addr.s_addr);
 #else
@@ -162,6 +203,8 @@ uint32_t IPv4Address::getHost() const {
 uint16_t IPv4Address::getPort() const {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	return ((data->sdlAddress.port & 0x00FF) << 8) + ((data->sdlAddress.port & 0xFF00) >> 8);
+#elif UTIL_HAVE_LIB_ASIO
+	return data->port;
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	return ntohs(data->address.sin_port);
 #else
@@ -176,6 +219,15 @@ IPv4Address IPv4Address::resolveHost(const std::string & host, uint16_t port) {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 	if (SDLNet_ResolveHost(&(ip.data->sdlAddress), host.c_str(), port) == -1) {
 		return IPv4Address();
+	}
+#elif UTIL_HAVE_LIB_ASIO
+	const std::string portString(StringUtils::toString(port));
+	tcp::resolver resolver(getAsioContext());
+	auto it = resolver.resolve(host, portString);
+	tcp::resolver::iterator end;
+	if(it != end) {
+		ip.data->host = it->endpoint().address().to_v4();
+		ip.data->port = it->endpoint().port();
 	}
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	const std::string portString(StringUtils::toString(port));

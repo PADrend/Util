@@ -20,6 +20,7 @@ if(UTIL_BUILD_TESTS)
 		GenericAttributeTest.cpp
 		GenericConversionTest.cpp
 		GenericTest.cpp
+		NetProviderTest.cpp
 		NetworkTest.cpp
 		RegistryTest.cpp
 		StringUtilsTest.cpp
@@ -35,7 +36,7 @@ if(UTIL_BUILD_TESTS)
 	set_target_properties(UtilTest PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-	target_link_libraries(UtilTest PRIVATE Catch2::Catch2)
+	target_link_libraries(UtilTest PRIVATE UtilExtern)
 
 	# Dependency to pthread
 	set(CMAKE_THREAD_PREFER_PTHREAD ON)
@@ -58,6 +59,7 @@ if(UTIL_BUILD_TESTS)
 	add_test(NAME GenericAttributeTest COMMAND UtilTest [GenericAttributeTest])
 	add_test(NAME GenericConversionTest COMMAND UtilTest [GenericConversionTest])
 	add_test(NAME GenericTest COMMAND UtilTest [GenericTest])
+	add_test(NAME HttpTest COMMAND UtilTest [HttpTest])
 	add_test(NAME NetworkTest COMMAND UtilTest [NetworkTest])
 	add_test(NAME RegistryTest COMMAND UtilTest [RegistryTest])
 	add_test(NAME StringUtilsTest COMMAND UtilTest [StringUtilsTest])

@@ -20,6 +20,7 @@
 #include <memory>
 #include <random>
 #include <vector>
+#include <iostream>
 
 using namespace Util::Network;
 
@@ -143,7 +144,7 @@ TEST_CASE("NetworkTest_testUDPgetPort", "[NetworkTest]") {
 }
 
 TEST_CASE("NetworkTest_testDataConnection", "[NetworkTest]") {
-	const uint8_t maxTries = 10;
+	const uint8_t maxTries = 20;
 	const uint16_t numChannels = 10;
 	uint_fast8_t tryCount;
 	
@@ -187,189 +188,202 @@ TEST_CASE("NetworkTest_testDataConnection", "[NetworkTest]") {
 	const size_t sizes[7] = { 128, 256, 512, 1024, 2048, 4096, 8192 };
 
 	// Send values from client to server
-	for (const auto & size : sizes) {
-		std::vector<uint8_t> original(size);
+	SECTION("Send values from client to server") {
+		for (const auto & size : sizes) {
+			std::vector<uint8_t> original(size);
 
-		for (uint16_t channel = 0; channel < numChannels; ++channel) {
-			for (uint_fast32_t i = 0; i < size; ++i) {
-				original[i] = dataDistribution(engine);
-			}
-			clientDataConnection.sendValue(channel, original);
-
-			uint16_t receivedChannel;
-			std::vector<uint8_t> receivedData;
-
-			tryCount = 0;
-			while (!serverDataConnection.extractIncomingValue(receivedChannel, receivedData) && tryCount < maxTries) {
-				Util::Utils::sleep(5);
-				++tryCount;
-			}
-			REQUIRE(tryCount < maxTries);
-
-			REQUIRE(channel == receivedChannel);
-			REQUIRE(original == receivedData);
-		}
-	}
-	// Send values from server to client
-	for (const auto & size : sizes) {
-		std::vector<uint8_t> original(size);
-
-		for (uint16_t channel = 0; channel < numChannels; ++channel) {
-			for (uint_fast32_t i = 0; i < size; ++i) {
-				original[i] = dataDistribution(engine);
-			}
-			serverDataConnection.sendValue(channel, original);
-
-			uint16_t receivedChannel;
-			std::vector<uint8_t> receivedData;
-
-			tryCount = 0;
-			while (!clientDataConnection.extractIncomingValue(receivedChannel, receivedData) && tryCount < maxTries) {
-				Util::Utils::sleep(5);
-				++tryCount;
-			}
-			REQUIRE(tryCount < maxTries);
-
-			REQUIRE(channel == receivedChannel);
-			REQUIRE(original == receivedData);
-		}
-	}
-	// Send (key, value) pairs from client to server
-	for (const auto & size : sizes) {
-		std::vector<uint8_t> original(size);
-
-		for (uint16_t channel = 0; channel < numChannels; ++channel) {
-			for (uint_fast32_t i = 0; i < size; ++i) {
-				original[i] = dataDistribution(engine);
-			}
-			const Util::StringIdentifier key(keyDistribution(engine));
-			clientDataConnection.sendKeyValue(channel, key, original);
-
-			uint16_t receivedChannel;
-			Util::StringIdentifier receivedKey;
-			std::vector<uint8_t> receivedData;
-
-			tryCount = 0;
-			while (!serverDataConnection.extractIncomingKeyValuePair(receivedChannel, receivedKey, receivedData) && tryCount < maxTries) {
-				Util::Utils::sleep(5);
-				++tryCount;
-			}
-			REQUIRE(tryCount < maxTries);
-
-			REQUIRE(channel == receivedChannel);
-			REQUIRE(key.toString() == receivedKey.toString());
-			REQUIRE(original == receivedData);
-		}
-	}
-	// Send (key, value) pairs from server to client
-	for (const auto & size : sizes) {
-		std::vector<uint8_t> original(size);
-
-		for (uint16_t channel = 0; channel < numChannels; ++channel) {
-			for (uint_fast32_t i = 0; i < size; ++i) {
-				original[i] = dataDistribution(engine);
-			}
-			const Util::StringIdentifier key(keyDistribution(engine));
-			serverDataConnection.sendKeyValue(channel, key, original);
-
-			uint16_t receivedChannel;
-			Util::StringIdentifier receivedKey;
-			std::vector<uint8_t> receivedData;
-
-			tryCount = 0;
-			while (!clientDataConnection.extractIncomingKeyValuePair(receivedChannel, receivedKey, receivedData) && tryCount < maxTries) {
-				Util::Utils::sleep(5);
-				++tryCount;
-			}
-			REQUIRE(tryCount < maxTries);
-
-			REQUIRE(channel == receivedChannel);
-			REQUIRE(key.toString() == receivedKey.toString());
-			REQUIRE(original == receivedData);
-		}
-	}
-
-	// Check channel handlers on server side
-	class HandlerChecker {
-		private:
-			const DataConnection::channelId_t checkChannelId;
-			const Util::StringIdentifier checkKey;
-			const DataConnection::dataPacket_t checkData;
-			const uint32_t expectedNumberOfValueChecks;
-			uint32_t maximumNumberOfKeyValueChecks;
-			uint32_t actualNumberOfValueChecks;
-			uint32_t actualNumberOfKeyValueChecks;
-
-		public:
-			HandlerChecker(DataConnection::channelId_t channelId, 
-						   const Util::StringIdentifier & key, 
-						   const DataConnection::dataPacket_t & data, 
-						   uint32_t checks) :
-				checkChannelId(channelId), 
-				checkKey(key), 
-				checkData(data), 
-				expectedNumberOfValueChecks(checks),
-				maximumNumberOfKeyValueChecks(0),
-				actualNumberOfValueChecks(0),
-				actualNumberOfKeyValueChecks(0) {
-			}
-			~HandlerChecker() {
-				REQUIRE(expectedNumberOfValueChecks == actualNumberOfValueChecks);
-				// Multiple messages with the same key must only arrive once per receive call.
-				REQUIRE(maximumNumberOfKeyValueChecks >= actualNumberOfKeyValueChecks);
-			}
-
-			void checkValue(DataConnection::channelId_t channelId, const DataConnection::dataPacket_t & data) {
-				REQUIRE(channelId == checkChannelId);
-				REQUIRE(checkData == data);
-				++actualNumberOfValueChecks;
-			}
-
-			void checkKeyValue(DataConnection::channelId_t channelId, const Util::StringIdentifier & key, const DataConnection::dataPacket_t & data) {
-				REQUIRE(channelId == checkChannelId);
-				REQUIRE(checkKey.toString() == key.toString());
-				REQUIRE(checkData == data);
-				++actualNumberOfKeyValueChecks;
-			}
-
-			void allowAdditionalKeyValueCheck() {
-				++maximumNumberOfKeyValueChecks;
-			}
-
-			bool finished() const {
-				return actualNumberOfValueChecks >= expectedNumberOfValueChecks;
-			}
-	};
-	for (const auto & size : sizes) {
-		std::vector<uint8_t> original(size);
-
-		for (uint16_t channel = 0; channel < numChannels; ++channel) {
-			for (uint_fast32_t i = 0; i < size; ++i) {
-				original[i] = dataDistribution(engine);
-			}
-			const uint32_t numChecks = 10;
-			const Util::StringIdentifier key(keyDistribution(engine));
-			HandlerChecker checker(channel, key, original, numChecks);
-			serverDataConnection.registerValueChannelHandler(channel, 
-					std::bind(&HandlerChecker::checkValue, &checker, std::placeholders::_1, std::placeholders::_2));
-			serverDataConnection.registerKeyValueChannelHandler(channel, 
-					std::bind(&HandlerChecker::checkKeyValue, &checker, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-
-			for(uint_fast32_t count = 0; count < numChecks; ++count) {
+			for (uint16_t channel = 0; channel < numChannels; ++channel) {
+				for (uint_fast32_t i = 0; i < size; ++i) {
+					original[i] = dataDistribution(engine);
+				}
 				clientDataConnection.sendValue(channel, original);
-				clientDataConnection.sendKeyValue(channel, key, original);
-			}
-			tryCount = 0;
-			while (!checker.finished() && tryCount < maxTries) {
-				serverDataConnection.handleIncomingData();
-				// Keys are only unique during one receive call.
-				checker.allowAdditionalKeyValueCheck();
-				Util::Utils::sleep(5);
-				++tryCount;
-			}
-			REQUIRE(tryCount < maxTries);
 
-			serverDataConnection.removeKeyValueChannelHandler(channel);
+				uint16_t receivedChannel;
+				std::vector<uint8_t> receivedData;
+
+				tryCount = 0;
+				while (!serverDataConnection.extractIncomingValue(receivedChannel, receivedData) && tryCount < maxTries) {
+					Util::Utils::sleep(5);
+					++tryCount;
+				}
+				REQUIRE(tryCount < maxTries);
+
+				REQUIRE(channel == receivedChannel);
+				REQUIRE(original == receivedData);
+			}
+		}
+	}
+	
+	// Send values from server to client
+	SECTION("Send values from server to client") {
+		for (const auto & size : sizes) {
+			std::vector<uint8_t> original(size);
+
+			for (uint16_t channel = 0; channel < numChannels; ++channel) {
+				for (uint_fast32_t i = 0; i < size; ++i) {
+					original[i] = dataDistribution(engine);
+				}
+				serverDataConnection.sendValue(channel, original);
+
+				uint16_t receivedChannel;
+				std::vector<uint8_t> receivedData;
+
+				tryCount = 0;
+				while (!clientDataConnection.extractIncomingValue(receivedChannel, receivedData) && tryCount < maxTries) {
+					Util::Utils::sleep(5);
+					++tryCount;
+				}
+				REQUIRE(tryCount < maxTries);
+
+				REQUIRE(channel == receivedChannel);
+				REQUIRE(original == receivedData);
+			}
+		}
+	}
+	
+	// Send (key, value) pairs from client to server
+	SECTION("Send (key, value) pairs from client to server") {
+		for (const auto & size : sizes) {
+			std::vector<uint8_t> original(size);
+
+			for (uint16_t channel = 0; channel < numChannels; ++channel) {
+				for (uint_fast32_t i = 0; i < size; ++i) {
+					original[i] = dataDistribution(engine);
+				}
+				const Util::StringIdentifier key(keyDistribution(engine));
+				clientDataConnection.sendKeyValue(channel, key, original);
+
+				uint16_t receivedChannel;
+				Util::StringIdentifier receivedKey;
+				std::vector<uint8_t> receivedData;
+
+				tryCount = 0;
+				while (!serverDataConnection.extractIncomingKeyValuePair(receivedChannel, receivedKey, receivedData) && tryCount < maxTries) {
+					Util::Utils::sleep(5);
+					++tryCount;
+				}
+				REQUIRE(tryCount < maxTries);
+
+				REQUIRE(channel == receivedChannel);
+				REQUIRE(key.toString() == receivedKey.toString());
+				REQUIRE(original == receivedData);
+			}
+		}
+	}
+
+	// Send (key, value) pairs from server to client
+	SECTION("Send (key, value) pairs from client to server") {
+		for (const auto & size : sizes) {
+			std::vector<uint8_t> original(size);
+
+			for (uint16_t channel = 0; channel < numChannels; ++channel) {
+				for (uint_fast32_t i = 0; i < size; ++i) {
+					original[i] = dataDistribution(engine);
+				}
+				const Util::StringIdentifier key(keyDistribution(engine));
+				serverDataConnection.sendKeyValue(channel, key, original);
+
+				uint16_t receivedChannel;
+				Util::StringIdentifier receivedKey;
+				std::vector<uint8_t> receivedData;
+
+				tryCount = 0;
+				while (!clientDataConnection.extractIncomingKeyValuePair(receivedChannel, receivedKey, receivedData) && tryCount < maxTries) {
+					Util::Utils::sleep(5);
+					++tryCount;
+				}
+				REQUIRE(tryCount < maxTries);
+
+				REQUIRE(channel == receivedChannel);
+				REQUIRE(key.toString() == receivedKey.toString());
+				REQUIRE(original == receivedData);
+			}
+		}
+	}
+
+	// Check channel handlers on server side	
+	SECTION("Check channel handlers on server side") {
+		class HandlerChecker {
+			private:
+				const DataConnection::channelId_t checkChannelId;
+				const Util::StringIdentifier checkKey;
+				const DataConnection::dataPacket_t checkData;
+				const uint32_t expectedNumberOfValueChecks;
+				uint32_t maximumNumberOfKeyValueChecks;
+				uint32_t actualNumberOfValueChecks;
+				uint32_t actualNumberOfKeyValueChecks;
+
+			public:
+				HandlerChecker(DataConnection::channelId_t channelId, 
+							   const Util::StringIdentifier & key, 
+							   const DataConnection::dataPacket_t & data, 
+							   uint32_t checks) :
+					checkChannelId(channelId), 
+					checkKey(key), 
+					checkData(data), 
+					expectedNumberOfValueChecks(checks),
+					maximumNumberOfKeyValueChecks(0),
+					actualNumberOfValueChecks(0),
+					actualNumberOfKeyValueChecks(0) {
+				}
+				~HandlerChecker() {
+					REQUIRE(expectedNumberOfValueChecks == actualNumberOfValueChecks);
+					// Multiple messages with the same key must only arrive once per receive call.
+					REQUIRE(maximumNumberOfKeyValueChecks >= actualNumberOfKeyValueChecks);
+				}
+
+				void checkValue(DataConnection::channelId_t channelId, const DataConnection::dataPacket_t & data) {
+					REQUIRE(channelId == checkChannelId);
+					REQUIRE(checkData == data);
+					++actualNumberOfValueChecks;
+				}
+
+				void checkKeyValue(DataConnection::channelId_t channelId, const Util::StringIdentifier & key, const DataConnection::dataPacket_t & data) {
+					REQUIRE(channelId == checkChannelId);
+					REQUIRE(checkKey.toString() == key.toString());
+					REQUIRE(checkData == data);
+					++actualNumberOfKeyValueChecks;
+				}
+
+				void allowAdditionalKeyValueCheck() {
+					++maximumNumberOfKeyValueChecks;
+				}
+
+				bool finished() const {
+					return actualNumberOfValueChecks >= expectedNumberOfValueChecks;
+				}
+		};
+		for (const auto & size : sizes) {
+			std::vector<uint8_t> original(size);
+
+			for (uint16_t channel = 0; channel < numChannels; ++channel) {
+				for (uint_fast32_t i = 0; i < size; ++i) {
+					original[i] = dataDistribution(engine);
+				}
+				const uint32_t numChecks = 10;
+				const Util::StringIdentifier key(keyDistribution(engine));
+				HandlerChecker checker(channel, key, original, numChecks);
+				serverDataConnection.registerValueChannelHandler(channel, 
+						std::bind(&HandlerChecker::checkValue, &checker, std::placeholders::_1, std::placeholders::_2));
+				serverDataConnection.registerKeyValueChannelHandler(channel, 
+						std::bind(&HandlerChecker::checkKeyValue, &checker, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+				for(uint_fast32_t count = 0; count < numChecks; ++count) {
+					clientDataConnection.sendValue(channel, original);
+					clientDataConnection.sendKeyValue(channel, key, original);
+				}
+				tryCount = 0;
+				while (!checker.finished() && tryCount < maxTries) {
+					serverDataConnection.handleIncomingData();
+					// Keys are only unique during one receive call.
+					checker.allowAdditionalKeyValueCheck();
+					Util::Utils::sleep(5);
+					++tryCount;
+				}
+				REQUIRE(tryCount < maxTries);
+
+				serverDataConnection.removeKeyValueChannelHandler(channel);
+			}
 		}
 	}
 

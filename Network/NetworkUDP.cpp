@@ -20,6 +20,8 @@ COMPILER_WARN_PUSH
 COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL_net.h>
 COMPILER_WARN_POP
+#elif UTIL_HAVE_LIB_ASIO
+#include <asio.hpp>
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -36,6 +38,12 @@ namespace Network {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 extern IPaddress toSDLIPv4Address(const IPv4Address & address);
 extern IPv4Address fromSDLIPv4Address(const IPaddress & address);
+#elif UTIL_HAVE_LIB_ASIO
+using namespace asio;
+using namespace asio::ip;
+extern io_context& getAsioContext();
+extern IPv4Address fromAsioUdpEndpoint(const udp::endpoint & ep);
+extern udp::endpoint toAsioUdpEndpoint(const IPv4Address & address);
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 extern IPv4Address fromSockaddr(const sockaddr_in & sockAddr);
 extern sockaddr_in toSockaddr(const IPv4Address & address);
@@ -48,7 +56,10 @@ struct InternalUDPSocketData_t {
 		int maxPktSize;
 		targetSet_t targets;
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-		UDPsocket udpsock;
+		UDPsocket udpSocket;
+#elif UTIL_HAVE_LIB_ASIO
+	InternalUDPSocketData_t() : udpSocket(getAsioContext()) {}
+		udp::socket udpSocket;
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 		int udpSocket;
 #endif
@@ -67,7 +78,8 @@ UDPNetworkSocket::UDPNetworkSocket(uint16_t _port/*=0*/, int _maxPktSize/*=1024*
 	data->port = _port;
 	data->maxPktSize = _maxPktSize;
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-	data->udpsock = nullptr;
+	data->udpSocket = nullptr;
+#elif UTIL_HAVE_LIB_ASIO
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	data->udpSocket = 0;
 #endif
@@ -86,9 +98,19 @@ UDPNetworkSocket::~UDPNetworkSocket() {
  */
 bool UDPNetworkSocket::open() {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-	data->udpsock = SDLNet_UDP_Open(data->port);
-	if (!data->udpsock) {
+	data->udpSocket = SDLNet_UDP_Open(data->port);
+	if (!data->udpSocket) {
 		std::cerr << "SDLNet_UDP_Open: " << SDLNet_GetError() << "\n";
+		return false;
+	}
+#elif UTIL_HAVE_LIB_ASIO
+	try {
+		udp::endpoint endpoint(udp::v4(), data->port);
+		//data->udpSocket.close();
+		data->udpSocket.open(udp::v4());
+		data->udpSocket.bind(endpoint);
+	} catch(asio::system_error e) {
+		WARN(e.what());
 		return false;
 	}
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
@@ -129,7 +151,9 @@ bool UDPNetworkSocket::open() {
 
 bool UDPNetworkSocket::isOpen() const {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-	return data->udpsock != nullptr;
+	return data->udpSocket != nullptr;
+#elif UTIL_HAVE_LIB_ASIO
+	return data->udpSocket.is_open();
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	return data->udpSocket > 0;
 #else
@@ -140,8 +164,14 @@ bool UDPNetworkSocket::isOpen() const {
 void UDPNetworkSocket::close() {
 	if (isOpen()) {
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-		SDLNet_UDP_Close(data->udpsock);
-		data->udpsock = nullptr;
+		SDLNet_UDP_Close(data->udpSocket);
+		data->udpSocket = nullptr;
+#elif UTIL_HAVE_LIB_ASIO
+		try {
+			data->udpSocket.close();
+		} catch(asio::system_error e) {
+			WARN(e.what());
+		}
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 		if (::close(data->udpSocket) != 0) {
 			int error = errno;
@@ -162,7 +192,7 @@ UDPNetworkSocket::Packet * UDPNetworkSocket::receive() {
 		std::cerr << "SDLNet_AllocPacket: " << SDLNet_GetError() << "\n";
 		return nullptr;
 	}
-	int r = SDLNet_UDP_Recv(data->udpsock, p);
+	int r = SDLNet_UDP_Recv(data->udpSocket, p);
 	if (r <= 0) {
 		SDLNet_FreePacket(p);
 		return nullptr;
@@ -175,6 +205,22 @@ UDPNetworkSocket::Packet * UDPNetworkSocket::receive() {
 
 	SDLNet_FreePacket(p);
 	return myPacket;
+#elif UTIL_HAVE_LIB_ASIO
+	size_t len = data->udpSocket.available();
+	if(len == 0)
+		return nullptr;
+	std::vector<uint8_t> buffer(data->maxPktSize + 1);
+	udp::endpoint endpoint;
+	data->udpSocket.receive_from(asio::buffer(buffer), endpoint);
+	if (len == buffer.size()) {
+		WARN("Maximum UDP packet size exceeded.");
+	} else {
+		buffer.resize(len);
+	}
+	auto packet = new Packet(std::move(buffer));
+	packet->source = fromAsioUdpEndpoint(endpoint);
+	return packet;
+	
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	std::vector<uint8_t> buffer(data->maxPktSize + 1);
 	sockaddr_in sockAddr;
@@ -222,10 +268,20 @@ int UDPNetworkSocket::sendData(const uint8_t * _data, size_t _dataSize) {
 	p->len = _dataSize;
 	for(const auto & target : data->targets) {
 		p->address = toSDLIPv4Address(target);
-		sendCounter += SDLNet_UDP_Send(data->udpsock, -1, p);
+		sendCounter += SDLNet_UDP_Send(data->udpSocket, -1, p);
 	}
 	SDLNet_FreePacket(p);
 	p = nullptr;
+#elif UTIL_HAVE_LIB_ASIO
+	for(const auto & target : data->targets) {
+		auto endpoint = toAsioUdpEndpoint(target);
+		try {
+			data->udpSocket.send_to(asio::buffer(_data, _dataSize), endpoint);
+			++sendCounter;
+		} catch(asio::system_error e) {
+			WARN(e.what());
+		}
+	}
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	for(const auto & target : data->targets) {
 		sockaddr_in sockAddr = toSockaddr(target);
@@ -249,10 +305,19 @@ bool UDPNetworkSocket::sendData(const uint8_t * _data, size_t _dataSize, const I
 	std::copy(_data, _data + _dataSize, p->data);
 	p->len = _dataSize;
 	p->address = toSDLIPv4Address(_address);
-	int i = SDLNet_UDP_Send(data->udpsock, -1, p);
+	int i = SDLNet_UDP_Send(data->udpSocket, -1, p);
 	SDLNet_FreePacket(p);
 	p = nullptr;
 	return i > 0;
+#elif UTIL_HAVE_LIB_ASIO
+	auto endpoint = toAsioUdpEndpoint(_address);
+	try {
+		data->udpSocket.send_to(asio::buffer(_data, _dataSize), endpoint);
+	} catch(asio::system_error e) {
+		WARN(e.what());
+		return false;
+	}
+	return true;
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	sockaddr_in sockAddr = toSockaddr(_address);
 	ssize_t bytesSent = sendto(data->udpSocket, _data, _dataSize, 0, reinterpret_cast<const sockaddr *> (&sockAddr), sizeof(sockAddr));
@@ -280,13 +345,15 @@ uint16_t UDPNetworkSocket::getPort() const {
 	if(data->port > 0)
 		return data->port;
 #ifdef UTIL_HAVE_LIB_SDL2_NET
-	IPaddress* sdlAddress = SDLNet_UDP_GetPeerAddress(data->udpsock, -1);
+	IPaddress* sdlAddress = SDLNet_UDP_GetPeerAddress(data->udpSocket, -1);
 	if(!sdlAddress) {
 		std::cerr << "SDLNet_UDP_GetPeerAddress: " << SDLNet_GetError() << "\n";
 		return 0;
 	}
 	IPv4Address address = fromSDLIPv4Address(*sdlAddress);
 	return address.getPort();
+#elif UTIL_HAVE_LIB_ASIO
+	return data->udpSocket.local_endpoint().port();
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	struct sockaddr_in localAddress;
 	socklen_t addressLength = sizeof(localAddress);

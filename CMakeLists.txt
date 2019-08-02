@@ -16,7 +16,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # options
 option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built." OFF)
-option(UTIL_PREFER_SDL_CONTEXT "Defines wether SDL is used for window & GL context creation." OFF)
 
 # Set up install directories
 include(GNUInstallDirs)
@@ -105,6 +104,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	target_link_libraries(Util PRIVATE rt)
 endif()
 
+#target_compile_definitions(Util PUBLIC UtilExtern)
+#target_include_directories(Util PRIVATE UtilExtern)
+target_link_libraries(Util PRIVATE UtilExtern)
+
+
 # Dependency to SQLite3
 find_package(SQLite3)
 if(SQLITE3_FOUND)
@@ -147,12 +151,12 @@ if(LIBXML2_FOUND)
 endif()
 
 # Dependency to libcurl
-find_package(CURL)
-if(CURL_FOUND)
-	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_CURL)
-	target_include_directories(Util PRIVATE ${CURL_INCLUDE_DIRS})
-	target_link_libraries(Util PRIVATE ${CURL_LIBRARIES})
-endif()
+#find_package(CURL)
+#if(CURL_FOUND)
+#	target_compile_definitions(Util PUBLIC UTIL_HAVE_LIB_CURL)
+#	target_include_directories(Util PRIVATE ${CURL_INCLUDE_DIRS})
+#	target_link_libraries(Util PRIVATE ${CURL_LIBRARIES})
+#endif()
 
 # Dependency to FreeType
 find_package(Freetype)
@@ -170,19 +174,6 @@ if(FREETYPE_FOUND)
 	endif()
 endif()
 
-# Dependency to SDL2
-if(UTIL_PREFER_SDL_CONTEXT)
-	find_package(SDL2)
-	if(SDL2_FOUND)
-		target_compile_definitions(Util PRIVATE UTIL_PREFER_SDL_CONTEXT)
-		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2)
-		target_include_directories(Util PRIVATE ${SDL2_INCLUDE_DIRS})
-		target_link_libraries(Util PRIVATE ${SDL2_LIBRARIES})
-	endif()
-else()
-	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_GLFW)
-	target_link_libraries(Util PRIVATE glfw)
-endif()
 
 # Dependency to SDL2_image
 find_package(SDL2_image 2.0.0)
@@ -190,14 +181,6 @@ if(SDL2_IMAGE_FOUND)
 	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2_IMAGE)
 	target_include_directories(Util PRIVATE ${SDL2_IMAGE_INCLUDE_DIRS})
 	target_link_libraries(Util PRIVATE ${SDL2_IMAGE_LIBRARIES})
-endif()
-
-# Dependency to SDL2_net
-find_package(SDL2_net 2.0.0)
-if(SDL2_NET_FOUND)
-	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2_NET)
-	target_include_directories(Util PRIVATE ${SDL2_NET_INCLUDE_DIRS})
-	target_link_libraries(Util PRIVATE ${SDL2_NET_LIBRARIES})
 endif()
 
 # Dependency to pthread
