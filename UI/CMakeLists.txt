@@ -23,7 +23,6 @@ install(FILES
 	EventQueue.h
 	SplashScreen.h
 	SplashScreenWin.h
-	SplashScreenX11.h
 	UI.h
 	Window.h
 	WindowGLFW.h

@@ -132,7 +132,47 @@ if(UTIL_BUILD_CURL)
   target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
   target_link_libraries(UtilExtern INTERFACE curl)
 elseif(WIN32 AND MINGW)
-  # TODO: Use prebuild binaries for MinGW on Windows
+  # Use prebuild binaries for MinGW on Windows
+  FetchContent_Declare(
+    curl_mingw
+    URL       https://curl.haxx.se/windows/dl-7.65.3/curl-7.65.3-win64-mingw.zip
+    URL_HASH  SHA256=5c07b2d96aa7c7f5d3cff7657f5ebf563f7fb5aa62411300ff52189a7e2460c9
+  )
+  FetchContent_Declare(
+    curl_mingw_ssl
+    URL       https://curl.haxx.se/windows/dl-7.65.3/openssl-1.1.1c-win64-mingw.zip
+    URL_HASH  SHA256=d9da1782e3f1fb4eed8adc1e954ba2899ed8bd6302d6eb788f147b1ded99ee7c
+  )
+  FetchContent_Declare(
+    curl_mingw_ssh
+    URL       https://curl.haxx.se/windows/dl-7.65.3/libssh2-1.9.0-win64-mingw.zip
+    URL_HASH  SHA256=ee9f3815ff46b0eb677dc3688362487c5847063a653aad923e5b283f77360af0
+  )
+
+  FetchContent_GetProperties(curl_mingw)
+  FetchContent_GetProperties(curl_mingw_ssl)
+  FetchContent_GetProperties(curl_mingw_ssh)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append "Fetching prebuild CURL...")
+  if(NOT curl_mingw_POPULATED)
+    FetchContent_Populate(curl_mingw)
+    FetchContent_Populate(curl_mingw_ssl)
+    FetchContent_Populate(curl_mingw_ssh)
+  endif()
+  execute_process(COMMAND ${CMAKE_COMMAND} -E echo "Done")
+  target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
+  #target_compile_definitions(UtilExtern INTERFACE CURL_STATICLIB)
+  target_include_directories(UtilExtern INTERFACE ${curl_mingw_SOURCE_DIR}/include)
+  target_link_libraries(UtilExtern INTERFACE
+    ${curl_mingw_SOURCE_DIR}/lib/libcurl.dll.a
+  )
+  set(CURL_LIBRARIES
+    ${curl_mingw_SOURCE_DIR}/bin/libcurl-x64.dll
+    ${curl_mingw_ssl_SOURCE_DIR}/libssl-1_1-x64.dll
+    ${curl_mingw_ssl_SOURCE_DIR}/libcrypto-1_1-x64.dll
+    ${curl_mingw_ssh_SOURCE_DIR}/bin/libssh2-x64.dll
+  )
+  file(COPY ${CURL_LIBRARIES} DESTINATION ${CMAKE_BINARY_DIR})  
+  install(FILES ${CURL_LIBRARIES} DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtimelibraries)
 elseif(CURL_FOUND)
   target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
   target_include_directories(UtilExtern INTERFACE ${CURL_INCLUDE_DIRS})
