@@ -9,11 +9,6 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "NetworkUDP.h"
-#include "../Macros.h"
-#include <ctime>
-#include <iostream>
-#include <map>
-#include <set>
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 COMPILER_WARN_PUSH
@@ -31,6 +26,12 @@ COMPILER_WARN_POP
 #include <unistd.h>
 #include <fcntl.h>
 #endif
+
+#include "../Macros.h"
+#include <ctime>
+#include <iostream>
+#include <map>
+#include <set>
 
 namespace Util {
 namespace Network {

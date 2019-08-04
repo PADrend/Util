@@ -102,6 +102,9 @@ endif()
 target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ASIO)
 target_include_directories(UtilExtern INTERFACE ${asio_SOURCE_DIR}/asio/include)
 #target_link_libraries(UtilExtern INTERFACE asio)
+if(MINGW)
+  target_link_libraries(UtilExtern INTERFACE ws2_32)
+endif()
 
 # ------------------------------------------------------------------------------
 # CURL

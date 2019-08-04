@@ -9,11 +9,6 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "NetworkTCP.h"
-#include "../Macros.h"
-#include "../Timer.h"
-#include "../Utils.h"
-#include <algorithm>
-#include <iostream>
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 COMPILER_WARN_PUSH
@@ -34,6 +29,12 @@ COMPILER_WARN_POP
 #endif
 #include <cstdint>
 #include <vector>
+
+#include "../Macros.h"
+#include "../Timer.h"
+#include "../Utils.h"
+#include <algorithm>
+#include <iostream>
 
 namespace Util {
 namespace Network {
@@ -116,16 +117,16 @@ public:
 	Implementation(tcp::socket&& tcpSocket_, const IPv4Address & remoteIp_): tcpSocket(std::move(tcpSocket_)), remoteIp(remoteIp_) { }
 	
 	bool doSendData(std::vector<uint8_t> & data) {
-		try {
-			tcpSocket.send(asio::buffer(data, data.size()));
-		} catch(asio::system_error e) {
-			WARN("TCPConnection error: " + std::string(e.what()));
+		asio::error_code error;
+		tcpSocket.send(asio::buffer(data, data.size()), 0, error);
+		if(error) {
+			WARN("TCPConnection error: " + error.message());
 			return false;
 		}
 		return true;
 	}
 	std::tuple<std::vector<uint8_t>,bool> doReceiveData() { // -> receivedData,keep open?	
-    asio::error_code error;
+		asio::error_code error;
 		auto bytesReceived = tcpSocket.available(error);
 		if(bytesReceived == 0) { // no data received
 			return std::make_tuple(std::vector<uint8_t>(),true);

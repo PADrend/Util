@@ -9,12 +9,6 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "Network.h"
-#include "../Macros.h"
-#include "../StringUtils.h"
-#include <cstdlib>
-#include <ctime>
-#include <memory>
-#include <sstream>
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 COMPILER_WARN_PUSH
@@ -30,6 +24,13 @@ COMPILER_WARN_POP
 #include <cstring>
 #include <netdb.h>
 #endif
+
+#include "../Macros.h"
+#include "../StringUtils.h"
+#include <cstdlib>
+#include <ctime>
+#include <memory>
+#include <sstream>
 
 #include "../LibRegistry.h"
 #define STR_HELPER(x) #x
