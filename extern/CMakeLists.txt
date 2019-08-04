@@ -102,9 +102,6 @@ endif()
 target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ASIO)
 target_include_directories(UtilExtern INTERFACE ${asio_SOURCE_DIR}/asio/include)
 #target_link_libraries(UtilExtern INTERFACE asio)
-if(MINGW)
-  target_link_libraries(UtilExtern INTERFACE ws2_32)
-endif()
 
 # ------------------------------------------------------------------------------
 # CURL
@@ -144,37 +141,64 @@ elseif(WIN32 AND MINGW)
     URL_HASH  SHA256=d9da1782e3f1fb4eed8adc1e954ba2899ed8bd6302d6eb788f147b1ded99ee7c
   )
   FetchContent_Declare(
+    curl_mingw_brotli
+    URL       https://curl.haxx.se/windows/dl-7.65.3/brotli-1.0.7-win64-mingw.zip
+    URL_HASH  SHA256=7b536fc118e9c35c4c99006f596eed604d3d6e627b1a363099f1f5ead6054580
+  )
+  FetchContent_Declare(
     curl_mingw_ssh
     URL       https://curl.haxx.se/windows/dl-7.65.3/libssh2-1.9.0-win64-mingw.zip
     URL_HASH  SHA256=ee9f3815ff46b0eb677dc3688362487c5847063a653aad923e5b283f77360af0
   )
+  FetchContent_Declare(
+    curl_mingw_http
+    URL       https://curl.haxx.se/windows/dl-7.65.3/nghttp2-1.39.1-win64-mingw.zip
+    URL_HASH  SHA256=837927bab6d8565b03d4018bdcbb4c25c7adec8a96d745b33fc10c0ca42b83f4
+  )
+  FetchContent_Declare(
+    curl_mingw_zlib
+    URL       https://curl.haxx.se/windows/dl-7.65.3/zlib-1.2.11-win64-mingw.zip
+    URL_HASH  SHA256=e7a9238c5ad59cbfd5bc33d47679b945bd41e4de3a4aec78fc8ba759cb52a0cd
+  )
 
   FetchContent_GetProperties(curl_mingw)
   FetchContent_GetProperties(curl_mingw_ssl)
+  FetchContent_GetProperties(curl_mingw_brotli)
   FetchContent_GetProperties(curl_mingw_ssh)
+  FetchContent_GetProperties(curl_mingw_http)
+  FetchContent_GetProperties(curl_mingw_zlib)
   execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append "Fetching prebuild CURL...")
   if(NOT curl_mingw_POPULATED)
     FetchContent_Populate(curl_mingw)
     FetchContent_Populate(curl_mingw_ssl)
+    FetchContent_Populate(curl_mingw_brotli)
     FetchContent_Populate(curl_mingw_ssh)
+    FetchContent_Populate(curl_mingw_http)
+    FetchContent_Populate(curl_mingw_zlib)
   endif()
   execute_process(COMMAND ${CMAKE_COMMAND} -E echo "Done")
   target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
-  #target_compile_definitions(UtilExtern INTERFACE CURL_STATICLIB)
+  target_compile_definitions(UtilExtern INTERFACE CURL_STATICLIB)
   target_include_directories(UtilExtern INTERFACE ${curl_mingw_SOURCE_DIR}/include)
   target_link_libraries(UtilExtern INTERFACE
-    ${curl_mingw_SOURCE_DIR}/lib/libcurl.dll.a
+    ${curl_mingw_SOURCE_DIR}/lib/libcurl.a
+    ${curl_mingw_ssl_SOURCE_DIR}/lib/libssl.a
+    ${curl_mingw_ssl_SOURCE_DIR}/lib/libcrypto.a
+    ${curl_mingw_ssh_SOURCE_DIR}/lib/libssh2.a
+    ${curl_mingw_brotli_SOURCE_DIR}/lib/libbrotlidec-static.a
+    ${curl_mingw_brotli_SOURCE_DIR}/lib/libbrotlienc-static.a
+    ${curl_mingw_brotli_SOURCE_DIR}/lib/libbrotlicommon-static.a
+    ${curl_mingw_http_SOURCE_DIR}/lib/libnghttp2.a
+    ${curl_mingw_zlib_SOURCE_DIR}/libz.a
   )
-  set(CURL_LIBRARIES
-    ${curl_mingw_SOURCE_DIR}/bin/libcurl-x64.dll
-    ${curl_mingw_ssl_SOURCE_DIR}/libssl-1_1-x64.dll
-    ${curl_mingw_ssl_SOURCE_DIR}/libcrypto-1_1-x64.dll
-    ${curl_mingw_ssh_SOURCE_DIR}/bin/libssh2-x64.dll
-  )
-  file(COPY ${CURL_LIBRARIES} DESTINATION ${CMAKE_BINARY_DIR})  
-  install(FILES ${CURL_LIBRARIES} DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtimelibraries)
 elseif(CURL_FOUND)
   target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
   target_include_directories(UtilExtern INTERFACE ${CURL_INCLUDE_DIRS})
   target_link_libraries(UtilExtern INTERFACE ${CURL_LIBRARIES})
+endif()
+
+# ------------------------------------------------------------------------------
+
+if(MINGW)
+  target_link_libraries(UtilExtern INTERFACE ws2_32 crypt32 wldap32)
 endif()
