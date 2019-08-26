@@ -116,7 +116,7 @@ bool StreamerSTB::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 		WARN("Unable to save PNG file. Unsupported color format.");
 		return false;
 	}
-	return stbi_write_png_to_func(writeData, &context, width, height, components, bitmap.data(), stride) == 0;
+	return stbi_write_png_to_func(writeData, &context, width, height, components, bitmap.data(), stride) != 0;
 }
 
 #endif /* defined(UTIL_HAVE_LIB_STB) */
