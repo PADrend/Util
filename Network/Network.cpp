@@ -32,6 +32,7 @@ COMPILER_WARN_POP
 #include <memory>
 #include <sstream>
 
+#ifdef UTIL_HAVE_LIB_SDL2_NET
 #include "../LibRegistry.h"
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -41,6 +42,7 @@ static bool libNameInitailized = [](){
 	Util::LibRegistry::registerLibVersionString("LibSDL2Net",SDL_NET_FULL_VERSION_STRING); 
 	return true;
 }();
+#endif
 
 namespace Util {
 namespace Network {

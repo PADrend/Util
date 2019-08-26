@@ -23,7 +23,6 @@ COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL.h>
 #include <SDL_image.h>
 COMPILER_WARN_POP
-#endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
 
 #include "../LibRegistry.h"
 #define STR_HELPER(x) #x
@@ -34,6 +33,7 @@ static bool libNameInitailized = [](){
 	Util::LibRegistry::registerLibVersionString("LibSDL2Image",SDL_IMAGE_FULL_VERSION_STRING); 
 	return true;
 }();
+#endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
 
 namespace Util {
 

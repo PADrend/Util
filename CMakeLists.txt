@@ -118,13 +118,13 @@ if(SQLITE3_FOUND)
 endif()
 
 # Dependency to libpng
-find_package(PNG)
-if(PNG_FOUND)
-	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_PNG)
-	target_compile_definitions(Util PRIVATE "${PNG_DEFINITIONS}")
-	target_include_directories(Util PRIVATE ${PNG_INCLUDE_DIR})
-	target_link_libraries(Util PRIVATE ${PNG_LIBRARIES})
-endif()
+#find_package(PNG)
+#if(PNG_FOUND)
+#	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_PNG)
+#	target_compile_definitions(Util PRIVATE "${PNG_DEFINITIONS}")
+#	target_include_directories(Util PRIVATE ${PNG_INCLUDE_DIR})
+#	target_link_libraries(Util PRIVATE ${PNG_LIBRARIES})
+#endif()
 
 # Dependency to libarchive
 find_package(LibArchive)
@@ -150,14 +150,6 @@ if(LIBXML2_FOUND)
 	target_link_libraries(Util PRIVATE ${LIBXML2_LIBRARIES})
 endif()
 
-# Dependency to libcurl
-#find_package(CURL)
-#if(CURL_FOUND)
-#	target_compile_definitions(Util PUBLIC UTIL_HAVE_LIB_CURL)
-#	target_include_directories(Util PRIVATE ${CURL_INCLUDE_DIRS})
-#	target_link_libraries(Util PRIVATE ${CURL_LIBRARIES})
-#endif()
-
 # Dependency to FreeType
 find_package(Freetype)
 if(FREETYPE_FOUND)
@@ -176,12 +168,12 @@ endif()
 
 
 # Dependency to SDL2_image
-find_package(SDL2_image 2.0.0)
-if(SDL2_IMAGE_FOUND)
-	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2_IMAGE)
-	target_include_directories(Util PRIVATE ${SDL2_IMAGE_INCLUDE_DIRS})
-	target_link_libraries(Util PRIVATE ${SDL2_IMAGE_LIBRARIES})
-endif()
+#find_package(SDL2_image 2.0.0)
+#if(SDL2_IMAGE_FOUND)
+#	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2_IMAGE)
+#	target_include_directories(Util PRIVATE ${SDL2_IMAGE_INCLUDE_DIRS})
+#	target_link_libraries(Util PRIVATE ${SDL2_IMAGE_LIBRARIES})
+#endif()
 
 # Dependency to pthread
 set(THREADS_PREFER_PTHREAD_FLAG ON)

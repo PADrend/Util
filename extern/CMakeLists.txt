@@ -76,6 +76,25 @@ endif()
 
 
 # ------------------------------------------------------------------------------
+# stb (multi-purpose single-file public domain libraries)
+
+FetchContent_Declare(
+  stb
+  GIT_REPOSITORY https://github.com/nothings/stb.git
+  GIT_TAG        052dce117ed989848a950308bd99eef55525dfb1
+)
+
+FetchContent_GetProperties(stb)
+if(NOT stb_POPULATED)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append "Fetching stb...")
+  FetchContent_Populate(stb)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E echo "Done")
+endif()
+target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_STB)
+target_include_directories(UtilExtern INTERFACE ${stb_SOURCE_DIR})
+
+
+# ------------------------------------------------------------------------------
 # Network (asio)
 
 # Dependency to SDL2_net
