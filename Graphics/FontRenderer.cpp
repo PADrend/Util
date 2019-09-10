@@ -28,6 +28,8 @@
 #include <stb_truetype.h>
 #endif /* defined(UTIL_HAVE_LIB_FREETYPE) */
 
+#include <iostream>
+
 namespace Util {
 
 #if defined(UTIL_HAVE_LIB_FREETYPE)
@@ -267,6 +269,7 @@ static bool libNameInitailized = [](){
 
 struct FontRenderer::Implementation {
 	stbtt_fontinfo info;
+	float scale = 1.0;
 	std::vector<uint8_t> data;
 };
 
@@ -280,8 +283,8 @@ FontRenderer::~FontRenderer() = default;
 
 //! Copy the bitmap @p src into the bitmap given by @p dst at position (@p offX, @p offY).
 static void drawBitmap(PixelAccessor & src, PixelAccessor & dst, uint32_t w, uint32_t h, uint32_t offX, uint32_t offY) {
-	for(int y = 0; y < w; ++y) {
-		for(int x = 0; x < h; ++x) {
+	for(int y = 0; y < h; ++y) {
+		for(int x = 0; x < w; ++x) {
 			const uint32_t posX = offX + static_cast<uint32_t>(x);
 			const uint32_t posY = offY + static_cast<uint32_t>(y);
 			// Read the old value and write the maximum of old and new value.
@@ -298,10 +301,10 @@ static void drawBitmap(PixelAccessor & src, PixelAccessor & dst, uint32_t w, uin
  */
 static std::tuple<int, int, int, int> calculateRenderSizes(const stbtt_fontinfo& info, float scale, const std::u32string & text) {
 	int width = 0;
-	int ascent, descent, lineGap;
-	stbtt_GetFontVMetrics(&info, &ascent, &descent, &lineGap);    
+	int ascent, descent;
+	stbtt_GetFontVMetrics(&info, &ascent, &descent, 0);    
 	int baseline = ascent * scale;
-	int height = lineGap * scale;
+	int height = (ascent - descent) * scale;
 	int maxWidth = 0;
 
 	// Caculate the width and height required for the bitmap.
@@ -309,9 +312,9 @@ static std::tuple<int, int, int, int> calculateRenderSizes(const stbtt_fontinfo&
 		int advance;
 		stbtt_GetCodepointHMetrics(&info, *it, &advance, 0);
 		width += advance * scale;
-		maxWidth = std::max<int>(maxWidth, advance * scale);
+		maxWidth = std::max<int>(maxWidth, advance * scale + 1);
 		
-		if(it == std::prev(text.cend())) {
+		if(it != std::prev(text.cend())) {
 			int kern;
 			kern = stbtt_GetCodepointKernAdvance(&info, *it, *std::next(it));
 			width += kern * scale;
@@ -322,35 +325,37 @@ static std::tuple<int, int, int, int> calculateRenderSizes(const stbtt_fontinfo&
 
 Reference<Bitmap> FontRenderer::renderText(unsigned int size, const std::u32string & text) {
 	float scale = stbtt_ScaleForPixelHeight(&impl->info, size);
+	impl->scale = scale;
 	const auto dimensions = calculateRenderSizes(impl->info, scale, text);
 	Reference<Bitmap> bitmap = new Bitmap(static_cast<uint32_t>(std::get<0>(dimensions)), 
 											static_cast<uint32_t>(std::get<1>(dimensions)), 
 											PixelFormat::MONO);
-
 	{
 		int32_t cursorX = 0;
-		const int32_t cursorY = std::get<2>(dimensions);
+		const int32_t cursorY = 0;//std::get<2>(dimensions);
 		const int32_t maxWidth = std::get<3>(dimensions);
 		Reference<Bitmap> tmpBitmap = new Bitmap(maxWidth, static_cast<uint32_t>(std::get<1>(dimensions)), PixelFormat::MONO);
 		
 		Reference<PixelAccessor> accessor = PixelAccessor::create(bitmap.get());
 		Reference<PixelAccessor> tmpAcc = PixelAccessor::create(tmpBitmap.get());
-		for(auto it = text.cbegin(); it != text.cend(); ++it) {
+		
+		for(auto it = text.cbegin(); it != text.cend(); ++it) {			
 			int x0, y0, x1, y1;
 			stbtt_GetCodepointBitmapBox(&impl->info, *it, scale, scale, &x0, &y0, &x1, &y1);
 			int w = x1 - x0;
-			int h = y1 - y0;			
-			stbtt_MakeCodepointBitmap(&impl->info, tmpBitmap->data(), w, h, maxWidth, scale, scale, *it);			
+			int h = y1 - y0;
+			stbtt_MakeCodepointBitmap(&impl->info, tmpBitmap->data(), w, h, maxWidth, scale, scale, *it);
+			
 			drawBitmap(*tmpAcc.get(), *accessor.get(), w, h, cursorX, cursorY);
 			
 			int advance;
 			stbtt_GetCodepointHMetrics(&impl->info, *it, &advance, 0);
 			cursorX += advance * scale;
 
-			if(it == std::prev(text.cend())) {
+			if(it != std::prev(text.cend())) {
 				int kern;
 				kern = stbtt_GetCodepointKernAdvance(&impl->info, *it, *std::next(it));
-				cursorX += advance * scale;
+				cursorX += kern * scale;
 			}
 		}
 		// accessor goes out of scope here
@@ -358,24 +363,26 @@ Reference<Bitmap> FontRenderer::renderText(unsigned int size, const std::u32stri
 	return bitmap;
 }
 
-std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned int size, const std::u32string& chars) {
-	
-	const float scale = stbtt_ScaleForPixelHeight(&impl->info, size);
+std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned int size, const std::u32string& chars) {	
+	float scale = stbtt_ScaleForPixelHeight(&impl->info, size);
 	FontInfo fontInfo;
-	stbtt_GetFontVMetrics(&impl->info, &fontInfo.ascender, &fontInfo.descender, &fontInfo.height);
+	stbtt_GetFontVMetrics(&impl->info, &fontInfo.ascender, &fontInfo.descender, 0);
+	scale = static_cast<float>(size)/fontInfo.ascender;
 	fontInfo.ascender *= scale;
 	fontInfo.descender *= scale;
-	fontInfo.height *= scale;
+	fontInfo.height = fontInfo.ascender - fontInfo.descender;
 	auto& glyphMap = fontInfo.glyphMap;
+	impl->scale = scale;
 
 	// Caculate the width required for the bitmap.
 	int width = 0;
 	int maxWidth = 0;
+	int padding = 2;	
 	for(const auto& character : chars) {
 		int advance;
 		stbtt_GetCodepointHMetrics(&impl->info, character, &advance, 0);
-		width += advance * scale + 1; // +1 padding
-		maxWidth = std::max<int>(maxWidth, advance * scale + 1);
+		width += std::ceil(static_cast<float>(advance) * scale) + padding;
+		maxWidth = std::max<int>(maxWidth, advance * scale + 2*padding);
 	}
 
 	Reference<Bitmap> bitmap = new Bitmap(width, fontInfo.height, PixelFormat::MONO);
@@ -389,7 +396,7 @@ std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned 
 		
 		for(const auto& character : chars) {
 			int advance, x0, y0, x1, y1;
-      int glyph = stbtt_FindGlyphIndex(&impl->info, character);			
+      int glyph = stbtt_FindGlyphIndex(&impl->info, character);
 			if(glyph == 0) {
 				// Skip invalid glyphs with a warning.
 				WARN("Cannot load font glyph.");
@@ -400,18 +407,18 @@ std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned 
 			stbtt_GetGlyphBitmapBox(&impl->info, glyph, scale, scale, &x0, &y0, &x1, &y1);
 			int w = x1 - x0;
 			int h = y1 - y0;
-			cursorY = fontInfo.ascender + y1;
+			cursorY = 0;			
 			stbtt_MakeGlyphBitmap(&impl->info, tmpBitmap->data(), w, h, maxWidth, scale, scale, glyph);
-			drawBitmap(*tmpAcc.get(), *accessor.get(), w, h, cursorX, fontInfo.ascender);
+			
+			drawBitmap(*tmpAcc.get(), *accessor.get(), w, h, cursorX, cursorY);
 			
 			GlyphInfo gInfo;
 			gInfo.position = std::make_pair(cursorX, cursorY);
 			gInfo.size = std::make_pair(w, h);
-			gInfo.offset = std::make_pair(x0, y0);
+			gInfo.offset = std::make_pair(x0, -y0);
 			gInfo.xAdvance = advance * scale;
 			glyphMap.emplace(character, gInfo);
-			
-			cursorX += gInfo.xAdvance + 1;
+			cursorX += std::ceil(static_cast<float>(advance) * scale) + padding;
 		}
 	}
 	return std::make_pair(std::move(bitmap), fontInfo);
@@ -424,9 +431,9 @@ std::map<std::pair<uint32_t,uint32_t>, float> FontRenderer::createKerningMap(con
 		if(index1){
 			for(const auto & char2 : chars) {
 				const auto index2 = stbtt_FindGlyphIndex(&impl->info, char2);
-				if(index2) {				
+				if(index2) {
 					int kern = stbtt_GetGlyphKernAdvance(&impl->info, index1, index2);
-					kMap[ std::make_pair(char1,char2)] = kern;
+					kMap[ std::make_pair(char1,char2)] = kern * impl->scale;
 				}
 			}
 		}

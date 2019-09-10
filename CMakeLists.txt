@@ -151,20 +151,20 @@ if(LIBXML2_FOUND)
 endif()
 
 # Dependency to FreeType
-find_package(Freetype)
-if(FREETYPE_FOUND)
-	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_FREETYPE)
-	target_include_directories(Util PRIVATE ${FREETYPE_INCLUDE_DIRS})
-	target_link_libraries(Util PRIVATE ${FREETYPE_LIBRARIES})
-	
-	# Dependency to ZLIB
-	find_package(ZLIB QUIET)
-	if(ZLIB_FOUND)
-		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_ZLIB)
-		target_include_directories(Util PRIVATE ${ZLIB_INCLUDE_DIRS})
-		target_link_libraries(Util PRIVATE ${ZLIB_LIBRARIES})
-	endif()
-endif()
+#find_package(Freetype)
+#if(FREETYPE_FOUND)
+#	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_FREETYPE)
+#	target_include_directories(Util PRIVATE ${FREETYPE_INCLUDE_DIRS})
+#	target_link_libraries(Util PRIVATE ${FREETYPE_LIBRARIES})
+#	
+#	# Dependency to ZLIB
+#	find_package(ZLIB QUIET)
+#	if(ZLIB_FOUND)
+#		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_ZLIB)
+#		target_include_directories(Util PRIVATE ${ZLIB_INCLUDE_DIRS})
+#		target_link_libraries(Util PRIVATE ${ZLIB_LIBRARIES})
+#	endif()
+#endif()
 
 
 # Dependency to SDL2_image
