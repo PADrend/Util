@@ -16,6 +16,8 @@ else()
   include(FetchContent)
 endif()
 
+include(CMakeDependentOption)
+
 # ------------------------------------------------------------------------------
 # Catch2
 
@@ -28,16 +30,39 @@ if(UTIL_BUILD_TESTS)
 
   FetchContent_GetProperties(catch2)
   if(NOT catch2_POPULATED)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append "Fetching Catch2...")
+    message(STATUS "Fetching Catch2...")
     FetchContent_Populate(catch2)
-    set(CATCH_BUILD_TESTING OFF CACHE BOOL "" FORCE)
-    set(CATCH_INSTALL_DOCS OFF CACHE BOOL "" FORCE)
-    set(CATCH_INSTALL_HELPERS OFF CACHE BOOL "" FORCE)
+    # hide options in cmake-gui
+    set(CATCH_USE_VALGRIND OFF CACHE INTERNAL "" FORCE)
+    set(CATCH_BUILD_TESTING OFF CACHE INTERNAL "" FORCE)
+    set(CATCH_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
+    set(CATCH_BUILD_EXTRA_TESTS OFF CACHE INTERNAL "" FORCE)
+    set(CATCH_ENABLE_COVERAGE OFF CACHE INTERNAL "" FORCE)
+    set(CATCH_ENABLE_WERROR ON CACHE INTERNAL "" FORCE)
+    set(CATCH_INSTALL_DOCS OFF CACHE INTERNAL "" FORCE)
+    set(CATCH_INSTALL_HELPERS OFF CACHE INTERNAL "" FORCE)
     add_subdirectory(${catch2_SOURCE_DIR} ${catch2_BINARY_DIR} EXCLUDE_FROM_ALL)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E echo "Done")
   endif()
   target_link_libraries(UtilExtern INTERFACE Catch2::Catch2)
 endif(UTIL_BUILD_TESTS)
+
+
+# ------------------------------------------------------------------------------
+# zlib (required by several other libraries)
+
+FetchContent_Declare(
+  zlib
+  GIT_REPOSITORY https://github.com/madler/zlib.git
+  GIT_TAG        v1.2.11
+)
+
+FetchContent_GetProperties(zlib)
+if(NOT zlib_POPULATED)
+  message(STATUS "Fetching zlib...")
+  FetchContent_Populate(zlib)
+  add_subdirectory(${zlib_SOURCE_DIR} ${zlib_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+target_link_libraries(UtilExtern INTERFACE zlibstatic)
 
 # ------------------------------------------------------------------------------
 # GLFW (or SDL if prefered)
@@ -60,20 +85,20 @@ else()
 
   FetchContent_GetProperties(glfw)
   if(NOT glfw_POPULATED)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append "Fetching GLFW...")
+    message(STATUS "Fetching GLFW...")
     FetchContent_Populate(glfw)
-    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-    set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+    # hide options in cmake-gui
+    set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
+    set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
+    set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "" FORCE)
+    set(GLFW_INSTALL OFF CACHE INTERNAL "" FORCE)
+    set(GLFW_VULKAN_STATIC OFF CACHE INTERNAL "" FORCE)
     add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR} EXCLUDE_FROM_ALL)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E echo "Done")
   endif()
   
 	target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_GLFW)
 	target_link_libraries(UtilExtern INTERFACE glfw)
 endif()
-
 
 # ------------------------------------------------------------------------------
 # stb (multi-purpose single-file public domain libraries)
@@ -86,47 +111,87 @@ FetchContent_Declare(
 
 FetchContent_GetProperties(stb)
 if(NOT stb_POPULATED)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append "Fetching stb...")
+  message(STATUS "Fetching stb...")
   FetchContent_Populate(stb)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E echo "Done")
 endif()
 target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_STB)
 target_include_directories(UtilExtern INTERFACE ${stb_SOURCE_DIR})
 
+# ------------------------------------------------------------------------------
+# freetype (optional)
+
+option(UTIL_PREFER_LIBFREETYPE "Use the FreeType library for rendering custom fonts (optional)" OFF)
+if(UTIL_PREFER_LIBFREETYPE)
+  find_package(Freetype)
+  if(FREETYPE_FOUND)
+    target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_FREETYPE)
+    target_include_directories(UtilExtern INTERFACE ${FREETYPE_INCLUDE_DIRS})
+    target_link_libraries(UtilExtern INTERFACE ${FREETYPE_LIBRARIES})
+
+    # Dependency to ZLIB
+    find_package(ZLIB QUIET)
+    if(ZLIB_FOUND)
+      target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ZLIB)
+      target_include_directories(UtilExtern INTERFACE ${ZLIB_INCLUDE_DIRS})
+      target_link_libraries(UtilExtern INTERFACE ${ZLIB_LIBRARIES})
+    endif()
+  endif()
+endif()
 
 # ------------------------------------------------------------------------------
-# Network (asio)
+# SDL_image (optional)
 
-# Dependency to SDL2_net
-#find_package(SDL2_net 2.0.0)
-#if(SDL2_NET_FOUND)
-#	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2_NET)
-#	target_include_directories(Util PRIVATE ${SDL2_NET_INCLUDE_DIRS})
-#	target_link_libraries(Util PRIVATE ${SDL2_NET_LIBRARIES})
-#endif()
+cmake_dependent_option(UTIL_PREFER_SDL_IMAGE "Defines wether SDL_image is used for image loading/storing (requires SDL and libpng)." OFF "UTIL_PREFER_SDL_CONTEXT" OFF)
+if(UTIL_PREFER_SDL_IMAGE)
+  # Dependency to libpng
+  find_package(PNG)
+  if(PNG_FOUND)
+    target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_PNG)
+    target_compile_definitions(UtilExtern INTERFACE "${PNG_DEFINITIONS}")
+    target_include_directories(UtilExtern INTERFACE ${PNG_INCLUDE_DIR})
+    target_link_libraries(UtilExtern INTERFACE ${PNG_LIBRARIES})
+  endif()
 
-FetchContent_Declare(
-  asio
-  GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
-  GIT_TAG        asio-1-13-0
-)
-
-FetchContent_GetProperties(asio)
-if(NOT asio_POPULATED)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append "Fetching ASIO...")
-  FetchContent_Populate(asio)
-  #add_subdirectory(${asio_SOURCE_DIR}/asio/include ${asio_BINARY_DIR} EXCLUDE_FROM_ALL)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E echo "Done")
+  # Dependency to SDL2_image
+  find_package(SDL2_image 2.0.0)
+  if(SDL2_IMAGE_FOUND)
+    target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_SDL2_IMAGE)
+    target_include_directories(UtilExtern INTERFACE ${SDL2_IMAGE_INCLUDE_DIRS})
+    target_link_libraries(UtilExtern INTERFACE ${SDL2_IMAGE_LIBRARIES})
+  endif()
 endif()
-target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ASIO)
-target_include_directories(UtilExtern INTERFACE ${asio_SOURCE_DIR}/asio/include)
-#target_link_libraries(UtilExtern INTERFACE asio)
+
+# ------------------------------------------------------------------------------
+# Network (asio or SDL_net)
+
+cmake_dependent_option(UTIL_PREFER_SDL_NET "Defines wether SDL_net is used for networking (requires SDL)." OFF "UTIL_PREFER_SDL_CONTEXT" OFF)
+if(UTIL_PREFER_SDL_NET)
+  find_package(SDL2_net 2.0.0)
+  if(SDL2_NET_FOUND)
+  	target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_SDL2_NET)
+  	target_include_directories(UtilExtern INTERFACE ${SDL2_NET_INCLUDE_DIRS})
+  	target_link_libraries(UtilExtern INTERFACE ${SDL2_NET_LIBRARIES})
+  endif()
+else()
+  FetchContent_Declare(
+    asio
+    GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+    GIT_TAG        asio-1-13-0
+  )
+
+  FetchContent_GetProperties(asio)
+  if(NOT asio_POPULATED)
+    message(STATUS "Fetching ASIO...")
+    FetchContent_Populate(asio)
+  endif()
+  target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ASIO)
+  target_include_directories(UtilExtern INTERFACE ${asio_SOURCE_DIR}/asio/include)
+endif()
 
 # ------------------------------------------------------------------------------
 # CURL
 
 option(UTIL_BUILD_CURL "Defines if curl should be build from source (requires further dependencies)." OFF)
-find_package(CURL QUIET)
 if(UTIL_BUILD_CURL)
   FetchContent_Declare(
     curl
@@ -136,14 +201,13 @@ if(UTIL_BUILD_CURL)
 
   FetchContent_GetProperties(curl)
   if(NOT curl_POPULATED)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append "Fetching CURL...")
+    message(STATUS "Fetching CURL...")
     FetchContent_Populate(curl)
-    set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)
+    set(BUILD_CURL_EXE OFF CACHE INTERNAL "" FORCE)
     if(WIN32)
-      set(CMAKE_USE_WINSSL ON CACHE BOOL "" FORCE)
+      set(CMAKE_USE_WINSSL ON CACHE INTERNAL "" FORCE)
     endif()
     add_subdirectory(${curl_SOURCE_DIR} ${curl_BINARY_DIR} EXCLUDE_FROM_ALL)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E echo "Done")
   endif()
   target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
   target_link_libraries(UtilExtern INTERFACE curl)
@@ -186,7 +250,7 @@ elseif(WIN32 AND MINGW)
   FetchContent_GetProperties(curl_mingw_ssh)
   FetchContent_GetProperties(curl_mingw_http)
   FetchContent_GetProperties(curl_mingw_zlib)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append "Fetching prebuild CURL...")
+  message(STATUS "Fetching prebuild CURL...")
   if(NOT curl_mingw_POPULATED)
     FetchContent_Populate(curl_mingw)
     FetchContent_Populate(curl_mingw_ssl)
@@ -195,7 +259,6 @@ elseif(WIN32 AND MINGW)
     FetchContent_Populate(curl_mingw_http)
     FetchContent_Populate(curl_mingw_zlib)
   endif()
-  execute_process(COMMAND ${CMAKE_COMMAND} -E echo "Done")
   target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
   target_compile_definitions(UtilExtern INTERFACE CURL_STATICLIB)
   target_include_directories(UtilExtern INTERFACE ${curl_mingw_SOURCE_DIR}/include)
@@ -210,10 +273,145 @@ elseif(WIN32 AND MINGW)
     ${curl_mingw_http_SOURCE_DIR}/lib/libnghttp2.a
     ${curl_mingw_zlib_SOURCE_DIR}/libz.a
   )
-elseif(CURL_FOUND)
-  target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
-  target_include_directories(UtilExtern INTERFACE ${CURL_INCLUDE_DIRS})
-  target_link_libraries(UtilExtern INTERFACE ${CURL_LIBRARIES})
+else()
+  find_package(CURL)
+  if(CURL_FOUND)
+    target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
+    target_include_directories(UtilExtern INTERFACE ${CURL_INCLUDE_DIRS})
+    target_link_libraries(UtilExtern INTERFACE ${CURL_LIBRARIES})
+  endif()
+endif()
+
+# ------------------------------------------------------------------------------
+# libxml2 (optional)
+
+find_package(LibXml2)
+if(LIBXML2_FOUND)
+	target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_XML2)
+	target_include_directories(UtilExtern INTERFACE ${LIBXML2_INCLUDE_DIR})
+	target_link_libraries(UtilExtern INTERFACE ${LIBXML2_LIBRARIES})
+endif()
+
+# ------------------------------------------------------------------------------
+# LibArchive
+
+option(UTIL_BUILD_LIBARCHIVE "Build the libarchive library (optional; used for Util's ArchiveProvider)." ON)
+if(UTIL_BUILD_LIBARCHIVE)
+  FetchContent_Declare(
+    libarchive
+    GIT_REPOSITORY https://github.com/libarchive/libarchive.git
+    GIT_TAG        v3.4.0
+  )
+
+  FetchContent_GetProperties(libarchive)
+  if(NOT libarchive_POPULATED)
+    message(STATUS "Fetching libarchive...")
+    FetchContent_Populate(libarchive)
+    # hide options in cmake-gui
+    set(ENABLE_WERROR OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_NETTLE OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_OPENSSL ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_LIBB2 OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_LZ4 OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_LZO OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_LZMA ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_ZSTD OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_ZLIB ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_BZip2 ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_LIBXML2 ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_EXPAT ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_PCREPOSIX ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_LibGCC ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_CNG ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_TAR OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_TAR_SHARED FALSE CACHE INTERNAL "" FORCE)
+    set(ENABLE_CPIO OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_CPIO_SHARED FALSE CACHE INTERNAL "" FORCE)
+    set(ENABLE_CAT OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_CAT_SHARED FALSE CACHE INTERNAL "" FORCE)
+    set(ENABLE_XATTR ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_ACL OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_ICONV OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_TEST OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_COVERAGE FALSE CACHE INTERNAL "" FORCE)
+    set(ENABLE_INSTALL OFF CACHE INTERNAL "" FORCE)
+    add_subdirectory(${libarchive_SOURCE_DIR} ${libarchive_BINARY_DIR} EXCLUDE_FROM_ALL)
+  endif()
+  target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ARCHIVE)
+  target_link_libraries(UtilExtern INTERFACE archive_static)
+  set_property(TARGET archive_static PROPERTY POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(archive_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
+
+# ------------------------------------------------------------------------------
+# libzip
+
+option(UTIL_BUILD_LIBZIP "Build the libzip library (optional; used for Util's ZIPProvider)." ON)
+if(UTIL_BUILD_LIBZIP)
+  FetchContent_Declare(
+    libzip
+    GIT_REPOSITORY https://github.com/nih-at/libzip.git
+    GIT_TAG        rel-1-5-2
+  )
+  FetchContent_GetProperties(libzip)
+  if(NOT libzip_POPULATED)
+    message(STATUS "Fetching libzip...")
+    FetchContent_Populate(libzip)
+    # hide options in cmake-gui
+    set(ENABLE_COMMONCRYPTO ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_GNUTLS OFF CACHE INTERNAL "" FORCE)
+    set(ENABLE_MBEDTLS ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_OPENSSL ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_WINDOWS_CRYPTO ON CACHE INTERNAL "" FORCE)
+    set(ENABLE_BZIP2 ON CACHE INTERNAL "" FORCE)
+    set(BUILD_TOOLS OFF CACHE INTERNAL "" FORCE)
+    set(BUILD_REGRESS OFF CACHE INTERNAL "" FORCE)
+    set(BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
+    set(BUILD_DOC OFF CACHE INTERNAL "" FORCE)
+    set(SHARED_LIB_VERSIONNING OFF CACHE INTERNAL "" FORCE)
+    add_subdirectory(${libzip_SOURCE_DIR} ${libzip_BINARY_DIR} EXCLUDE_FROM_ALL)
+  endif()
+  target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ZIP)
+  target_link_libraries(UtilExtern INTERFACE zip)
+  set_target_properties(zip PROPERTIES 
+    BUILD_SHARED_LIBS OFF
+    POSITION_INDEPENDENT_CODE ON
+  )
+endif()
+
+# ------------------------------------------------------------------------------
+# sqlite3
+
+option(UTIL_BUILD_SQLITE "Build the SQLite library (recommended; used for Util's DBFSProvider)." ON)
+if(UTIL_BUILD_SQLITE)
+  FetchContent_Declare(
+    sqlite3
+    GIT_REPOSITORY https://github.com/azadkuh/sqlite-amalgamation.git
+    GIT_TAG        3.29.0
+  )
+
+  FetchContent_GetProperties(sqlite3)
+  if(NOT sqlite3_POPULATED)
+    message(STATUS "Fetching sqlite3...")
+    FetchContent_Populate(sqlite3)
+    # hide options in cmake-gui
+    set(BUILD_ENABLE_DBSTAT_VTAB OFF CACHE INTERNAL "" FORCE)
+    set(BUILD_ENABLE_FTS3 OFF CACHE INTERNAL "" FORCE)
+    set(BUILD_ENABLE_FTS4 OFF CACHE INTERNAL "" FORCE)
+    set(BUILD_ENABLE_FTS5 OFF CACHE INTERNAL "" FORCE)
+    set(BUILD_ENABLE_GEOPOLY OFF CACHE INTERNAL "" FORCE)
+    set(BUILD_ENABLE_ICU OFF CACHE INTERNAL "" FORCE)
+    set(BUILD_ENABLE_JSON1 ON CACHE INTERNAL "" FORCE)
+    set(BUILD_ENABLE_RBU OFF CACHE INTERNAL "" FORCE)
+    set(BUILD_ENABLE_RTREE OFF CACHE INTERNAL "" FORCE)
+    set(BUILD_RECOMMENDED_OPTS ON CACHE INTERNAL "" FORCE)
+    set(BUILD_STATIC_RUNTIME ON CACHE INTERNAL "" FORCE)
+    set(BUILD_SHELL OFF CACHE INTERNAL "" FORCE)
+    add_subdirectory(${sqlite3_SOURCE_DIR} ${sqlite3_BINARY_DIR} EXCLUDE_FROM_ALL)
+  endif()
+  set_target_properties(sqlite3 PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_SQLITE)
+  target_link_libraries(UtilExtern INTERFACE sqlite3)
 endif()
 
 # ------------------------------------------------------------------------------

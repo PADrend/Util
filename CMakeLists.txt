@@ -108,73 +108,6 @@ endif()
 #target_include_directories(Util PRIVATE UtilExtern)
 target_link_libraries(Util PRIVATE UtilExtern)
 
-
-# Dependency to SQLite3
-find_package(SQLite3)
-if(SQLITE3_FOUND)
-	target_compile_definitions(Util PUBLIC UTIL_HAVE_LIB_SQLITE)
-	target_include_directories(Util PRIVATE ${SQLITE3_INCLUDE_DIRS})
-	target_link_libraries(Util PRIVATE ${SQLITE3_LIBRARIES})
-endif()
-
-# Dependency to libpng
-#find_package(PNG)
-#if(PNG_FOUND)
-#	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_PNG)
-#	target_compile_definitions(Util PRIVATE "${PNG_DEFINITIONS}")
-#	target_include_directories(Util PRIVATE ${PNG_INCLUDE_DIR})
-#	target_link_libraries(Util PRIVATE ${PNG_LIBRARIES})
-#endif()
-
-# Dependency to libarchive
-find_package(LibArchive)
-if(LibArchive_FOUND)
-	target_compile_definitions(Util PUBLIC UTIL_HAVE_LIB_ARCHIVE)
-	target_include_directories(Util PRIVATE ${LibArchive_INCLUDE_DIRS})
-	target_link_libraries(Util PRIVATE ${LibArchive_LIBRARIES})
-endif()
-
-# Dependency to libzip
-find_package(libzip)
-if(LIBZIP_FOUND)
-	target_compile_definitions(Util PUBLIC UTIL_HAVE_LIB_ZIP)
-	target_include_directories(Util PRIVATE ${LIBZIP_INCLUDE_DIRS})
-	target_link_libraries(Util PRIVATE ${LIBZIP_LIBRARIES})
-endif()
-
-# Dependency to libxml2
-find_package(LibXml2)
-if(LIBXML2_FOUND)
-	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_XML2)
-	target_include_directories(Util PRIVATE ${LIBXML2_INCLUDE_DIR})
-	target_link_libraries(Util PRIVATE ${LIBXML2_LIBRARIES})
-endif()
-
-# Dependency to FreeType
-#find_package(Freetype)
-#if(FREETYPE_FOUND)
-#	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_FREETYPE)
-#	target_include_directories(Util PRIVATE ${FREETYPE_INCLUDE_DIRS})
-#	target_link_libraries(Util PRIVATE ${FREETYPE_LIBRARIES})
-#	
-#	# Dependency to ZLIB
-#	find_package(ZLIB QUIET)
-#	if(ZLIB_FOUND)
-#		target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_ZLIB)
-#		target_include_directories(Util PRIVATE ${ZLIB_INCLUDE_DIRS})
-#		target_link_libraries(Util PRIVATE ${ZLIB_LIBRARIES})
-#	endif()
-#endif()
-
-
-# Dependency to SDL2_image
-#find_package(SDL2_image 2.0.0)
-#if(SDL2_IMAGE_FOUND)
-#	target_compile_definitions(Util PRIVATE UTIL_HAVE_LIB_SDL2_IMAGE)
-#	target_include_directories(Util PRIVATE ${SDL2_IMAGE_INCLUDE_DIRS})
-#	target_link_libraries(Util PRIVATE ${SDL2_IMAGE_LIBRARIES})
-#endif()
-
 # Dependency to pthread
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
@@ -222,17 +155,9 @@ set_package_properties(CURL PROPERTIES
 	TYPE OPTIONAL
 	PURPOSE "Support for using the http:// and ftp:// virtual file system."
 )
-set_package_properties(EGL PROPERTIES
-	TYPE OPTIONAL
-	PURPOSE "Creation of a window and a rendering context for platforms supporting EGL."
-)
 set_package_properties(Freetype PROPERTIES
 	TYPE OPTIONAL
 	PURPOSE "Creation of a bitmap containing a font's glyphs."
-)
-set_package_properties(GLX PROPERTIES
-	TYPE OPTIONAL
-	PURPOSE "Creation of a rendering context for platforms supporting GLX. Has to be used together with X11."
 )
 set_package_properties(LibArchive PROPERTIES
 	TYPE OPTIONAL
@@ -247,15 +172,15 @@ set_package_properties(LibXml2 PROPERTIES
 	PURPOSE "Replace the provided XML parser by libxml2's parser."
 )
 set_package_properties(PNG PROPERTIES
-	TYPE RECOMMENDED
+	TYPE OPTIONAL
 	PURPOSE "Read/write support for PNG (Portable Network Graphics) raster image files."
 )
 set_package_properties(SDL2 PROPERTIES
-	TYPE RECOMMENDED
+	TYPE OPTIONAL
 	PURPOSE "Multi-platform creation of a window and a rendering context. Multi-platform concurrency support."
 )
 set_package_properties(SDL2_image PROPERTIES
-	TYPE RECOMMENDED
+	TYPE OPTIONAL
 	PURPOSE "Read/write support for additional raster image file formats (e.g. JPEG, TIFF)."
 )
 set_package_properties(SDL2_net PROPERTIES
@@ -265,10 +190,6 @@ set_package_properties(SDL2_net PROPERTIES
 set_package_properties(SQLite3 PROPERTIES
 	TYPE OPTIONAL
 	PURPOSE "Support for using the dbfs:// virtual file system."
-)
-set_package_properties(X11 PROPERTIES
-	TYPE OPTIONAL
-	PURPOSE "Creation of a window for platforms using X11."
 )
 set_package_properties(ZLIB PROPERTIES
 	TYPE OPTIONAL

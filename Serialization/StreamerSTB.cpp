@@ -24,7 +24,7 @@
 #include <cstddef>
 #include <fstream>
 
-#if defined(UTIL_HAVE_LIB_STB)
+#if defined(UTIL_HAVE_LIB_STB) and not defined(UTIL_PREFER_SDL_IMAGE)
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image.h>
@@ -39,7 +39,7 @@ static bool libNameInitailized = [](){
 
 namespace Util {
 
-#if defined(UTIL_HAVE_LIB_STB)
+#if defined(UTIL_HAVE_LIB_STB) and not defined(UTIL_PREFER_SDL_IMAGE)
 
 Reference<Bitmap> StreamerSTB::loadBitmap(std::istream & input) {
 	input.seekg(0, std::ios::end);
@@ -122,7 +122,7 @@ bool StreamerSTB::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 #endif /* defined(UTIL_HAVE_LIB_STB) */
 
 bool StreamerSTB::init() {
-#if defined(UTIL_HAVE_LIB_STB)
+#if defined(UTIL_HAVE_LIB_STB) and not defined(UTIL_PREFER_SDL_IMAGE)
 	static const std::string fileExtensions[] = { "jpeg", "jpg", "png", "tga", "bmp", "psd", "gif", "hdr", "pic", "pnm" };
 	for(auto & fileExtension : fileExtensions)
 		Serialization::registerBitmapLoader(fileExtension, ObjectCreator<StreamerSTB>());
