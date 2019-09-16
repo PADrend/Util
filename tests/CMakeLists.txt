@@ -44,6 +44,38 @@ if(UTIL_BUILD_TESTS)
 	if(CMAKE_USE_PTHREADS_INIT AND (NOT DEFINED XCODE_VERSION OR XCODE_VERSION LESS 5.0))
 		target_link_libraries(UtilTest PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 	endif()
+	
+
+	# ------------------------------------------------------------------------------
+	# Catch2
+	if(${CMAKE_VERSION} VERSION_LESS "3.11.0") 
+		include(FetchContentFallback)
+	else()
+		include(FetchContent)
+	endif()
+	
+	FetchContent_Declare(
+		catch2
+		GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+		GIT_TAG        v2.9.1
+	)
+
+	FetchContent_GetProperties(catch2)
+	if(NOT catch2_POPULATED)
+		message(STATUS "Fetching Catch2...")
+		FetchContent_Populate(catch2)
+		# hide options in cmake-gui
+		set(CATCH_USE_VALGRIND OFF CACHE INTERNAL "" FORCE)
+		set(CATCH_BUILD_TESTING OFF CACHE INTERNAL "" FORCE)
+		set(CATCH_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
+		set(CATCH_BUILD_EXTRA_TESTS OFF CACHE INTERNAL "" FORCE)
+		set(CATCH_ENABLE_COVERAGE OFF CACHE INTERNAL "" FORCE)
+		set(CATCH_ENABLE_WERROR ON CACHE INTERNAL "" FORCE)
+		set(CATCH_INSTALL_DOCS OFF CACHE INTERNAL "" FORCE)
+		set(CATCH_INSTALL_HELPERS OFF CACHE INTERNAL "" FORCE)
+		add_subdirectory(${catch2_SOURCE_DIR} ${catch2_BINARY_DIR} EXCLUDE_FROM_ALL)
+	endif()
+	target_link_libraries(UtilTest PRIVATE Catch2::Catch2)
 
 	install(TARGETS UtilTest
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT tests
