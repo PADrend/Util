@@ -62,6 +62,7 @@ if(NOT zlib_POPULATED)
   add_subdirectory(${zlib_SOURCE_DIR} ${zlib_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 target_link_libraries(UtilExtern INTERFACE zlibstatic)
+set_target_properties(zlibstatic PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # Call find_package for zlib once and overwrite cache variables for other libraries
 find_package(ZLIB QUIET)
