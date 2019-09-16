@@ -46,7 +46,6 @@ if(UTIL_BUILD_TESTS)
   target_link_libraries(UtilExtern INTERFACE Catch2::Catch2)
 endif(UTIL_BUILD_TESTS)
 
-
 # ------------------------------------------------------------------------------
 # zlib (required by several other libraries)
 
@@ -63,8 +62,16 @@ if(NOT zlib_POPULATED)
   add_subdirectory(${zlib_SOURCE_DIR} ${zlib_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 target_link_libraries(UtilExtern INTERFACE zlibstatic)
-set(ZLIB_INCLUDE_DIR ${zlib_SOURCE_DIR})
-set(ZLIB_LIBRARIES ${zlib_BINARY_DIR}/libz.a)
+
+# Call find_package for zlib once and overwrite cache variables for other libraries
+find_package(ZLIB QUIET)
+set(ZLIB_FOUND TRUE CACHE INTERNAL "" FORCE)
+set(ZLIB_INCLUDE_DIRS ${zlib_SOURCE_DIR} CACHE INTERNAL "" FORCE)
+set(ZLIB_INCLUDE_DIR ${zlib_SOURCE_DIR} CACHE INTERNAL "" FORCE)
+set(ZLIB_LIBRARY zlibstatic CACHE INTERNAL "" FORCE)
+set(ZLIB_LIBRARIES zlibstatic CACHE INTERNAL "" FORCE)
+set(ZLIB_LIBRARY_DEBUG zlibstatic CACHE INTERNAL "" FORCE)
+set(ZLIB_LIBRARY_RELEASE zlibstatic CACHE INTERNAL "" FORCE)
 
 # ------------------------------------------------------------------------------
 # GLFW (or SDL if prefered)
@@ -343,7 +350,6 @@ if(UTIL_BUILD_LIBARCHIVE)
   target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ARCHIVE)
   target_link_libraries(UtilExtern INTERFACE archive_static)
   target_include_directories(UtilExtern INTERFACE ${libarchive_SOURCE_DIR}/libarchive)
-  set_property(TARGET archive_static PROPERTY POSITION_INDEPENDENT_CODE ON)
   set_target_properties(archive_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 

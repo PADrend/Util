@@ -10,7 +10,7 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(Util VERSION 0.3.0)
 
-if(${CMAKE_VERSION} VERSION_GREATER "3.13.0") 
+if(POLICY CMP0076) 
 	cmake_policy(SET CMP0076 OLD)
 endif()
 
