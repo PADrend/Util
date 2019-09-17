@@ -45,6 +45,7 @@ set(ZLIB_LIBRARY zlibstatic CACHE INTERNAL "" FORCE)
 set(ZLIB_LIBRARIES zlibstatic CACHE INTERNAL "" FORCE)
 set(ZLIB_LIBRARY_DEBUG zlibstatic CACHE INTERNAL "" FORCE)
 set(ZLIB_LIBRARY_RELEASE zlibstatic CACHE INTERNAL "" FORCE)
+set(ZLIB_VERSION_STRING "1.2.11" CACHE INTERNAL "" FORCE)
 
 # ------------------------------------------------------------------------------
 # GLFW (or SDL if prefered)
