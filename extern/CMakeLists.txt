@@ -259,6 +259,7 @@ endif()
 # ------------------------------------------------------------------------------
 # OpenSSL (optional; used by some libraries)
 
+message(STATUS "Checking OpenSSL...")
 find_package(OpenSSL)
 if(OPENSSL_FOUND)
 	target_include_directories(UtilExtern INTERFACE ${OPENSSL_INCLUDE_DIR})
@@ -268,6 +269,7 @@ endif()
 # ------------------------------------------------------------------------------
 # libxml2 (optional)
 
+message(STATUS "Checking LibXml2...")
 find_package(LibXml2)
 if(LIBXML2_FOUND)
 	target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_XML2)

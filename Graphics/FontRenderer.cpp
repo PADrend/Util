@@ -18,6 +18,7 @@
 #include <string>
 #include <stdexcept>
 #include <tuple>
+#include <cmath>
 
 #if defined(UTIL_HAVE_LIB_FREETYPE)
 #include <ft2build.h>
