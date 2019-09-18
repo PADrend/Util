@@ -1,33 +1,32 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2013 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "GenericTest.h"
-#include <cppunit/TestAssert.h>
+#include <catch2/catch.hpp>
 #include "Generic.h"
 #include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <unordered_map>
-CPPUNIT_TEST_SUITE_REGISTRATION(GenericTest);
 
 static void testContains(const std::array<bool, 7> & expectedResults,
 						 const Util::Generic & generic) {
-	CPPUNIT_ASSERT_EQUAL(expectedResults[0], generic.contains<bool>());
-	CPPUNIT_ASSERT_EQUAL(expectedResults[1], generic.contains<int32_t>());
-	CPPUNIT_ASSERT_EQUAL(expectedResults[2], generic.contains<float>());
-	CPPUNIT_ASSERT_EQUAL(expectedResults[3], generic.contains<double>());
-	CPPUNIT_ASSERT_EQUAL(expectedResults[4], generic.contains<std::string>());
-	CPPUNIT_ASSERT_EQUAL(expectedResults[5], generic.contains<std::vector<uint32_t>>());
-	CPPUNIT_ASSERT_EQUAL(expectedResults[6], generic.contains<std::nullptr_t>());
+	REQUIRE(expectedResults[0] == generic.contains<bool>());
+	REQUIRE(expectedResults[1] == generic.contains<int32_t>());
+	REQUIRE(expectedResults[2] == generic.contains<float>());
+	REQUIRE(expectedResults[3] == generic.contains<double>());
+	REQUIRE(expectedResults[4] == generic.contains<std::string>());
+	REQUIRE(expectedResults[5] == generic.contains<std::vector<uint32_t>>());
+	REQUIRE(expectedResults[6] == generic.contains<std::nullptr_t>());
 }
 
-void GenericTest::testBasic() {
+TEST_CASE("GenericTest_testBasic", "[GenericTest]") {
 	// Test construction from basic types
 	const bool boolValue = true;
 	Util::Generic boolAttr(boolValue);
@@ -45,22 +44,22 @@ void GenericTest::testBasic() {
 	const std::vector<uint32_t> vecValue{7, 9, 17, 25};
 	Util::Generic vecAttr(vecValue);
 
-	CPPUNIT_ASSERT_EQUAL(true, boolAttr.valid());
-	CPPUNIT_ASSERT_EQUAL(true, intAttr.valid());
-	CPPUNIT_ASSERT_EQUAL(true, floatAttr.valid());
-	CPPUNIT_ASSERT_EQUAL(true, doubleAttr.valid());
-	CPPUNIT_ASSERT_EQUAL(true, stringAttr.valid());
-	CPPUNIT_ASSERT_EQUAL(true, vecAttr.valid());
-	CPPUNIT_ASSERT_EQUAL(false, emptyAttr.valid());
+	REQUIRE(true == boolAttr.valid());
+	REQUIRE(true == intAttr.valid());
+	REQUIRE(true == floatAttr.valid());
+	REQUIRE(true == doubleAttr.valid());
+	REQUIRE(true == stringAttr.valid());
+	REQUIRE(true == vecAttr.valid());
+	REQUIRE(false == emptyAttr.valid());
 
-	CPPUNIT_ASSERT_EQUAL(boolValue, *boolAttr.get<bool>());
-	CPPUNIT_ASSERT_EQUAL(intValue, *intAttr.get<int32_t>());
-	CPPUNIT_ASSERT_EQUAL(floatValue, *floatAttr.get<float>());
-	CPPUNIT_ASSERT_EQUAL(doubleValue, *doubleAttr.get<double>());
-	CPPUNIT_ASSERT_EQUAL(stringValue, *stringAttr.get<std::string>());
+	REQUIRE(boolValue == *boolAttr.get<bool>());
+	REQUIRE(intValue == *intAttr.get<int32_t>());
+	REQUIRE(floatValue == *floatAttr.get<float>());
+	REQUIRE(doubleValue == *doubleAttr.get<double>());
+	REQUIRE(stringValue == *stringAttr.get<std::string>());
 	auto vecPtr = vecAttr.get<std::vector<uint32_t>>();
-	CPPUNIT_ASSERT(vecPtr != nullptr);
-	CPPUNIT_ASSERT(std::equal(vecValue.cbegin(), vecValue.cend(), vecPtr->cbegin()));
+	REQUIRE(vecPtr != nullptr);
+	REQUIRE(std::equal(vecValue.cbegin(), vecValue.cend(), vecPtr->cbegin()));
 
 	testContains({{true, false, false, false, false, false, false}}, boolAttr);
 	testContains({{false, true, false, false, false, false, false}}, intAttr);
@@ -70,11 +69,11 @@ void GenericTest::testBasic() {
 	testContains({{false, false, false, false, false, true, false}}, vecAttr);
 	testContains({{false, false, false, false, false, false, false}}, emptyAttr);
 
-	CPPUNIT_ASSERT_THROW(boolAttr.ref<float>(), std::bad_cast);
-	CPPUNIT_ASSERT_THROW(emptyAttr.ref<float>(), std::bad_cast);
+	REQUIRE_THROWS_AS(boolAttr.ref<float>(), std::bad_cast);
+	REQUIRE_THROWS_AS(emptyAttr.ref<float>(), std::bad_cast);
 }
 
-void GenericTest::testArray() {
+TEST_CASE("GenericTest_testArray", "[GenericTest]") {
 	const bool boolValue = true;
 	const int32_t intValue = 5;
 	const float floatValue = 17.0f;
@@ -91,16 +90,16 @@ void GenericTest::testArray() {
 	genericVector.emplace_back(stringValue);
 	genericVector.emplace_back(vecValue);
 
-	CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), genericVector.size());
-	CPPUNIT_ASSERT_EQUAL(boolValue, genericVector[0].ref<bool>());
-	CPPUNIT_ASSERT_EQUAL(intValue, genericVector[1].ref<int32_t>());
-	CPPUNIT_ASSERT_EQUAL(floatValue, genericVector[2].ref<float>());
-	CPPUNIT_ASSERT_EQUAL(doubleValue, genericVector[3].ref<double>());
-	CPPUNIT_ASSERT_EQUAL(stringValue, genericVector[4].ref<std::string>());
-	CPPUNIT_ASSERT(std::equal(vecValue.cbegin(), vecValue.cend(), genericVector[5].ref<std::vector<uint32_t>>().cbegin()));
+	REQUIRE(static_cast<size_t>(6) == genericVector.size());
+	REQUIRE(boolValue == genericVector[0].ref<bool>());
+	REQUIRE(intValue == genericVector[1].ref<int32_t>());
+	REQUIRE(floatValue == genericVector[2].ref<float>());
+	REQUIRE(doubleValue == genericVector[3].ref<double>());
+	REQUIRE(stringValue == genericVector[4].ref<std::string>());
+	REQUIRE(std::equal(vecValue.cbegin(), vecValue.cend(), genericVector[5].ref<std::vector<uint32_t>>().cbegin()));
 }
 
-void GenericTest::testMap() {
+TEST_CASE("GenericTest_testMap", "[GenericTest]") {
 	const bool boolValue = true;
 	const int32_t intValue = 5;
 	const float floatValue = 17.0f;
@@ -117,13 +116,13 @@ void GenericTest::testMap() {
 	genericMap["string"] = stringValue;
 	genericMap["vec"] = vecValue;
 
-	CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), genericMap.size());
-	CPPUNIT_ASSERT_EQUAL(boolValue, *genericMap["bool"].get<bool>());
-	CPPUNIT_ASSERT_EQUAL(intValue, *genericMap["int"].get<int32_t>());
-	CPPUNIT_ASSERT_EQUAL(floatValue, *genericMap["float"].get<float>());
-	CPPUNIT_ASSERT_EQUAL(doubleValue, *genericMap["double"].get<double>());
-	CPPUNIT_ASSERT_EQUAL(stringValue, *genericMap["string"].get<std::string>());
+	REQUIRE(static_cast<size_t>(6) == genericMap.size());
+	REQUIRE(boolValue == *genericMap["bool"].get<bool>());
+	REQUIRE(intValue == *genericMap["int"].get<int32_t>());
+	REQUIRE(floatValue == *genericMap["float"].get<float>());
+	REQUIRE(doubleValue == *genericMap["double"].get<double>());
+	REQUIRE(stringValue == *genericMap["string"].get<std::string>());
 	auto vecPtr = genericMap["vec"].get<std::vector<uint32_t>>();
-	CPPUNIT_ASSERT(vecPtr != nullptr);
-	CPPUNIT_ASSERT(std::equal(vecValue.cbegin(), vecValue.cend(), vecPtr->cbegin()));
+	REQUIRE(vecPtr != nullptr);
+	REQUIRE(std::equal(vecValue.cbegin(), vecValue.cend(), vecPtr->cbegin()));
 }

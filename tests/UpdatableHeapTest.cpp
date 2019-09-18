@@ -2,13 +2,13 @@
 	This file is part of the Util library.
 	Copyright (C) 2011-2013 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2013 Ralf Petring <ralf@petring.net>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "UpdatableHeapTest.h"
-#include <cppunit/TestAssert.h>
+#include <catch2/catch.hpp>
 #include "UpdatableHeap.h"
 #include <cstddef>
 #include <cstdint>
@@ -17,11 +17,10 @@
 #include <utility>
 #include <vector>
 #include <stdexcept>
-CPPUNIT_TEST_SUITE_REGISTRATION(UpdatableHeapTest);
 
 static std::size_t maxHeapSize = 100000;
 
-void UpdatableHeapTest::testSequence() {
+TEST_CASE("UpdatableHeapTest_testSequence", "[UpdatableHeapTest]") {
 	Util::UpdatableHeap<uint8_t, uint8_t> heap;
 	typedef Util::UpdatableHeap<uint8_t, uint8_t>::UpdatableHeapElement * HeapElement_t;
 	
@@ -42,12 +41,12 @@ void UpdatableHeapTest::testSequence() {
 	while (heap.size() > 0) {
 		const uint8_t currentKey = heap.top()->getCost();
 		heap.pop();
-		CPPUNIT_ASSERT_MESSAGE("Check correct sort order", lastKey <= currentKey);
+		REQUIRE(lastKey <= currentKey);
 		lastKey = currentKey;
 	}
 }
 
-void UpdatableHeapTest::testUpdate() {
+TEST_CASE("UpdatableHeapTest_testUpdate", "[UpdatableHeapTest]") {
 	Util::UpdatableHeap<uint32_t, uint32_t> heap;
 	typedef Util::UpdatableHeap<uint32_t, uint32_t>::UpdatableHeapElement * HeapElement_t;
 
@@ -72,12 +71,12 @@ void UpdatableHeapTest::testUpdate() {
 	while (heap.size() > 0) {
 		const uint32_t currentKey = heap.top()->getCost();
 		heap.pop();
-		CPPUNIT_ASSERT_MESSAGE("Check correct sort order", lastKey <= currentKey);
+		REQUIRE(lastKey <= currentKey);
 		lastKey = currentKey;
 	}
 }
 
-void UpdatableHeapTest::testDelete() {
+TEST_CASE("UpdatableHeapTest_testDelete", "[UpdatableHeapTest]") {
 	Util::UpdatableHeap<uint32_t, uint32_t> heap;
 	typedef Util::UpdatableHeap<uint32_t, uint32_t>::UpdatableHeapElement * HeapElement_t;
 
@@ -101,12 +100,12 @@ void UpdatableHeapTest::testDelete() {
 	while (heap.size() > 0) {
 		const uint32_t currentKey = heap.top()->getCost();
 		heap.pop();
-		CPPUNIT_ASSERT_MESSAGE("Check correct sort order", lastKey <= currentKey);
+		REQUIRE(lastKey <= currentKey);
 		lastKey = currentKey;
 	}
 }
 
-void UpdatableHeapTest::testDeleteUpdate() {
+TEST_CASE("UpdatableHeapTest_testDeleteUpdate", "[UpdatableHeapTest]") {
 	Util::UpdatableHeap<int32_t, std::pair<uint32_t, uint32_t> > heap;
 	typedef Util::UpdatableHeap<int32_t, std::pair<uint32_t, uint32_t> >::UpdatableHeapElement * HeapElement_t;
 
@@ -144,9 +143,9 @@ void UpdatableHeapTest::testDeleteUpdate() {
 		const int32_t currentKey = heap.top()->getCost();
 		const std::pair<float, float> currentData = heap.top()->data;
 		heap.pop();
-		CPPUNIT_ASSERT_MESSAGE("Check first data entry", currentData.first >= 100 && currentData.first <= 200);
-		CPPUNIT_ASSERT_MESSAGE("Check second data entry", currentData.second >= 300 && currentData.second <= 400);
-		CPPUNIT_ASSERT_MESSAGE("Check correct sort order", lastKey <= currentKey);
+		REQUIRE((currentData.first >= 100 && currentData.first <= 200));
+		REQUIRE((currentData.second >= 300 && currentData.second <= 400));
+		REQUIRE(lastKey <= currentKey);
 		lastKey = currentKey;
 	}
 }

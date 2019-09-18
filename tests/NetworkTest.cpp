@@ -1,13 +1,13 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2011-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "NetworkTest.h"
-#include <cppunit/TestAssert.h>
+#include <catch2/catch.hpp>
 #include "Network/DataConnection.h"
 #include "Network/Network.h"
 #include "Network/NetworkTCP.h"
@@ -20,21 +20,21 @@
 #include <memory>
 #include <random>
 #include <vector>
-CPPUNIT_TEST_SUITE_REGISTRATION(NetworkTest);
+#include <iostream>
 
 using namespace Util::Network;
 
-void NetworkTest::testTCP() {
+TEST_CASE("NetworkTest_testTCP", "[NetworkTest]") {
 	uint_fast8_t tryCount;
 
 	tryCount = 0;
 	std::unique_ptr<TCPServer> tcpServer(TCPServer::create(45000));
-	CPPUNIT_ASSERT(tcpServer.get() != nullptr);
+	REQUIRE(tcpServer.get() != nullptr);
 	while (!tcpServer->isOpen() && tryCount < 10) {
 		Util::Utils::sleep(1);
 		++tryCount;
 	}
-	CPPUNIT_ASSERT(tcpServer->isOpen());
+	REQUIRE(tcpServer->isOpen());
 
 	tryCount = 0;
 	Util::Reference<TCPConnection> tcpClient;
@@ -44,7 +44,7 @@ void NetworkTest::testTCP() {
 		tcpClient = TCPConnection::connect(address);
 		++tryCount;
 	}
-	CPPUNIT_ASSERT(tcpClient->isOpen());
+	REQUIRE(tcpClient->isOpen());
 
 	tryCount = 0;
 	Util::Reference<TCPConnection> tcpServerClientConnection;
@@ -53,7 +53,7 @@ void NetworkTest::testTCP() {
 		tcpServerClientConnection = tcpServer->getIncomingConnection();
 		++tryCount;
 	}
-	CPPUNIT_ASSERT(tcpServerClientConnection.get() != nullptr);
+	REQUIRE(tcpServerClientConnection.get() != nullptr);
 
 	std::default_random_engine engine;
 	std::uniform_int_distribution<uint8_t> distribution(0, 255);
@@ -74,16 +74,16 @@ void NetworkTest::testTCP() {
 				Util::Utils::sleep(5);
 				++tryCount;
 			}
-			CPPUNIT_ASSERT(tryCount < 10);
+			REQUIRE(tryCount < 10);
 
 			const std::vector<uint8_t> received(tcpServerClientConnection->receiveData(sizes[s]));
-			CPPUNIT_ASSERT(!received.empty());
-			CPPUNIT_ASSERT(received == original);
+			REQUIRE(!received.empty());
+			REQUIRE(received == original);
 		}
 	}
 }
 
-void NetworkTest::testUDP() {
+TEST_CASE("NetworkTest_testUDP", "[NetworkTest]") {
 	// Make sure the socket receive size is large enough.
 	UDPNetworkSocket udpSocketServer(45000, 10240);
 	udpSocketServer.open();
@@ -107,13 +107,13 @@ void NetworkTest::testUDP() {
 			udpSocketClient.sendData(original.data(), original.size(), toAddress);
 
 			std::unique_ptr<UDPNetworkSocket::Packet> packet(udpSocketServer.receive());
-			CPPUNIT_ASSERT(packet.get() != nullptr);
-			CPPUNIT_ASSERT(packet->packetData == original);
+			REQUIRE(packet.get() != nullptr);
+			REQUIRE(packet->packetData == original);
 		}
 	}
 }
 
-void NetworkTest::testUDPgetPort() {
+TEST_CASE("NetworkTest_testUDPgetPort", "[NetworkTest]") {
 	// Make sure the socket receive size is large enough.
 	UDPNetworkSocket udpSocketServer(0, 10240);
 	udpSocketServer.open();
@@ -137,25 +137,25 @@ void NetworkTest::testUDPgetPort() {
 			udpSocketClient.sendData(original.data(), original.size(), toAddress);
 
 			std::unique_ptr<UDPNetworkSocket::Packet> packet(udpSocketServer.receive());
-			CPPUNIT_ASSERT(packet.get() != nullptr);
-			CPPUNIT_ASSERT(packet->packetData == original);
+			REQUIRE(packet.get() != nullptr);
+			REQUIRE(packet->packetData == original);
 		}
 	}
 }
 
-void NetworkTest::testDataConnection() {
-	const uint8_t maxTries = 10;
+TEST_CASE("NetworkTest_testDataConnection", "[NetworkTest]") {
+	const uint8_t maxTries = 20;
 	const uint16_t numChannels = 10;
 	uint_fast8_t tryCount;
 	
 	tryCount = 0;
 	std::unique_ptr<TCPServer> tcpServer(TCPServer::create(45002));
-	CPPUNIT_ASSERT(tcpServer.get() != nullptr);
+	REQUIRE(tcpServer.get() != nullptr);
 	while (!tcpServer->isOpen() && tryCount < maxTries) {
 		Util::Utils::sleep(1);
 		++tryCount;
 	}
-	CPPUNIT_ASSERT(tcpServer->isOpen());
+	REQUIRE(tcpServer->isOpen());
 
 	tryCount = 0;
 	Util::Reference<TCPConnection> tcpClient;
@@ -165,7 +165,7 @@ void NetworkTest::testDataConnection() {
 		tcpClient = TCPConnection::connect(address);
 		++tryCount;
 	}
-	CPPUNIT_ASSERT(tcpClient->isOpen());
+	REQUIRE(tcpClient->isOpen());
 
 	tryCount = 0;
 	Util::Reference<TCPConnection> tcpServerClientConnection;
@@ -174,12 +174,12 @@ void NetworkTest::testDataConnection() {
 		tcpServerClientConnection = tcpServer->getIncomingConnection();
 		++tryCount;
 	}
-	CPPUNIT_ASSERT(tcpServerClientConnection.get() != nullptr);
+	REQUIRE(tcpServerClientConnection.get() != nullptr);
 
 	DataConnection clientDataConnection(tcpClient.get());
-	CPPUNIT_ASSERT(clientDataConnection.isOpen());
+	REQUIRE(clientDataConnection.isOpen());
 	DataConnection serverDataConnection(tcpServerClientConnection.get());
-	CPPUNIT_ASSERT(serverDataConnection.isOpen());
+	REQUIRE(serverDataConnection.isOpen());
 
 	std::default_random_engine engine;
 	std::uniform_int_distribution<uint8_t> dataDistribution(0, 255);
@@ -188,209 +188,222 @@ void NetworkTest::testDataConnection() {
 	const size_t sizes[7] = { 128, 256, 512, 1024, 2048, 4096, 8192 };
 
 	// Send values from client to server
-	for (const auto & size : sizes) {
-		std::vector<uint8_t> original(size);
+	SECTION("Send values from client to server") {
+		for (const auto & size : sizes) {
+			std::vector<uint8_t> original(size);
 
-		for (uint16_t channel = 0; channel < numChannels; ++channel) {
-			for (uint_fast32_t i = 0; i < size; ++i) {
-				original[i] = dataDistribution(engine);
-			}
-			clientDataConnection.sendValue(channel, original);
-
-			uint16_t receivedChannel;
-			std::vector<uint8_t> receivedData;
-
-			tryCount = 0;
-			while (!serverDataConnection.extractIncomingValue(receivedChannel, receivedData) && tryCount < maxTries) {
-				Util::Utils::sleep(5);
-				++tryCount;
-			}
-			CPPUNIT_ASSERT(tryCount < maxTries);
-
-			CPPUNIT_ASSERT_EQUAL(channel, receivedChannel);
-			CPPUNIT_ASSERT(original == receivedData);
-		}
-	}
-	// Send values from server to client
-	for (const auto & size : sizes) {
-		std::vector<uint8_t> original(size);
-
-		for (uint16_t channel = 0; channel < numChannels; ++channel) {
-			for (uint_fast32_t i = 0; i < size; ++i) {
-				original[i] = dataDistribution(engine);
-			}
-			serverDataConnection.sendValue(channel, original);
-
-			uint16_t receivedChannel;
-			std::vector<uint8_t> receivedData;
-
-			tryCount = 0;
-			while (!clientDataConnection.extractIncomingValue(receivedChannel, receivedData) && tryCount < maxTries) {
-				Util::Utils::sleep(5);
-				++tryCount;
-			}
-			CPPUNIT_ASSERT(tryCount < maxTries);
-
-			CPPUNIT_ASSERT_EQUAL(channel, receivedChannel);
-			CPPUNIT_ASSERT(original == receivedData);
-		}
-	}
-	// Send (key, value) pairs from client to server
-	for (const auto & size : sizes) {
-		std::vector<uint8_t> original(size);
-
-		for (uint16_t channel = 0; channel < numChannels; ++channel) {
-			for (uint_fast32_t i = 0; i < size; ++i) {
-				original[i] = dataDistribution(engine);
-			}
-			const Util::StringIdentifier key(keyDistribution(engine));
-			clientDataConnection.sendKeyValue(channel, key, original);
-
-			uint16_t receivedChannel;
-			Util::StringIdentifier receivedKey;
-			std::vector<uint8_t> receivedData;
-
-			tryCount = 0;
-			while (!serverDataConnection.extractIncomingKeyValuePair(receivedChannel, receivedKey, receivedData) && tryCount < maxTries) {
-				Util::Utils::sleep(5);
-				++tryCount;
-			}
-			CPPUNIT_ASSERT(tryCount < maxTries);
-
-			CPPUNIT_ASSERT_EQUAL(channel, receivedChannel);
-			CPPUNIT_ASSERT_EQUAL(key.toString(), receivedKey.toString());
-			CPPUNIT_ASSERT(original == receivedData);
-		}
-	}
-	// Send (key, value) pairs from server to client
-	for (const auto & size : sizes) {
-		std::vector<uint8_t> original(size);
-
-		for (uint16_t channel = 0; channel < numChannels; ++channel) {
-			for (uint_fast32_t i = 0; i < size; ++i) {
-				original[i] = dataDistribution(engine);
-			}
-			const Util::StringIdentifier key(keyDistribution(engine));
-			serverDataConnection.sendKeyValue(channel, key, original);
-
-			uint16_t receivedChannel;
-			Util::StringIdentifier receivedKey;
-			std::vector<uint8_t> receivedData;
-
-			tryCount = 0;
-			while (!clientDataConnection.extractIncomingKeyValuePair(receivedChannel, receivedKey, receivedData) && tryCount < maxTries) {
-				Util::Utils::sleep(5);
-				++tryCount;
-			}
-			CPPUNIT_ASSERT(tryCount < maxTries);
-
-			CPPUNIT_ASSERT_EQUAL(channel, receivedChannel);
-			CPPUNIT_ASSERT_EQUAL(key.toString(), receivedKey.toString());
-			CPPUNIT_ASSERT(original == receivedData);
-		}
-	}
-
-	// Check channel handlers on server side
-	class HandlerChecker {
-		private:
-			const DataConnection::channelId_t checkChannelId;
-			const Util::StringIdentifier checkKey;
-			const DataConnection::dataPacket_t checkData;
-			const uint32_t expectedNumberOfValueChecks;
-			uint32_t maximumNumberOfKeyValueChecks;
-			uint32_t actualNumberOfValueChecks;
-			uint32_t actualNumberOfKeyValueChecks;
-
-		public:
-			HandlerChecker(DataConnection::channelId_t channelId, 
-						   const Util::StringIdentifier & key, 
-						   const DataConnection::dataPacket_t & data, 
-						   uint32_t checks) :
-				checkChannelId(channelId), 
-				checkKey(key), 
-				checkData(data), 
-				expectedNumberOfValueChecks(checks),
-				maximumNumberOfKeyValueChecks(0),
-				actualNumberOfValueChecks(0),
-				actualNumberOfKeyValueChecks(0) {
-			}
-			~HandlerChecker() {
-				CPPUNIT_ASSERT_EQUAL(expectedNumberOfValueChecks, actualNumberOfValueChecks);
-				// Multiple messages with the same key must only arrive once per receive call.
-				CPPUNIT_ASSERT(maximumNumberOfKeyValueChecks >= actualNumberOfKeyValueChecks);
-			}
-
-			void checkValue(DataConnection::channelId_t channelId, const DataConnection::dataPacket_t & data) {
-				CPPUNIT_ASSERT_EQUAL(channelId, checkChannelId);
-				CPPUNIT_ASSERT(checkData == data);
-				++actualNumberOfValueChecks;
-			}
-
-			void checkKeyValue(DataConnection::channelId_t channelId, const Util::StringIdentifier & key, const DataConnection::dataPacket_t & data) {
-				CPPUNIT_ASSERT_EQUAL(channelId, checkChannelId);
-				CPPUNIT_ASSERT_EQUAL(checkKey.toString(), key.toString());
-				CPPUNIT_ASSERT(checkData == data);
-				++actualNumberOfKeyValueChecks;
-			}
-
-			void allowAdditionalKeyValueCheck() {
-				++maximumNumberOfKeyValueChecks;
-			}
-
-			bool finished() const {
-				return actualNumberOfValueChecks >= expectedNumberOfValueChecks;
-			}
-	};
-	for (const auto & size : sizes) {
-		std::vector<uint8_t> original(size);
-
-		for (uint16_t channel = 0; channel < numChannels; ++channel) {
-			for (uint_fast32_t i = 0; i < size; ++i) {
-				original[i] = dataDistribution(engine);
-			}
-			const uint32_t numChecks = 10;
-			const Util::StringIdentifier key(keyDistribution(engine));
-			HandlerChecker checker(channel, key, original, numChecks);
-			serverDataConnection.registerValueChannelHandler(channel, 
-					std::bind(&HandlerChecker::checkValue, &checker, std::placeholders::_1, std::placeholders::_2));
-			serverDataConnection.registerKeyValueChannelHandler(channel, 
-					std::bind(&HandlerChecker::checkKeyValue, &checker, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-
-			for(uint_fast32_t count = 0; count < numChecks; ++count) {
+			for (uint16_t channel = 0; channel < numChannels; ++channel) {
+				for (uint_fast32_t i = 0; i < size; ++i) {
+					original[i] = dataDistribution(engine);
+				}
 				clientDataConnection.sendValue(channel, original);
-				clientDataConnection.sendKeyValue(channel, key, original);
-			}
-			tryCount = 0;
-			while (!checker.finished() && tryCount < maxTries) {
-				serverDataConnection.handleIncomingData();
-				// Keys are only unique during one receive call.
-				checker.allowAdditionalKeyValueCheck();
-				Util::Utils::sleep(5);
-				++tryCount;
-			}
-			CPPUNIT_ASSERT(tryCount < maxTries);
 
-			serverDataConnection.removeKeyValueChannelHandler(channel);
+				uint16_t receivedChannel;
+				std::vector<uint8_t> receivedData;
+
+				tryCount = 0;
+				while (!serverDataConnection.extractIncomingValue(receivedChannel, receivedData) && tryCount < maxTries) {
+					Util::Utils::sleep(5);
+					++tryCount;
+				}
+				REQUIRE(tryCount < maxTries);
+
+				REQUIRE(channel == receivedChannel);
+				REQUIRE(original == receivedData);
+			}
+		}
+	}
+	
+	// Send values from server to client
+	SECTION("Send values from server to client") {
+		for (const auto & size : sizes) {
+			std::vector<uint8_t> original(size);
+
+			for (uint16_t channel = 0; channel < numChannels; ++channel) {
+				for (uint_fast32_t i = 0; i < size; ++i) {
+					original[i] = dataDistribution(engine);
+				}
+				serverDataConnection.sendValue(channel, original);
+
+				uint16_t receivedChannel;
+				std::vector<uint8_t> receivedData;
+
+				tryCount = 0;
+				while (!clientDataConnection.extractIncomingValue(receivedChannel, receivedData) && tryCount < maxTries) {
+					Util::Utils::sleep(5);
+					++tryCount;
+				}
+				REQUIRE(tryCount < maxTries);
+
+				REQUIRE(channel == receivedChannel);
+				REQUIRE(original == receivedData);
+			}
+		}
+	}
+	
+	// Send (key, value) pairs from client to server
+	SECTION("Send (key, value) pairs from client to server") {
+		for (const auto & size : sizes) {
+			std::vector<uint8_t> original(size);
+
+			for (uint16_t channel = 0; channel < numChannels; ++channel) {
+				for (uint_fast32_t i = 0; i < size; ++i) {
+					original[i] = dataDistribution(engine);
+				}
+				const Util::StringIdentifier key(keyDistribution(engine));
+				clientDataConnection.sendKeyValue(channel, key, original);
+
+				uint16_t receivedChannel;
+				Util::StringIdentifier receivedKey;
+				std::vector<uint8_t> receivedData;
+
+				tryCount = 0;
+				while (!serverDataConnection.extractIncomingKeyValuePair(receivedChannel, receivedKey, receivedData) && tryCount < maxTries) {
+					Util::Utils::sleep(5);
+					++tryCount;
+				}
+				REQUIRE(tryCount < maxTries);
+
+				REQUIRE(channel == receivedChannel);
+				REQUIRE(key.toString() == receivedKey.toString());
+				REQUIRE(original == receivedData);
+			}
+		}
+	}
+
+	// Send (key, value) pairs from server to client
+	SECTION("Send (key, value) pairs from client to server") {
+		for (const auto & size : sizes) {
+			std::vector<uint8_t> original(size);
+
+			for (uint16_t channel = 0; channel < numChannels; ++channel) {
+				for (uint_fast32_t i = 0; i < size; ++i) {
+					original[i] = dataDistribution(engine);
+				}
+				const Util::StringIdentifier key(keyDistribution(engine));
+				serverDataConnection.sendKeyValue(channel, key, original);
+
+				uint16_t receivedChannel;
+				Util::StringIdentifier receivedKey;
+				std::vector<uint8_t> receivedData;
+
+				tryCount = 0;
+				while (!clientDataConnection.extractIncomingKeyValuePair(receivedChannel, receivedKey, receivedData) && tryCount < maxTries) {
+					Util::Utils::sleep(5);
+					++tryCount;
+				}
+				REQUIRE(tryCount < maxTries);
+
+				REQUIRE(channel == receivedChannel);
+				REQUIRE(key.toString() == receivedKey.toString());
+				REQUIRE(original == receivedData);
+			}
+		}
+	}
+
+	// Check channel handlers on server side	
+	SECTION("Check channel handlers on server side") {
+		class HandlerChecker {
+			private:
+				const DataConnection::channelId_t checkChannelId;
+				const Util::StringIdentifier checkKey;
+				const DataConnection::dataPacket_t checkData;
+				const uint32_t expectedNumberOfValueChecks;
+				uint32_t maximumNumberOfKeyValueChecks;
+				uint32_t actualNumberOfValueChecks;
+				uint32_t actualNumberOfKeyValueChecks;
+
+			public:
+				HandlerChecker(DataConnection::channelId_t channelId, 
+							   const Util::StringIdentifier & key, 
+							   const DataConnection::dataPacket_t & data, 
+							   uint32_t checks) :
+					checkChannelId(channelId), 
+					checkKey(key), 
+					checkData(data), 
+					expectedNumberOfValueChecks(checks),
+					maximumNumberOfKeyValueChecks(0),
+					actualNumberOfValueChecks(0),
+					actualNumberOfKeyValueChecks(0) {
+				}
+				~HandlerChecker() {
+					REQUIRE(expectedNumberOfValueChecks == actualNumberOfValueChecks);
+					// Multiple messages with the same key must only arrive once per receive call.
+					REQUIRE(maximumNumberOfKeyValueChecks >= actualNumberOfKeyValueChecks);
+				}
+
+				void checkValue(DataConnection::channelId_t channelId, const DataConnection::dataPacket_t & data) {
+					REQUIRE(channelId == checkChannelId);
+					REQUIRE(checkData == data);
+					++actualNumberOfValueChecks;
+				}
+
+				void checkKeyValue(DataConnection::channelId_t channelId, const Util::StringIdentifier & key, const DataConnection::dataPacket_t & data) {
+					REQUIRE(channelId == checkChannelId);
+					REQUIRE(checkKey.toString() == key.toString());
+					REQUIRE(checkData == data);
+					++actualNumberOfKeyValueChecks;
+				}
+
+				void allowAdditionalKeyValueCheck() {
+					++maximumNumberOfKeyValueChecks;
+				}
+
+				bool finished() const {
+					return actualNumberOfValueChecks >= expectedNumberOfValueChecks;
+				}
+		};
+		for (const auto & size : sizes) {
+			std::vector<uint8_t> original(size);
+
+			for (uint16_t channel = 0; channel < numChannels; ++channel) {
+				for (uint_fast32_t i = 0; i < size; ++i) {
+					original[i] = dataDistribution(engine);
+				}
+				const uint32_t numChecks = 10;
+				const Util::StringIdentifier key(keyDistribution(engine));
+				HandlerChecker checker(channel, key, original, numChecks);
+				serverDataConnection.registerValueChannelHandler(channel, 
+						std::bind(&HandlerChecker::checkValue, &checker, std::placeholders::_1, std::placeholders::_2));
+				serverDataConnection.registerKeyValueChannelHandler(channel, 
+						std::bind(&HandlerChecker::checkKeyValue, &checker, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+				for(uint_fast32_t count = 0; count < numChecks; ++count) {
+					clientDataConnection.sendValue(channel, original);
+					clientDataConnection.sendKeyValue(channel, key, original);
+				}
+				tryCount = 0;
+				while (!checker.finished() && tryCount < maxTries) {
+					serverDataConnection.handleIncomingData();
+					// Keys are only unique during one receive call.
+					checker.allowAdditionalKeyValueCheck();
+					Util::Utils::sleep(5);
+					++tryCount;
+				}
+				REQUIRE(tryCount < maxTries);
+
+				serverDataConnection.removeKeyValueChannelHandler(channel);
+			}
 		}
 	}
 
 	clientDataConnection.close();
-	CPPUNIT_ASSERT(!clientDataConnection.isOpen());
+	REQUIRE(!clientDataConnection.isOpen());
 	serverDataConnection.close();
-	CPPUNIT_ASSERT(!serverDataConnection.isOpen());
+	REQUIRE(!serverDataConnection.isOpen());
 }
 
-void NetworkTest::testTCPClientExit() {
+TEST_CASE("NetworkTest_testTCPClientExit", "[NetworkTest]") {
 	uint_fast8_t tryCount;
 
 	tryCount = 0;
 	std::unique_ptr<TCPServer> tcpServer(TCPServer::create(45001));
-	CPPUNIT_ASSERT(tcpServer.get() != nullptr);
+	REQUIRE(tcpServer.get() != nullptr);
 	while (!tcpServer->isOpen() && tryCount < 10) {
 		Util::Utils::sleep(1);
 		++tryCount;
 	}
-	CPPUNIT_ASSERT(tcpServer->isOpen());
+	REQUIRE(tcpServer->isOpen());
 
 	tryCount = 0;
 	Util::Reference<TCPConnection> tcpClient;
@@ -400,7 +413,7 @@ void NetworkTest::testTCPClientExit() {
 		tcpClient = TCPConnection::connect(address);
 		++tryCount;
 	}
-	CPPUNIT_ASSERT(tcpClient->isOpen());
+	REQUIRE(tcpClient->isOpen());
 
 	tryCount = 0;
 	Util::Reference<TCPConnection> tcpServerClientConnection;
@@ -409,7 +422,7 @@ void NetworkTest::testTCPClientExit() {
 		tcpServerClientConnection = tcpServer->getIncomingConnection();
 		++tryCount;
 	}
-	CPPUNIT_ASSERT(tcpServerClientConnection.get() != nullptr);
+	REQUIRE(tcpServerClientConnection.get() != nullptr);
 
 	std::default_random_engine engine;
 	std::uniform_int_distribution<uint8_t> distribution(0, 255);
@@ -436,21 +449,21 @@ void NetworkTest::testTCPClientExit() {
 				Util::Utils::sleep(30);
 				++tryCount;
 			}
-			CPPUNIT_ASSERT(tryCount < 10);
+			REQUIRE(tryCount < 10);
 			// Receive smaller packets than the ones that were sent.
 			std::vector<uint8_t> receivedA(tcpClient->receiveData(size / 4));
 			const std::vector<uint8_t> receivedB(tcpClient->receiveData(size / 4));
 			const std::vector<uint8_t> receivedC(tcpClient->receiveData(size / 4));
 			const std::vector<uint8_t> receivedD(tcpClient->receiveData(size / 4));
-			CPPUNIT_ASSERT(!receivedA.empty());
-			CPPUNIT_ASSERT(!receivedB.empty());
-			CPPUNIT_ASSERT(!receivedC.empty());
-			CPPUNIT_ASSERT(!receivedD.empty());
+			REQUIRE(!receivedA.empty());
+			REQUIRE(!receivedB.empty());
+			REQUIRE(!receivedC.empty());
+			REQUIRE(!receivedD.empty());
 
 			receivedA.insert(receivedA.end(), receivedB.begin(), receivedB.end());
 			receivedA.insert(receivedA.end(), receivedC.begin(), receivedC.end());
 			receivedA.insert(receivedA.end(), receivedD.begin(), receivedD.end());
-			CPPUNIT_ASSERT(receivedA == original);
+			REQUIRE(receivedA == original);
 		} else {
 			// Kill the client. The server still sends more data.
 			tcpClient = nullptr;

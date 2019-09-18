@@ -17,20 +17,14 @@
 
 #include "Cursor.h"
 
-#if defined(UTIL_HAVE_LIB_X11)
-#include "SplashScreenX11.h"
-#elif defined(_WIN32)
+#if defined(_WIN32)
 #include "SplashScreenWin.h"
 #endif
 
 #if defined(UTIL_PREFER_SDL_CONTEXT) and defined(UTIL_HAVE_LIB_SDL2)
 #include "WindowSDL.h"
-#elif defined(UTIL_HAVE_LIB_X11) and defined(UTIL_HAVE_LIB_GLX) and defined(UTIL_HAVE_GLX_GETPROCADDRESSARB)
-#include "WindowGLX.h"
-#elif defined(UTIL_HAVE_LIB_X11) and defined(UTIL_HAVE_LIB_EGL)
-#include "WindowEGL.h"
-#elif defined(UTIL_HAVE_LIB_SDL2)
-#include "WindowSDL.h"
+#elif defined(UTIL_HAVE_LIB_GLFW)
+#include "WindowGLFW.h"
 #endif
 
 namespace Util {
@@ -42,9 +36,7 @@ std::unique_ptr<Cursor> createCursor(const Reference<Bitmap> & image, unsigned i
 
 std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle __attribute__((unused)), const Reference<Bitmap> & splashImage __attribute__((unused))) {
 	std::unique_ptr<SplashScreen> splash;
-#if defined(UTIL_HAVE_LIB_X11)
-	splash.reset(new SplashScreenX11(splashTitle, splashImage));
-#elif defined(_WIN32)
+#if defined(_WIN32)
 	splash.reset(new SplashScreenWin(splashTitle, splashImage));
 #endif
 	if(splash && !splash->errorMessage.empty()) {
@@ -59,12 +51,8 @@ std::unique_ptr<Window> createWindow(const Window::Properties & properties) {
 	try {
 #if defined(UTIL_PREFER_SDL_CONTEXT) and defined(UTIL_HAVE_LIB_SDL2)
 		window.reset(new WindowSDL(properties));
-#elif defined(UTIL_HAVE_LIB_X11) and defined(UTIL_HAVE_LIB_GLX) and defined(UTIL_HAVE_GLX_GETPROCADDRESSARB)
-		window.reset(new WindowGLX(properties));
-#elif defined(UTIL_HAVE_LIB_X11) and defined(UTIL_HAVE_LIB_EGL)
-		window.reset(new WindowEGL(properties));
-#elif defined(UTIL_HAVE_LIB_SDL2)
-		window.reset(new WindowSDL(properties));
+#elif defined(UTIL_HAVE_LIB_GLFW)
+		window.reset(new WindowGLFW(properties));
 #else
 		throw std::logic_error("no window library available");
 #endif

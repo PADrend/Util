@@ -2,13 +2,13 @@
 	This file is part of the Util library.
 	Copyright (C) 2012-2015 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2013 Ralf Petring <ralf@petring.net>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "GenericAttributeSerializationTest.h"
-#include <cppunit/TestAssert.h>
+#include <catch2/catch.hpp>
 #include "GenericAttribute.h"
 #include "GenericAttributeSerialization.h"
 #include "StringIdentifier.h"
@@ -16,19 +16,17 @@
 #include <sstream>
 #include <tuple>
 #include <utility>
-CPPUNIT_TEST_SUITE_REGISTRATION(GenericAttributeSerializationTest);
 
 template<typename AttributeType, typename ValueType, typename ConversionFunction>
 static void testGenericAttributeSerialization(ValueType value, const std::string & stringValue, const std::string & type, ConversionFunction toValue, const Util::GenericAttributeMap * context = nullptr) {
 	std::unique_ptr<Util::GenericAttribute> genericAttribute(new AttributeType(value));
 	auto content = Util::GenericAttributeSerialization::serialize(genericAttribute.get());
-	CPPUNIT_ASSERT_EQUAL(std::string("{\"type\":\"") + type + std::string("\",\"value\":\"") + stringValue + std::string("\"}"), content);
+	REQUIRE(std::string("{\"type\":\"") + type + std::string("\",\"value\":\"") + stringValue + std::string("\"}") == content);
 	std::unique_ptr<Util::GenericAttribute> attribute(Util::GenericAttributeSerialization::unserialize(content, context));
-	CPPUNIT_ASSERT(typeid(*genericAttribute.get()) == typeid(*attribute.get()));
-	CPPUNIT_ASSERT_EQUAL(std::bind(toValue, genericAttribute.get())(), std::bind(toValue, attribute.get())());
+	REQUIRE(typeid(*genericAttribute.get()) == typeid(*attribute.get()));
+	REQUIRE(std::bind(toValue, genericAttribute.get())() == std::bind(toValue, attribute.get())());
 }
-
-void GenericAttributeSerializationTest::testStandardSerialization() {
+TEST_CASE("GenericAttributeSerializationTest_testStandardSerialization", "[GenericAttributeSerializationTest]") {
 	testGenericAttributeSerialization<Util::BoolAttribute>(true, "true", "bool", &Util::GenericAttribute::toBool);
 	testGenericAttributeSerialization<Util::BoolAttribute>(false, "false", "bool", &Util::GenericAttribute::toBool);
 
@@ -65,12 +63,12 @@ void GenericAttributeSerializationTest::testStandardSerialization() {
 static void checkGenericAttributeMapsEqual(const Util::GenericAttributeMap * expected, const Util::GenericAttributeMap * actual);
 
 static void checkGenericAttributeListsEqual(const Util::GenericAttributeList * expected, const Util::GenericAttributeList * actual) {
-	CPPUNIT_ASSERT(expected != nullptr);
-	CPPUNIT_ASSERT(actual != nullptr);
-	CPPUNIT_ASSERT_EQUAL(expected->size(), actual->size());
+	REQUIRE(expected != nullptr);
+	REQUIRE(actual != nullptr);
+	REQUIRE(expected->size() == actual->size());
 	auto actualIt = actual->begin();
 	for(auto expectedIt = expected->begin(); expectedIt != expected->end(); ++expectedIt) {
-		CPPUNIT_ASSERT(typeid(**expectedIt) == typeid(**actualIt));
+		REQUIRE(typeid(**expectedIt) == typeid(**actualIt));
 		const Util::GenericAttributeList * expectedList = dynamic_cast<const Util::GenericAttributeList *>(expectedIt->get());
 		const Util::GenericAttributeList * actualList = dynamic_cast<const Util::GenericAttributeList *>(actualIt->get());
 		const Util::GenericAttributeMap * expectedMap = dynamic_cast<const Util::GenericAttributeMap *>(expectedIt->get());
@@ -80,13 +78,13 @@ static void checkGenericAttributeListsEqual(const Util::GenericAttributeList * e
 		} else if((nullptr != expectedMap) && (nullptr != actualMap)) {
 			checkGenericAttributeMapsEqual(expectedMap, actualMap);
 		} else {
-			CPPUNIT_ASSERT_EQUAL((*expectedIt)->toJSON(), (*actualIt)->toJSON());
+			REQUIRE((*expectedIt)->toJSON() == (*actualIt)->toJSON());
 		}
 		++actualIt;
 	}
 }
 
-void GenericAttributeSerializationTest::testListSerialization() {
+TEST_CASE("GenericAttributeSerializationTest_testListSerialization", "[GenericAttributeSerializationTest]") {
 	std::unique_ptr<Util::GenericAttributeList> container(new Util::GenericAttributeList);
 	container->push_back(new Util::BoolAttribute(true));
 	container->push_back(new Util::_StringAttribute<std::string>("[1, 2, \"xyz\"]"));
@@ -102,19 +100,19 @@ void GenericAttributeSerializationTest::testListSerialization() {
 	const auto content = Util::GenericAttributeSerialization::serialize(container.get());
 	
 	std::unique_ptr<Util::GenericAttribute> attribute(Util::GenericAttributeSerialization::unserialize(content));
-	CPPUNIT_ASSERT(typeid(*container) == typeid(*attribute));
+	REQUIRE(typeid(*container) == typeid(*attribute));
 	Util::GenericAttributeList * newContainer = dynamic_cast<Util::GenericAttributeList *>(attribute.get());
 	checkGenericAttributeListsEqual(container.get(), newContainer);
 }
 
 static void checkGenericAttributeMapsEqual(const Util::GenericAttributeMap * expected, const Util::GenericAttributeMap * actual) {
-	CPPUNIT_ASSERT(expected != nullptr);
-	CPPUNIT_ASSERT(actual != nullptr);
-	CPPUNIT_ASSERT_EQUAL(expected->size(), actual->size());
+	REQUIRE(expected != nullptr);
+	REQUIRE(actual != nullptr);
+	REQUIRE(expected->size() == actual->size());
 	for(auto expectedIt = expected->begin(); expectedIt != expected->end(); ++expectedIt) {
-		CPPUNIT_ASSERT(actual->contains(expectedIt->first));
+		REQUIRE(actual->contains(expectedIt->first));
 		const Util::GenericAttribute * actualElement = actual->getValue(expectedIt->first);
-		CPPUNIT_ASSERT(typeid(*(expectedIt->second)) == typeid(*(actualElement)));
+		REQUIRE(typeid(*(expectedIt->second)) == typeid(*(actualElement)));
 		const Util::GenericAttributeList * expectedList = dynamic_cast<const Util::GenericAttributeList *>(expectedIt->second.get());
 		const Util::GenericAttributeList * actualList = dynamic_cast<const Util::GenericAttributeList *>(actualElement);
 		const Util::GenericAttributeMap * expectedMap = dynamic_cast<const Util::GenericAttributeMap *>(expectedIt->second.get());
@@ -124,12 +122,12 @@ static void checkGenericAttributeMapsEqual(const Util::GenericAttributeMap * exp
 		} else if((nullptr != expectedMap) && (nullptr != actualMap)) {
 			checkGenericAttributeMapsEqual(expectedMap, actualMap);
 		} else {
-			CPPUNIT_ASSERT_EQUAL(expectedIt->second->toJSON(), actualElement->toJSON());
+			REQUIRE(expectedIt->second->toJSON() == actualElement->toJSON());
 		}
 	}
 }
 
-void GenericAttributeSerializationTest::testMapSerialization() {
+TEST_CASE("GenericAttributeSerializationTest_testMapSerialization", "[GenericAttributeSerializationTest]") {
 	std::unique_ptr<Util::GenericAttributeMap> container(new Util::GenericAttributeMap);
 	container->setValue(Util::StringIdentifier("firstBool"), new Util::BoolAttribute(true));
 	container->setValue(Util::StringIdentifier("secondBool"), new Util::BoolAttribute(false));
@@ -147,12 +145,12 @@ void GenericAttributeSerializationTest::testMapSerialization() {
 	const auto content = Util::GenericAttributeSerialization::serialize(container.get());
 	
 	std::unique_ptr<Util::GenericAttribute> attribute(Util::GenericAttributeSerialization::unserialize(content));
-	CPPUNIT_ASSERT(typeid(*container) == typeid(*attribute));
+	REQUIRE(typeid(*container) == typeid(*attribute));
 	Util::GenericAttributeMap * newContainer = dynamic_cast<Util::GenericAttributeMap *>(attribute.get());
 	checkGenericAttributeMapsEqual(container.get(), newContainer);
 }
 
-void GenericAttributeSerializationTest::testNestedSerialization() {
+TEST_CASE("GenericAttributeSerializationTest_testNestedSerialization", "[GenericAttributeSerializationTest]") {
 	std::unique_ptr<Util::GenericAttributeMap> container(new Util::GenericAttributeMap);
 	{
 		Util::GenericAttributeList * innerMapInnerList = new Util::GenericAttributeList;
@@ -190,22 +188,22 @@ void GenericAttributeSerializationTest::testNestedSerialization() {
 	const auto content = Util::GenericAttributeSerialization::serialize(container.get());
 	
 	std::unique_ptr<Util::GenericAttribute> attribute(Util::GenericAttributeSerialization::unserialize(content));
-	CPPUNIT_ASSERT(typeid(*container) == typeid(*attribute));
+	REQUIRE(typeid(*container) == typeid(*attribute));
 	Util::GenericAttributeMap * newContainer = dynamic_cast<Util::GenericAttributeMap *>(attribute.get());
 	checkGenericAttributeMapsEqual(container.get(), newContainer);
 
 	Util::GenericAttributeMap * newInnerMap = dynamic_cast<Util::GenericAttributeMap *>(newContainer->getValue(Util::StringIdentifier("b")));
-	CPPUNIT_ASSERT(newInnerMap != nullptr);
+	REQUIRE(newInnerMap != nullptr);
 	Util::GenericAttributeList * newInnerMapInnerList = dynamic_cast<Util::GenericAttributeList *>(newInnerMap->getValue(Util::StringIdentifier("greek")));
-	CPPUNIT_ASSERT(newInnerMapInnerList != nullptr);
-	CPPUNIT_ASSERT_EQUAL(std::string("alpha"), newInnerMapInnerList->front()->toString());
-	CPPUNIT_ASSERT_EQUAL(std::string("delta"), newInnerMapInnerList->back()->toString());
+	REQUIRE(newInnerMapInnerList != nullptr);
+	REQUIRE(std::string("alpha") == newInnerMapInnerList->front()->toString());
+	REQUIRE(std::string("delta") == newInnerMapInnerList->back()->toString());
 	
 	Util::GenericAttributeList * newInnerList = dynamic_cast<Util::GenericAttributeList *>(newContainer->getValue(Util::StringIdentifier("d")));
-	CPPUNIT_ASSERT(newInnerList != nullptr);
+	REQUIRE(newInnerList != nullptr);
 	Util::GenericAttributeMap * newInnerListInnerMap = dynamic_cast<Util::GenericAttributeMap *>(newInnerList->at(2));
-	CPPUNIT_ASSERT(newInnerListInnerMap != nullptr);
-	CPPUNIT_ASSERT_EQUAL(std::string("four"), newInnerListInnerMap->getString(Util::StringIdentifier("4"))); 
+	REQUIRE(newInnerListInnerMap != nullptr);
+	REQUIRE(std::string("four") == newInnerListInnerMap->getString(Util::StringIdentifier("4"))); 
 }
 
 class CustomGenericAttribute : public Util::GenericAttribute {
@@ -283,7 +281,7 @@ static CustomWithOperatorsGenericAttribute * unserializeCWOGA(const std::pair<st
 	return customAttribute;
 }
 
-void GenericAttributeSerializationTest::testCustomSerialization() {
+TEST_CASE("GenericAttributeSerializationTest_testCustomSerialization", "[GenericAttributeSerializationTest]") {
 	Util::GenericAttributeSerialization::registerSerializer<CustomGenericAttribute>(GATypeNameCGA, serializeCGA, unserializeCGA);
 	Util::GenericAttributeSerialization::registerSerializer<CustomWithOperatorsGenericAttribute>(GATypeNameCWOGA, serializeCWOGA, unserializeCWOGA);
 
@@ -351,18 +349,18 @@ static std::pair<std::string, std::string> serializeNDCGA(const std::pair<const 
 	return std::make_pair(GATypeNameNDCGA, stream.str());
 }
 static NoDefaultConstructorGenericAttribute * unserializeNDCGA(const std::pair<std::string, const Util::GenericAttributeMap *> & contentAndContext) {
-	CPPUNIT_ASSERT(contentAndContext.second != nullptr);
+	REQUIRE(contentAndContext.second != nullptr);
 	auto exporter = dynamic_cast<Util::GenericAttributeMap *>(contentAndContext.second->getValue(Util::StringIdentifier("exporter")));
-	CPPUNIT_ASSERT(exporter != nullptr);
+	REQUIRE(exporter != nullptr);
 	auto importer = dynamic_cast<Util::GenericAttributeMap *>(contentAndContext.second->getValue(Util::StringIdentifier("importer")));
-	CPPUNIT_ASSERT(importer != nullptr);
+	REQUIRE(importer != nullptr);
 	auto customAttribute = new NoDefaultConstructorGenericAttribute(std::make_tuple(exporter, importer, std::vector<std::string>()));
 	std::istringstream stream(contentAndContext.first);
 	stream >> *customAttribute;
 	return customAttribute;
 }
 
-void GenericAttributeSerializationTest::testCustomWithContextSerialization() {
+TEST_CASE("GenericAttributeSerializationTest_testCustomWithContextSerialization", "[GenericAttributeSerializationTest]") {
 	Util::GenericAttributeMap * exporterGerman = new Util::GenericAttributeMap;
 	exporterGerman->setString(Util::StringIdentifier("one"), "eins");
 	exporterGerman->setString(Util::StringIdentifier("two"), "zwei");

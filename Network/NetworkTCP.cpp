@@ -9,17 +9,14 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "NetworkTCP.h"
-#include "../Macros.h"
-#include "../Timer.h"
-#include "../Utils.h"
-#include <algorithm>
-#include <iostream>
 
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 COMPILER_WARN_PUSH
 COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL_net.h>
 COMPILER_WARN_POP
+#elif UTIL_HAVE_LIB_ASIO
+#include <asio.hpp>
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -32,6 +29,12 @@ COMPILER_WARN_POP
 #endif
 #include <cstdint>
 #include <vector>
+
+#include "../Macros.h"
+#include "../Timer.h"
+#include "../Utils.h"
+#include <algorithm>
+#include <iostream>
 
 namespace Util {
 namespace Network {
@@ -91,6 +94,60 @@ class TCPConnection::Implementation {
 			SDLNet_FreeSocketSet(socketSet);
 			SDLNet_TCP_Close(tcpSocket);
 		}
+};
+
+#elif UTIL_HAVE_LIB_ASIO
+
+using namespace asio;
+using namespace asio::ip;
+extern io_context& getAsioContext();
+extern IPv4Address fromAsioTcpEndpoint(const tcp::endpoint & ep);
+extern tcp::endpoint toAsioTcpEndpoint(const IPv4Address & address);
+
+class TCPConnection::Implementation {
+	tcp::socket tcpSocket;
+	std::array<uint8_t, BUFFER_SIZE> buffer;
+public:
+	const IPv4Address remoteIp;
+	
+	Implementation(const IPv4Address & remoteIp_): tcpSocket(getAsioContext()), remoteIp(remoteIp_) {
+		auto endpoint = toAsioTcpEndpoint(remoteIp);
+		tcpSocket.connect(endpoint);
+	}
+	Implementation(tcp::socket&& tcpSocket_, const IPv4Address & remoteIp_): tcpSocket(std::move(tcpSocket_)), remoteIp(remoteIp_) { }
+	
+	bool doSendData(std::vector<uint8_t> & data) {
+		asio::error_code error;
+		tcpSocket.send(asio::buffer(data, data.size()), 0, error);
+		if(error) {
+			WARN("TCPConnection error: " + error.message());
+			return false;
+		}
+		return true;
+	}
+	std::tuple<std::vector<uint8_t>,bool> doReceiveData() { // -> receivedData,keep open?	
+		asio::error_code error;
+		auto bytesReceived = tcpSocket.available(error);
+		if(bytesReceived == 0) { // no data received
+			return std::make_tuple(std::vector<uint8_t>(),true);
+		} else if(error) {
+			WARN("TCPConnection error in doReceiveData: " + error.message());
+			return std::make_tuple(std::vector<uint8_t>(),false);
+		}
+		bytesReceived = std::min(buffer.size(), bytesReceived);		
+		bytesReceived = tcpSocket.read_some(asio::buffer(buffer, bytesReceived), error);
+		if(error == asio::error::eof) {
+			return std::make_tuple(std::vector<uint8_t>(),false); // connection closed
+		} else if (error) {
+			WARN("TCPConnection error in doReceiveData: " + error.message());
+			return std::make_tuple(std::vector<uint8_t>(),false);
+		}
+		return std::make_tuple(std::vector<uint8_t>(buffer.begin(),buffer.begin() + static_cast<size_t>(bytesReceived)),true);
+	}
+	
+	void doClose(){
+		tcpSocket.close();
+	}
 };
 
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
@@ -169,6 +226,26 @@ class TCPConnection::Implementation {
 			tcpSocket = 0;
 		}
 };
+#else
+
+// Dummy implementation
+class TCPConnection::Implementation {
+public:
+	const IPv4Address remoteIp;
+	Implementation(const IPv4Address & remoteIp_) : remoteIp(remoteIp_) { }
+	Implementation(int clientSocket, const IPv4Address & remoteIp_) : remoteIp(remoteIp_) { }
+	
+	bool doSendData(std::vector<uint8_t> & data){
+		WARN("Networking is not supported.");
+		return false;
+	}
+	std::tuple<std::vector<uint8_t>,bool> doReceiveData(){
+		WARN("Networking is not supported.");
+		return std::make_tuple(std::vector<uint8_t>(),false);
+	}
+	void doClose(){ }
+};
+
 #endif
 
 // ----------------------------------------------------------------------------------------
@@ -375,6 +452,38 @@ class TCPServer::Implementation {
 		}
 
 };
+#elif UTIL_HAVE_LIB_ASIO
+
+class TCPServer::Implementation {
+	tcp::acceptor acceptor;
+
+public:
+	static Implementation* create(uint16_t port) {
+		return new Implementation(port);
+	}
+
+	Implementation(uint16_t port) : acceptor(getAsioContext(), tcp::endpoint(tcp::v4(), port)) {
+		acceptor.non_blocking(true);
+	}
+
+	std::tuple<Reference<TCPConnection>,bool> doGetIncomingConnection() { // -> connection, ok?
+		asio::error_code error;
+		tcp::socket clientSocket(getAsioContext());
+		acceptor.accept(clientSocket, error);
+		if(error) {
+			//WARN(error.message());
+			return std::make_tuple(nullptr,true);
+		}
+	
+		auto remoteIp = fromAsioTcpEndpoint(clientSocket.remote_endpoint());
+		return std::make_tuple(new TCPConnection(new TCPConnection::Implementation(std::move(clientSocket), remoteIp)),true);
+	}
+	void doClose() {
+		acceptor.close();
+	}
+
+};
+
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 class TCPServer::Implementation {
 		int tcpServerSocket;
@@ -461,6 +570,21 @@ class TCPServer::Implementation {
 			}
 			tcpServerSocket = 0;
 		}		
+};
+#else
+
+// Dummy implementation
+class TCPServer::Implementation {
+public:
+	static Implementation* create(uint16_t port) {
+		return new Implementation(0);
+	}
+	Implementation(int socket) {}	
+	std::tuple<Reference<TCPConnection>,bool> doGetIncomingConnection() {
+		WARN("Networking is not supported.");
+		return std::make_tuple(nullptr,true);
+	}
+	void doClose() {}
 };
 #endif
 

@@ -1,21 +1,18 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2012-2013 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "FileUtilsTest.h"
 #include "IO/FileName.h"
 #include "IO/FileUtils.h"
 #include "IO/TemporaryDirectory.h"
 #include "StringUtils.h"
 #include "Utils.h"
-#include <cppunit/TestAssert.h>
-CPPUNIT_TEST_SUITE_REGISTRATION(FileUtilsTest);
-
-using namespace CppUnit;
+#include <catch2/catch.hpp>
 
 /**
  * @param directory Path to a temporary directory. The directory has to be
@@ -31,32 +28,32 @@ static void testFileSystem(const Util::FileName & directory) {
 
 	{   // openForWriting
 		auto outs = FileUtils::openForWriting(filename);
-		CPPUNIT_ASSERT(outs);
+		REQUIRE(outs);
 		*outs << s;
-		CPPUNIT_ASSERT(outs->good());
+		REQUIRE(outs->good());
 	}
 
 	{   // fileSize
 		size_t s1=FileUtils::fileSize(filename);
-		CPPUNIT_ASSERT_EQUAL(s.size(), s1);
+		REQUIRE(s.size() == s1);
 	}
 
 	{   // isFile
 		bool b1=FileUtils::isFile(filename);
-		CPPUNIT_ASSERT_EQUAL(true, b1);
+		REQUIRE(b1);
 		bool b2=FileUtils::isFile(FileName(filename.toString()+"foo"));
-		CPPUNIT_ASSERT_EQUAL(false, b2);
+		REQUIRE_FALSE(b2);
 	}
 
 	{   // dir (very basic check)
 		std::list<FileName> files;
 		FileUtils::dir(directory, files, FileUtils::DIR_DIRECTORIES | FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES | FileUtils::DIR_RECURSIVE);
-		CPPUNIT_ASSERT(files.size() == 1);
+		REQUIRE(files.size() == 1);
 	}
 
 	{ // openForReading
 		auto in = FileUtils::openForReading(filename);
-		CPPUNIT_ASSERT(in);
+		REQUIRE(in);
 
 		std::string s2;
 		while(in->good()){
@@ -64,25 +61,25 @@ static void testFileSystem(const Util::FileName & directory) {
 			if(in->good())
 				s2+=c;
 		}
-		CPPUNIT_ASSERT_EQUAL(s, s2);
+		REQUIRE(s == s2);
 	}
 
 	{ // openForAppending
 		auto out = FileUtils::openForAppending(filename);
-		CPPUNIT_ASSERT(out);
+		REQUIRE(out);
 
 		std::string app="Appended:Foo";
 		*out << app;
 		s+=app;
 		out.reset();
 		const std::string data=FileUtils::getFileContents(filename);
-		CPPUNIT_ASSERT(!data.empty());
-		CPPUNIT_ASSERT_EQUAL(s, data);
+		REQUIRE(!data.empty());
+		REQUIRE(s == data);
 	}
 
 	{ // open
 		auto io = FileUtils::open(filename);
-		CPPUNIT_ASSERT(io);
+		REQUIRE(io);
 
 		char c = static_cast<char> (io->get());
 		io->seekp(0);
@@ -92,198 +89,201 @@ static void testFileSystem(const Util::FileName & directory) {
 		s.replace(0,6,"HHH:-)");
 		io.reset();
 		const std::string data=FileUtils::getFileContents(filename);
-		CPPUNIT_ASSERT(!data.empty());
-		CPPUNIT_ASSERT_EQUAL(s, data);
+		REQUIRE(!data.empty());
+		REQUIRE(s == data);
 	}
 	s+="\nTest2";
 
 	{   // saveFile
 		bool b1=FileUtils::saveFile(filename,std::vector<uint8_t>(s.begin(), s.end()),true);
-		CPPUNIT_ASSERT_EQUAL(true, b1);
+		REQUIRE(b1);
 		bool b2=FileUtils::saveFile(filename,std::vector<uint8_t>(s.begin(), s.end()),false);
-		CPPUNIT_ASSERT_EQUAL(false, b2);
+		REQUIRE_FALSE(b2);
 	}
 
 	{   // loadFile
 		const std::vector<uint8_t> data=FileUtils::loadFile(filename);
-		CPPUNIT_ASSERT(!data.empty());
-		CPPUNIT_ASSERT_EQUAL(s, std::string(data.begin(), data.end()));
+		REQUIRE(!data.empty());
+		REQUIRE(s == std::string(data.begin(), data.end()));
 	}
 
 	// File remove (dbfs does not support remove function)
 	if(directory.getFSName() != "dbfs") {
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::isFile(filename));
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::remove(filename));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isFile(filename));
+		{
+			REQUIRE(FileUtils::isFile(filename));
+			REQUIRE(FileUtils::remove(filename));
+			REQUIRE_FALSE(FileUtils::isFile(filename));
+		}
 	}
 
 	// Directory operations (dbfs does not support createDir, remove functions)
 	if(directory.getFSName() != "dbfs") {
-		const Util::FileName missingDir(directory.toString() + "missing/");
-		const Util::FileName flatDir(directory.toString() + "directory/");
-		const Util::FileName deepDir1(flatDir.toString() + "subdirectory/");
-		const Util::FileName deepDir2(deepDir1.toString() + "subdirectory/");
-		const Util::FileName deepDir3(deepDir2.toString() + "subdirectory/");
+		{
+			const Util::FileName missingDir(directory.toString() + "missing/");
+			const Util::FileName flatDir(directory.toString() + "directory/");
+			const Util::FileName deepDir1(flatDir.toString() + "subdirectory/");
+			const Util::FileName deepDir2(deepDir1.toString() + "subdirectory/");
+			const Util::FileName deepDir3(deepDir2.toString() + "subdirectory/");
 
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(missingDir));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(flatDir));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir1));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir2));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir3));
+			REQUIRE_FALSE(FileUtils::isDir(missingDir));
+			REQUIRE_FALSE(FileUtils::isDir(flatDir));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir1));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir2));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir3));
 
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::createDir(flatDir));
+			REQUIRE(FileUtils::createDir(flatDir));
 
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(missingDir));
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(flatDir));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir1));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir2));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir3));
+			REQUIRE_FALSE(FileUtils::isDir(missingDir));
+			REQUIRE(FileUtils::isDir(flatDir));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir1));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir2));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir3));
 
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::createDir(deepDir3));
+			REQUIRE(FileUtils::createDir(deepDir3));
 
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(missingDir));
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(flatDir));
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(deepDir1));
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(deepDir2));
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(deepDir3));
+			REQUIRE_FALSE(FileUtils::isDir(missingDir));
+			REQUIRE(FileUtils::isDir(flatDir));
+			REQUIRE(FileUtils::isDir(deepDir1));
+			REQUIRE(FileUtils::isDir(deepDir2));
+			REQUIRE(FileUtils::isDir(deepDir3));
 
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::remove(deepDir3));
+			REQUIRE(FileUtils::remove(deepDir3));
 
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(missingDir));
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(flatDir));
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(deepDir1));
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(deepDir2));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir3));
+			REQUIRE_FALSE(FileUtils::isDir(missingDir));
+			REQUIRE(FileUtils::isDir(flatDir));
+			REQUIRE(FileUtils::isDir(deepDir1));
+			REQUIRE(FileUtils::isDir(deepDir2));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir3));
 
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::remove(deepDir2));
+			REQUIRE(FileUtils::remove(deepDir2));
 
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(missingDir));
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(flatDir));
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(deepDir1));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir2));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir3));
+			REQUIRE_FALSE(FileUtils::isDir(missingDir));
+			REQUIRE(FileUtils::isDir(flatDir));
+			REQUIRE(FileUtils::isDir(deepDir1));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir2));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir3));
 
-		CPPUNIT_ASSERT_EQUAL(true, FileUtils::remove(flatDir, true));
+			REQUIRE(FileUtils::remove(flatDir, true));
 
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(missingDir));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(flatDir));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir1));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir2));
-		CPPUNIT_ASSERT_EQUAL(false, FileUtils::isDir(deepDir3));
+			REQUIRE_FALSE(FileUtils::isDir(missingDir));
+			REQUIRE_FALSE(FileUtils::isDir(flatDir));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir1));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir2));
+			REQUIRE_FALSE(FileUtils::isDir(deepDir3));
+		}
 	}
 
 	// dir with different parameters (dbfs lacks support for various functions)
 	if(directory.getFSName() != "dbfs") {
 		{
-			std::list<FileName> files;
-			FileUtils::dir(directory, files, FileUtils::DIR_DIRECTORIES | FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES | FileUtils::DIR_RECURSIVE);
-			CPPUNIT_ASSERT(files.empty());
-		}
+			{
+				std::list<FileName> files;
+				FileUtils::dir(directory, files, FileUtils::DIR_DIRECTORIES | FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES | FileUtils::DIR_RECURSIVE);
+				REQUIRE(files.empty());
+			}
 
-		for(uint_fast16_t dirLevel0 = 0; dirLevel0 < 5; ++dirLevel0) {
-			const FileName dirLevel0FileName(directory.toString() + Util::StringUtils::toString(dirLevel0) + '/');
-			CPPUNIT_ASSERT_EQUAL(true, FileUtils::createDir(dirLevel0FileName));
-			for(uint_fast16_t dirLevel1 = 0; dirLevel1 < 4; ++dirLevel1) {
-				const FileName dirLevel1FileName(dirLevel0FileName.toString() + Util::StringUtils::toString(dirLevel1) + '/');
-				CPPUNIT_ASSERT_EQUAL(true, FileUtils::createDir(dirLevel1FileName));
-				for(uint_fast16_t dirLevel2 = 0; dirLevel2 < 3; ++dirLevel2) {
-					const FileName dirLevel2FileName(dirLevel1FileName.toString() + Util::StringUtils::toString(dirLevel2) + '/');
-					CPPUNIT_ASSERT_EQUAL(true, FileUtils::createDir(dirLevel2FileName));
-					for(uint_fast16_t fileNumber = 0; fileNumber < 2; ++fileNumber) {
-						CPPUNIT_ASSERT_EQUAL(true,
-											 FileUtils::saveFile(FileName(dirLevel2FileName.toString() + Util::StringUtils::toString(fileNumber)),
+			for(uint_fast16_t dirLevel0 = 0; dirLevel0 < 5; ++dirLevel0) {
+				const FileName dirLevel0FileName(directory.toString() + Util::StringUtils::toString(dirLevel0) + '/');
+				REQUIRE(FileUtils::createDir(dirLevel0FileName));
+				for(uint_fast16_t dirLevel1 = 0; dirLevel1 < 4; ++dirLevel1) {
+					const FileName dirLevel1FileName(dirLevel0FileName.toString() + Util::StringUtils::toString(dirLevel1) + '/');
+					REQUIRE(FileUtils::createDir(dirLevel1FileName));
+					for(uint_fast16_t dirLevel2 = 0; dirLevel2 < 3; ++dirLevel2) {
+						const FileName dirLevel2FileName(dirLevel1FileName.toString() + Util::StringUtils::toString(dirLevel2) + '/');
+						REQUIRE(FileUtils::createDir(dirLevel2FileName));
+						for(uint_fast16_t fileNumber = 0; fileNumber < 2; ++fileNumber) {
+							REQUIRE(FileUtils::saveFile(FileName(dirLevel2FileName.toString() + Util::StringUtils::toString(fileNumber)),
+																	 std::vector<uint8_t>(2),
+																	 true));
+						}
+						REQUIRE(FileUtils::saveFile(FileName(dirLevel2FileName.toString() + ".hidden"),
 																 std::vector<uint8_t>(2),
 																 true));
 					}
-					CPPUNIT_ASSERT_EQUAL(true,
-										 FileUtils::saveFile(FileName(dirLevel2FileName.toString() + ".hidden"),
+					REQUIRE(FileUtils::saveFile(FileName(dirLevel1FileName.toString() + "level1File"),
 															 std::vector<uint8_t>(2),
 															 true));
 				}
-				CPPUNIT_ASSERT_EQUAL(true,
-									 FileUtils::saveFile(FileName(dirLevel1FileName.toString() + "level1File"),
-														 std::vector<uint8_t>(2),
-														 true));
 			}
-		}
 
-		// Recursive
-		{
-			std::list<FileName> allEntries;
-			FileUtils::dir(directory, allEntries, FileUtils::DIR_DIRECTORIES | FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES | FileUtils::DIR_RECURSIVE);
-			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(285), allEntries.size());
-		}
-		{
-			std::list<FileName> dirs;
-			FileUtils::dir(directory, dirs, FileUtils::DIR_DIRECTORIES | FileUtils::DIR_RECURSIVE);
-			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(85), dirs.size());
-		}
-		{
-			std::list<FileName> files;
-			FileUtils::dir(directory, files, FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES | FileUtils::DIR_RECURSIVE);
-			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(200), files.size());
-		}
-		{
-			std::list<FileName> filesWithoutHidden;
-			FileUtils::dir(directory, filesWithoutHidden, FileUtils::DIR_FILES | FileUtils::DIR_RECURSIVE);
-			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(140), filesWithoutHidden.size());
-		}
-		// Non-recursive
-		{
-			std::list<FileName> topLevel;
-			FileUtils::dir(directory, topLevel, FileUtils::DIR_DIRECTORIES | FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES);
-			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), topLevel.size());
-		}
-		{
-			std::list<FileName> level0;
-			FileUtils::dir(Util::FileName(directory.toString() + "4/"), level0, FileUtils::DIR_DIRECTORIES | FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES);
-			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), level0.size());
-		}
-		{
-			const Util::FileName level1FileName(directory.toString() + "1/0/");
-			std::list<FileName> level1Dirs;
-			FileUtils::dir(level1FileName, level1Dirs, FileUtils::DIR_DIRECTORIES);
-			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), level1Dirs.size());
-			std::list<FileName> level1Files;
-			FileUtils::dir(level1FileName, level1Files, FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES);
-			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), level1Files.size());
-		}
-		{
-			const Util::FileName level2FileName(directory.toString() + "3/2/1/");
-			std::list<FileName> level2Dirs;
-			FileUtils::dir(level2FileName, level2Dirs, FileUtils::DIR_DIRECTORIES);
-			CPPUNIT_ASSERT(level2Dirs.empty());
-			std::list<FileName> level2Files;
-			FileUtils::dir(level2FileName, level2Files, FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES);
-			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), level2Files.size());
-			std::list<FileName> level2FilesWithoutHidden;
-			FileUtils::dir(level2FileName, level2FilesWithoutHidden, FileUtils::DIR_FILES);
-			CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), level2FilesWithoutHidden.size());
-		}
+			// Recursive
+			{
+				std::list<FileName> allEntries;
+				FileUtils::dir(directory, allEntries, FileUtils::DIR_DIRECTORIES | FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES | FileUtils::DIR_RECURSIVE);
+				REQUIRE(static_cast<size_t>(285) == allEntries.size());
+			}
+			{
+				std::list<FileName> dirs;
+				FileUtils::dir(directory, dirs, FileUtils::DIR_DIRECTORIES | FileUtils::DIR_RECURSIVE);
+				REQUIRE(static_cast<size_t>(85) == dirs.size());
+			}
+			{
+				std::list<FileName> files;
+				FileUtils::dir(directory, files, FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES | FileUtils::DIR_RECURSIVE);
+				REQUIRE(static_cast<size_t>(200) == files.size());
+			}
+			{
+				std::list<FileName> filesWithoutHidden;
+				FileUtils::dir(directory, filesWithoutHidden, FileUtils::DIR_FILES | FileUtils::DIR_RECURSIVE);
+				REQUIRE(static_cast<size_t>(140) == filesWithoutHidden.size());
+			}
+			// Non-recursive
+			{
+				std::list<FileName> topLevel;
+				FileUtils::dir(directory, topLevel, FileUtils::DIR_DIRECTORIES | FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES);
+				REQUIRE(static_cast<size_t>(5) == topLevel.size());
+			}
+			{
+				std::list<FileName> level0;
+				FileUtils::dir(Util::FileName(directory.toString() + "4/"), level0, FileUtils::DIR_DIRECTORIES | FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES);
+				REQUIRE(static_cast<size_t>(4) == level0.size());
+			}
+			{
+				const Util::FileName level1FileName(directory.toString() + "1/0/");
+				std::list<FileName> level1Dirs;
+				FileUtils::dir(level1FileName, level1Dirs, FileUtils::DIR_DIRECTORIES);
+				REQUIRE(static_cast<size_t>(3) == level1Dirs.size());
+				std::list<FileName> level1Files;
+				FileUtils::dir(level1FileName, level1Files, FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES);
+				REQUIRE(static_cast<size_t>(1) == level1Files.size());
+			}
+			{
+				const Util::FileName level2FileName(directory.toString() + "3/2/1/");
+				std::list<FileName> level2Dirs;
+				FileUtils::dir(level2FileName, level2Dirs, FileUtils::DIR_DIRECTORIES);
+				REQUIRE(level2Dirs.empty());
+				std::list<FileName> level2Files;
+				FileUtils::dir(level2FileName, level2Files, FileUtils::DIR_FILES | FileUtils::DIR_HIDDEN_FILES);
+				REQUIRE(static_cast<size_t>(3) == level2Files.size());
+				std::list<FileName> level2FilesWithoutHidden;
+				FileUtils::dir(level2FileName, level2FilesWithoutHidden, FileUtils::DIR_FILES);
+				REQUIRE(static_cast<size_t>(2) == level2FilesWithoutHidden.size());
+			}
 
-		// Benchmark for lots of isFile and isDir calls
-		for(uint_fast16_t dirLevel0 = 0; dirLevel0 < 5; ++dirLevel0) {
-			const FileName dirLevel0FileName(directory.toString() + Util::StringUtils::toString(dirLevel0) + '/');
-			CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(dirLevel0FileName));
-			for(uint_fast16_t dirLevel1 = 0; dirLevel1 < 4; ++dirLevel1) {
-				const FileName dirLevel1FileName(dirLevel0FileName.toString() + Util::StringUtils::toString(dirLevel1) + '/');
-				CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(dirLevel1FileName));
-				for(uint_fast16_t dirLevel2 = 0; dirLevel2 < 3; ++dirLevel2) {
-					const FileName dirLevel2FileName(dirLevel1FileName.toString() + Util::StringUtils::toString(dirLevel2) + '/');
-					CPPUNIT_ASSERT_EQUAL(true, FileUtils::isDir(dirLevel2FileName));
-					for(uint_fast16_t fileNumber = 0; fileNumber < 2; ++fileNumber) {
-						CPPUNIT_ASSERT_EQUAL(true, FileUtils::isFile(FileName(dirLevel2FileName.toString() + Util::StringUtils::toString(fileNumber))));
+			// Benchmark for lots of isFile and isDir calls
+			for(uint_fast16_t dirLevel0 = 0; dirLevel0 < 5; ++dirLevel0) {
+				const FileName dirLevel0FileName(directory.toString() + Util::StringUtils::toString(dirLevel0) + '/');
+				REQUIRE(FileUtils::isDir(dirLevel0FileName));
+				for(uint_fast16_t dirLevel1 = 0; dirLevel1 < 4; ++dirLevel1) {
+					const FileName dirLevel1FileName(dirLevel0FileName.toString() + Util::StringUtils::toString(dirLevel1) + '/');
+					REQUIRE(FileUtils::isDir(dirLevel1FileName));
+					for(uint_fast16_t dirLevel2 = 0; dirLevel2 < 3; ++dirLevel2) {
+						const FileName dirLevel2FileName(dirLevel1FileName.toString() + Util::StringUtils::toString(dirLevel2) + '/');
+						REQUIRE(FileUtils::isDir(dirLevel2FileName));
+						for(uint_fast16_t fileNumber = 0; fileNumber < 2; ++fileNumber) {
+							REQUIRE(FileUtils::isFile(FileName(dirLevel2FileName.toString() + Util::StringUtils::toString(fileNumber))));
+						}
+						REQUIRE(FileUtils::isFile(FileName(dirLevel2FileName.toString() + ".hidden")));
 					}
-					CPPUNIT_ASSERT_EQUAL(true, FileUtils::isFile(FileName(dirLevel2FileName.toString() + ".hidden")));
+					REQUIRE(FileUtils::isFile(FileName(dirLevel1FileName.toString() + "level1File")));
 				}
-				CPPUNIT_ASSERT_EQUAL(true, FileUtils::isFile(FileName(dirLevel1FileName.toString() + "level1File")));
 			}
 		}
 	}
 }
 
 #ifdef UTIL_HAVE_LIB_ARCHIVE
-void FileUtilsTest::testARCHIVE() {
+TEST_CASE("FileUtilsTest_testARCHIVE", "[FileUtilsTest]") {
 	Util::TemporaryDirectory tempDir("FileUtilsTest_testARCHIVE");
 	Util::FileName testDirectory = tempDir.getPath();
 	testDirectory.setFSName("archive");
@@ -292,14 +292,14 @@ void FileUtilsTest::testARCHIVE() {
 }
 #endif
 
-void FileUtilsTest::testFS() {
+TEST_CASE("FileUtilsTest_testFS", "[FileUtilsTest]") {
 	Util::TemporaryDirectory tempDir("FileUtilsTest_testFS");
 	Util::FileName testDirectory = tempDir.getPath();
 	testFileSystem(testDirectory);
 }
 
 #ifdef UTIL_HAVE_LIB_SQLITE
-void FileUtilsTest::testDBFS() {
+TEST_CASE("FileUtilsTest_testDBFS", "[FileUtilsTest]") {
 	Util::TemporaryDirectory tempDir("FileUtilsTest_testDBFS");
 	Util::FileName testDirectory = tempDir.getPath();
 	testDirectory.setFSName("dbfs");
@@ -309,7 +309,7 @@ void FileUtilsTest::testDBFS() {
 #endif
 
 #ifdef UTIL_HAVE_LIB_ZIP
-void FileUtilsTest::testZIP() {
+TEST_CASE("FileUtilsTest_testZIP", "[FileUtilsTest]") {
 	Util::TemporaryDirectory tempDir("FileUtilsTest_testZIP");
 	Util::FileName testDirectory = tempDir.getPath();
 	testDirectory.setFSName("zip");

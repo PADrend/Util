@@ -1,28 +1,23 @@
-os: linux
-dist: xenial
+
 language: cpp
-compiler:
-  - gcc
-  - clang
-sudo: false
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    - llvm-toolchain-xenial-7
-    packages:
-    - g++-5
-    - clang-7
-    - valgrind
-    - xorg-dev
-before_install:
- - export CMAKE_URL="https://cmake.org/files/v3.4/cmake-3.4.1-Linux-x86_64.tar.gz"
- - export CMAKE_STRIP_COMPONENTS=1
- - cd /tmp
- - wget --no-check-certificate "${CMAKE_URL}" --output-document=cmake.tar.gz
- - mkdir cmake
- - tar xzf cmake.tar.gz --strip-components="${CMAKE_STRIP_COMPONENTS}" --directory cmake
- - export PATH=/tmp/cmake/bin:$PATH
- - cd -
-before_script: mkdir build && cd build && if [ "${CXX}" = "clang++" ]; then export CXX=/usr/bin/clang++-7; fi && if [ "${CXX}" = "g++" ]; then export CXX=/usr/bin/g++-5; fi
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          packages:
+          - xorg-dev
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          packages:
+          - xorg-dev
+    - os: windows
+      compiler: gcc
+      install: choco install ninja
+      script: cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUTIL_BUILD_EXAMPLES=ON -DUTIL_BUILD_TESTS=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" .. && ninja && ctest --verbose -D ExperimentalTest
+
+before_script: mkdir build && cd build
 script: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUTIL_BUILD_EXAMPLES=ON -DUTIL_BUILD_TESTS=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" .. && make && ctest --verbose -D ExperimentalTest

@@ -1,0 +1,6 @@
+build
+bin
+lib
+include
+cppunit_results.xml
+.clang_complete

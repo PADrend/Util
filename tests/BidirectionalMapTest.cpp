@@ -3,87 +3,88 @@
 	Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2013 Ralf Petring <ralf@petring.net>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "BidirectionalMapTest.h"
 #include "BidirectionalMap.h"
 #include "References.h"
 #include "Graphics/Bitmap.h"
-CPPUNIT_TEST_SUITE_REGISTRATION(BidirectionalUnorderedMapTest);
 
-#include<iostream>
+#include <catch2/catch.hpp>
 
-void BidirectionalUnorderedMapTest::test() {
+#include <map>
+#include <iostream>
 
-    Util::BidirectionalUnorderedMap<int,int> map;
+TEST_CASE("BidirectionalMapTest", "[BidirectionalMapTest]") {
+	Util::BidirectionalUnorderedMap<int,int> map;
 
-    //! insertion
-    CPPUNIT_ASSERT(map.insert(1,2));
-    CPPUNIT_ASSERT(map.insert(3,4));
-    CPPUNIT_ASSERT(!map.insert(1,5));
-    CPPUNIT_ASSERT(!map.insert(5,4));
-    CPPUNIT_ASSERT(map.insert(std::make_pair<int,int>(5,5)));
+	//! insertion
+	REQUIRE(map.insert(1,2));
+	REQUIRE(map.insert(3,4));
+	REQUIRE(!map.insert(1,5));
+	REQUIRE(!map.insert(5,4));
+	REQUIRE(map.insert(std::make_pair<int,int>(5,5)));
 
-    //! searching
-    CPPUNIT_ASSERT(map.findLeft(1) != map.endLeft());
-    CPPUNIT_ASSERT(map.findLeft(1)->second == 2);
-    CPPUNIT_ASSERT(map.findRight(2) != map.endRight());
-    CPPUNIT_ASSERT(map.findRight(2)->second == 1);
+	//! searching
+	REQUIRE(map.findLeft(1) != map.endLeft());
+	REQUIRE(map.findLeft(1)->second == 2);
+	REQUIRE(map.findRight(2) != map.endRight());
+	REQUIRE(map.findRight(2)->second == 1);
 
-    //! erasing
-    CPPUNIT_ASSERT(map.eraseRight(2) == 1);
-    CPPUNIT_ASSERT(map.findRight(2) == map.endRight());
-    CPPUNIT_ASSERT(map.findLeft(1) == map.endLeft());
-    CPPUNIT_ASSERT(map.eraseLeft(3) == 1);
-    CPPUNIT_ASSERT(map.findLeft(3) == map.endLeft());
-    CPPUNIT_ASSERT(map.findRight(4) == map.endRight());
+	//! erasing
+	REQUIRE(map.eraseRight(2) == 1);
+	REQUIRE(map.findRight(2) == map.endRight());
+	REQUIRE(map.findLeft(1) == map.endLeft());
+	REQUIRE(map.eraseLeft(3) == 1);
+	REQUIRE(map.findLeft(3) == map.endLeft());
+	REQUIRE(map.findRight(4) == map.endRight());
 
-    //! size & clear
-    CPPUNIT_ASSERT(map.size() == 1);
-    CPPUNIT_ASSERT(!map.empty());
-    map.eraseRight(5);
-    CPPUNIT_ASSERT(map.empty());
-    map.insert(1,2);
-    map.insert(3,4);
-    map.clear();
-    CPPUNIT_ASSERT(map.empty());
+	//! size & clear
+	REQUIRE(map.size() == 1);
+	REQUIRE(!map.empty());
+	map.eraseRight(5);
+	REQUIRE(map.empty());
+	map.insert(1,2);
+	map.insert(3,4);
+	map.clear();
+	REQUIRE(map.empty());
 
-    //! swap
-    Util::BidirectionalUnorderedMap<int,int> map2;
-    map.insert(1,1);
-    map.insert(2,2);
-    map2.insert(1,2);
-    map.swap(map2);
-    CPPUNIT_ASSERT(map2.findLeft(1)->second == 1);
-    CPPUNIT_ASSERT(map2.findLeft(2)->second == 2);
-    CPPUNIT_ASSERT(map.findLeft(1)->second == 2);
-    CPPUNIT_ASSERT(map2.size()==2);
-    CPPUNIT_ASSERT(map.size()==1);
-	{
-		//! util references
+	//! swap
+	Util::BidirectionalUnorderedMap<int,int> map2;
+	map.insert(1,1);
+	map.insert(2,2);
+	map2.insert(1,2);
+	map.swap(map2);
+	REQUIRE(map2.findLeft(1)->second == 1);
+	REQUIRE(map2.findLeft(2)->second == 2);
+	REQUIRE(map.findLeft(1)->second == 2);
+	REQUIRE(map2.size()==2);
+	REQUIRE(map.size()==1);
+	
+	SECTION("util references") {
 		Util::BidirectionalUnorderedMap<Util::Reference<Util::Bitmap>,int, Util::BidirectionalMapPolicies::hashByGet > map3;
 		Util::Reference<Util::Bitmap> a = new Util::Bitmap(), b = new Util::Bitmap(), c = new Util::Bitmap();
 		map3.insert(a, 1);
 		map3.insert(b.get(), 2);
 		map3.insert(Util::Reference<Util::Bitmap>(c.get()), 3);
-		CPPUNIT_ASSERT(map3.findLeft(a.get())->second == 1);
-		CPPUNIT_ASSERT(map3.findLeft(Util::Reference<Util::Bitmap>(b))->second == 2);
-		CPPUNIT_ASSERT(map3.findLeft(c)->second == 3);
+		REQUIRE(map3.findLeft(a.get())->second == 1);
+		REQUIRE(map3.findLeft(Util::Reference<Util::Bitmap>(b))->second == 2);
+		REQUIRE(map3.findLeft(c)->second == 3);
 	}
 	
-    {
-    	Util::BidirectionalUnorderedMap<int,std::string> m;
+	{
+		Util::BidirectionalUnorderedMap<int,std::string> m;
 
-    	m.insert(1,"a");
-    	m.insert(2,"b");
-    	m.insert(3,"c");
-    	m.eraseLeft(1);
-    }
+		m.insert(1,"a");
+		m.insert(2,"b");
+		m.insert(3,"c");
+		m.eraseLeft(1);
+	}
 
-	{ //! different maps for left and right
+	SECTION("different maps for left and right") {
 		typedef Util::BidirectionalMap<
 					std::unordered_map<int, Util::Reference<Util::Bitmap> >,
 					std::unordered_map<Util::Bitmap*, int>,
@@ -93,26 +94,26 @@ void BidirectionalUnorderedMapTest::test() {
 					Util::BidirectionalMapPolicies::convertByIdentity	// convert_rightKeyToLeftMapped_t: Reference <- Bitmap*
 					> bitmapRegistry_t;
 
-	    bitmapRegistry_t m;
+		bitmapRegistry_t m;
 		Util::Reference<Util::Bitmap> a = new Util::Bitmap(), b = new Util::Bitmap(), c = new Util::Bitmap();
 		m.insert(1, a.get());
 		m.insert(2, b.get());
-		CPPUNIT_ASSERT(m.findRight(a.get())->second == 1);
-		CPPUNIT_ASSERT(m.findRight(b.get())->second == 2);
-		CPPUNIT_ASSERT(m.findLeft(2)->second == b);
-		CPPUNIT_ASSERT(m.findLeft(3) == m.endLeft() );
+		REQUIRE(m.findRight(a.get())->second == 1);
+		REQUIRE(m.findRight(b.get())->second == 2);
+		REQUIRE(m.findLeft(2)->second == b);
+		REQUIRE(m.findLeft(3) == m.endLeft() );
 		
-		CPPUNIT_ASSERT(!m.insert(2, c.get()) );
-		CPPUNIT_ASSERT(!m.insert(3, a.get()) ); // a already set
+		REQUIRE(!m.insert(2, c.get()) );
+		REQUIRE(!m.insert(3, a.get()) ); // a already set
 		m.eraseRight(a.get()) ;
-		CPPUNIT_ASSERT( m.insert(3, a.get()) );
+		REQUIRE( m.insert(3, a.get()) );
 
 		m.eraseLeft(3) ;
-		CPPUNIT_ASSERT( m.insert(3, a.get()) );
+		REQUIRE( m.insert(3, a.get()) );
 
-	}    
-     
-	{ //! different maps for left and right (with conversion function)
+	}
+		
+	SECTION("different maps for left and right (with conversion function)") {
 		typedef Util::BidirectionalMap<
 					std::unordered_map<int, Util::Bitmap*>,
 					std::unordered_map<Util::Reference<Util::Bitmap> , int, Util::BidirectionalMapPolicies::hashByGet>,
@@ -122,18 +123,18 @@ void BidirectionalUnorderedMapTest::test() {
 					Util::BidirectionalMapPolicies::convertByGet		// convert_rightKeyToLeftMapped_t: Bitmap* <- Reference
 				> bitmapRegistry_t;
 
-	    bitmapRegistry_t m;
+		bitmapRegistry_t m;
 		Util::Reference<Util::Bitmap> a = new Util::Bitmap(), b = new Util::Bitmap(), c = new Util::Bitmap();
 		m.insert(1, a);
 		m.insert(2, b.get());
-		CPPUNIT_ASSERT(m.findRight(a.get())->second == 1);
-		CPPUNIT_ASSERT(m.findRight(b.get())->second == 2);
-		CPPUNIT_ASSERT(m.findLeft(2)->second == b.get());
-		CPPUNIT_ASSERT(m.findLeft(3) == m.endLeft() );
+		REQUIRE(m.findRight(a.get())->second == 1);
+		REQUIRE(m.findRight(b.get())->second == 2);
+		REQUIRE(m.findLeft(2)->second == b.get());
+		REQUIRE(m.findLeft(3) == m.endLeft() );
 		
-		CPPUNIT_ASSERT(!m.insert(2, c.get()) );
-		CPPUNIT_ASSERT(!m.insert(3, a.get()) );
-		CPPUNIT_ASSERT( m.insert(3, c.get()) );
+		REQUIRE(!m.insert(2, c.get()) );
+		REQUIRE(!m.insert(3, a.get()) );
+		REQUIRE( m.insert(3, c.get()) );
 		
 		// if this compiles, the convert parameters should be correct
 		m.eraseLeft(1);
@@ -141,24 +142,23 @@ void BidirectionalUnorderedMapTest::test() {
 	}    
 
 
-	{ //! use std::map on one side
+	SECTION("use std::map on one side") {
 		typedef Util::BidirectionalMap<
 					std::map<int, Util::Reference<Util::Bitmap> >,
 					std::unordered_map<Util::Bitmap*, int>
 					> bitmapRegistry_t;
 
-	    bitmapRegistry_t m;
+			bitmapRegistry_t m;
 		Util::Reference<Util::Bitmap> a = new Util::Bitmap(), b = new Util::Bitmap(), c = new Util::Bitmap();
 		m.insert(1, a.get());
 		m.insert(2, b.get());
-		CPPUNIT_ASSERT(m.findRight(a.get())->second == 1);
-		CPPUNIT_ASSERT(m.findRight(b.get())->second == 2);
-		CPPUNIT_ASSERT(m.findLeft(2)->second == b);
-		CPPUNIT_ASSERT(m.findLeft(3) == m.endLeft() );
+		REQUIRE(m.findRight(a.get())->second == 1);
+		REQUIRE(m.findRight(b.get())->second == 2);
+		REQUIRE(m.findLeft(2)->second == b);
+		REQUIRE(m.findLeft(3) == m.endLeft() );
 		
-		CPPUNIT_ASSERT(!m.insert(2, c.get()) );
-		CPPUNIT_ASSERT(!m.insert(3, a.get()) );
-		CPPUNIT_ASSERT( m.insert(3, c.get()) );
-
+		REQUIRE(!m.insert(2, c.get()) );
+		REQUIRE(!m.insert(3, a.get()) );
+		REQUIRE( m.insert(3, c.get()) );
 	}   
 }

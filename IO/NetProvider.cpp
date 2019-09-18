@@ -74,6 +74,7 @@ AbstractFSProvider::status_t NetProvider::readFile(const FileName & url, std::ve
 	curl_easy_setopt(handle, CURLOPT_URL, url.getPath().c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, NetProviderWriteCallback);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, reinterpret_cast<void *>(&data));
+  curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1L);
 
 	if (curl_easy_perform(handle) != CURLE_OK) {
 		WARN("Transfer in libcurl failed.");

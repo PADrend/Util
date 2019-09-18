@@ -15,15 +15,26 @@ COMPILER_WARN_PUSH
 COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL_loadso.h>
 COMPILER_WARN_POP
+#elif defined(_WIN32)
+#include <windows.h>
+#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#include <stdio.h>
+#include <dlfcn.h>
+#endif
 
 #include <unordered_map>
 #include <memory>
+#include <sstream>
 
 using namespace Util;
 
 struct LibraryHandle {
-  StringIdentifier id;
-  void* handle;
+	StringIdentifier id;
+#if defined(_WIN32)
+	HINSTANCE handle;
+#else
+	void* handle;
+#endif
 };
 
 typedef std::unordered_map<StringIdentifier, LibraryHandle> LibraryHandles_t;
@@ -33,64 +44,116 @@ static LibraryHandles_t & getLibraryHandles() {
 	return *libraryHandles.get();
 }
 
+#if defined(UTIL_HAVE_LIB_SDL2)
+
 const StringIdentifier Util::loadLibrary(const std::string& filename) {
-  StringIdentifier libraryId(filename);
-  auto & libraryHandles = getLibraryHandles();
+	StringIdentifier libraryId(filename);
+	auto & libraryHandles = getLibraryHandles();
 	auto entry = libraryHandles.find(libraryId);
-  
+	
 	if (entry == libraryHandles.cend()) {
-    void* handle = SDL_LoadObject(filename.c_str());
-    if(!handle) {
-      WARN(std::string("Util::loadLibrary failed: ") + SDL_GetError());
-      return StringIdentifier(0);
-    }
-    libraryHandles[libraryId] = {libraryId, handle};
-  } 
-  return libraryId;
+		void* handle = SDL_LoadObject(filename.c_str());
+		if(!handle) {
+			WARN(std::string("Util::loadLibrary failed: ") + SDL_GetError());
+			return StringIdentifier(0);
+		}
+		libraryHandles[libraryId] = {libraryId, handle};
+	} 
+	return libraryId;
 }
 
 void* Util::loadFunction(const StringIdentifier& libraryId, const std::string& name) {
-  auto & libraryHandles = getLibraryHandles();
-  auto entry = libraryHandles.find(libraryId);
-  
+	auto & libraryHandles = getLibraryHandles();
+	auto entry = libraryHandles.find(libraryId);
+	
 	if (entry == libraryHandles.cend()) {
-    WARN(std::string("Util::loadFunction failed: ") + libraryId.toString() + std::string(" not loaded!"));
-    return nullptr;
-  }
-  
-  void* fnHandle = SDL_LoadFunction(entry->second.handle, name.c_str());
-  if(!fnHandle) {
-    WARN(std::string("Util::loadFunction failed: ") + SDL_GetError());
-  }
-  return fnHandle;
+		WARN(std::string("Util::loadFunction failed: ") + libraryId.toString() + std::string(" not loaded!"));
+		return nullptr;
+	}
+	
+	void* fnHandle = SDL_LoadFunction(entry->second.handle, name.c_str());
+	if(!fnHandle) {
+		WARN(std::string("Util::loadFunction failed: ") + SDL_GetError());
+	}
+	return fnHandle;
 }
 
 void Util::unloadLibrary(const StringIdentifier& libraryId) {
-  auto & libraryHandles = getLibraryHandles();
-  auto entry = libraryHandles.find(libraryId);
-  
+	auto & libraryHandles = getLibraryHandles();
+	auto entry = libraryHandles.find(libraryId);
+	
 	if (entry != libraryHandles.cend()) {
-    SDL_UnloadObject(entry->second.handle);
-    libraryHandles.erase(entry);
-  }
+		SDL_UnloadObject(entry->second.handle);
+		libraryHandles.erase(entry);
+	}
 }
 
 #else
 
 using namespace Util;
 
-const StringIdentifier Util::loadLibrary(const std::string&) {
-	WARN("Util::loadLibrary requires SDL to work!");
-	return StringIdentifier(0);
+const StringIdentifier Util::loadLibrary(const std::string& filename) {
+	StringIdentifier libraryId(filename);
+	auto & libraryHandles = getLibraryHandles();
+	auto entry = libraryHandles.find(libraryId);
+	std::ostringstream err;
+	
+	if (entry == libraryHandles.cend()) {		
+		#if defined(_WIN32) || defined(_WIN64)
+			HINSTANCE handle = LoadLibrary(filename.c_str());
+		#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+			std::string libPath = filename;
+			if(libPath.find("/") == std::string::npos)
+				libPath = "./" + libPath; // need to prepend "./" for some distributions
+			void* handle = dlopen(libPath.c_str(), RTLD_NOW|RTLD_LOCAL);
+			if(!handle) err << dlerror();
+		#else
+			void* handle = nullptr;
+		#endif
+		
+		if(!handle) {
+			WARN(std::string("Util::loadLibrary failed: " + err.str()));
+			return StringIdentifier(0);
+		}
+		libraryHandles[libraryId] = {libraryId, handle};
+	}
+	return libraryId;
 }
 
-void* Util::loadFunction(const StringIdentifier&, const std::string&) {
-	WARN("Util::loadFunction requires SDL to work!");
-	return nullptr;
+void* Util::loadFunction(const StringIdentifier& libraryId, const std::string& name) {
+	auto & libraryHandles = getLibraryHandles();
+	auto entry = libraryHandles.find(libraryId);
+	std::ostringstream err;
+	
+	if (entry == libraryHandles.cend()) {
+		WARN(std::string("Util::loadFunction failed: ") + libraryId.toString() + std::string(" not loaded!"));
+		return nullptr;
+	}
+	
+	#if defined(_WIN32) || defined(_WIN64)
+		void* fnHandle = reinterpret_cast<void*>(GetProcAddress(entry->second.handle, name.c_str()));
+	#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+		void* fnHandle = dlsym(entry->second.handle, name.c_str());
+		if(!fnHandle) err << dlerror();
+	#endif
+	if(!fnHandle) {
+		WARN(std::string("Util::loadFunction failed: ") + err.str());
+	}
+	return fnHandle;
 }
 
-void Util::unloadLibrary(const StringIdentifier&) {
-	WARN("Util::unloadLibrary requires SDL to work!");
+void Util::unloadLibrary(const StringIdentifier& libraryId) {
+	auto & libraryHandles = getLibraryHandles();
+	auto entry = libraryHandles.find(libraryId);
+	
+	if (entry != libraryHandles.cend()) {
+		#if defined(_WIN32) || defined(_WIN64)
+			FreeLibrary(entry->second.handle);
+		#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+			dlclose(entry->second.handle);
+		#endif
+		libraryHandles.erase(entry);
+	}
 }
 
 #endif

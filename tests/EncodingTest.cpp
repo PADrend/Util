@@ -1,23 +1,24 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2011-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "EncodingTest.h"
-#include <cppunit/TestAssert.h>
 #include "Encoding.h"
+
+#include <catch2/catch.hpp>
+
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <random>
 #include <vector>
-CPPUNIT_TEST_SUITE_REGISTRATION(EncodingTest);
 
-void EncodingTest::test() {
+TEST_CASE("EncodingTest", "[EncodingTest]") {
 	std::default_random_engine engine;
 	std::uniform_int_distribution<uint8_t> distribution(0, 255);
 	// Test all three cases of padding.
@@ -32,7 +33,7 @@ void EncodingTest::test() {
 
 			const std::vector<uint8_t> decoded = Util::decodeBase64(encoded);
 
-			CPPUNIT_ASSERT(decoded == original);
+			REQUIRE(decoded == original);
 		}
 	}
 }

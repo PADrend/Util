@@ -1,13 +1,13 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2013-2015 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "GenericConversionTest.h"
-#include <cppunit/TestAssert.h>
+#include <catch2/catch.hpp>
 #include "Generic.h"
 #include "GenericConversion.h"
 #include "StringIdentifier.h"
@@ -16,7 +16,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-CPPUNIT_TEST_SUITE_REGISTRATION(GenericConversionTest);
 
 typedef std::vector<Util::Generic> GenericArray;
 typedef std::unordered_map<Util::StringIdentifier, Util::Generic> GenericMap;
@@ -25,39 +24,39 @@ static bool checkGenericArraysEqual(const GenericArray & expected, const Generic
 static bool checkGenericMapsEqual(const GenericMap & expected, const GenericMap & actual);
 
 static bool checkGenericsEqual(const Util::Generic & expected, const Util::Generic & actual) {
-	CPPUNIT_ASSERT(expected.valid());
-	CPPUNIT_ASSERT(actual.valid());
+	REQUIRE(expected.valid());
+	REQUIRE(actual.valid());
 	if(expected.contains<bool>()) {
-		CPPUNIT_ASSERT(actual.contains<bool>());
-		CPPUNIT_ASSERT_EQUAL(expected.ref<bool>(), actual.ref<bool>());
+		REQUIRE(actual.contains<bool>());
+		REQUIRE(expected.ref<bool>() == actual.ref<bool>());
 		return true;
 	} else if(expected.contains<float>()) {
-		CPPUNIT_ASSERT(actual.contains<float>());
-		CPPUNIT_ASSERT_EQUAL(expected.ref<float>(), actual.ref<float>());
+		REQUIRE(actual.contains<float>());
+		REQUIRE(expected.ref<float>() == actual.ref<float>());
 		return true;
 	} else if(expected.contains<std::string>()) {
-		CPPUNIT_ASSERT(actual.contains<std::string>());
-		CPPUNIT_ASSERT_EQUAL(expected.ref<std::string>(), actual.ref<std::string>());
+		REQUIRE(actual.contains<std::string>());
+		REQUIRE(expected.ref<std::string>() == actual.ref<std::string>());
 		return true;
 	} else if(expected.contains<GenericArray>()) {
-		CPPUNIT_ASSERT(actual.contains<GenericArray>());
+		REQUIRE(actual.contains<GenericArray>());
 		return checkGenericArraysEqual(expected.ref<GenericArray>(), actual.ref<GenericArray>());
 	} else if(expected.contains<GenericMap>()) {
-		CPPUNIT_ASSERT(actual.contains<GenericMap>());
+		REQUIRE(actual.contains<GenericMap>());
 		return checkGenericMapsEqual(expected.ref<GenericMap>(), actual.ref<GenericMap>());
 	}
 	return false;
 }
 
 static bool checkGenericArraysEqual(const GenericArray & expected, const GenericArray & actual) {
-	CPPUNIT_ASSERT_EQUAL(expected.size(), actual.size());
+	REQUIRE(expected.size() == actual.size());
 	return std::equal(expected.cbegin(), expected.cend(), actual.cbegin(), &checkGenericsEqual);
 }
 
 static bool checkGenericMapsEqual(const GenericMap & expected, const GenericMap & actual) {
-	CPPUNIT_ASSERT_EQUAL(expected.size(), actual.size());
+	REQUIRE(expected.size() == actual.size());
 	for(auto expectedElement : expected) {
-		CPPUNIT_ASSERT(actual.count(expectedElement.first) != 0);
+		REQUIRE(actual.count(expectedElement.first) != 0);
 		if(!checkGenericsEqual(expectedElement.second, actual.at(expectedElement.first))) {
 			return false;
 		}
@@ -73,10 +72,10 @@ static void testGenericSerialization(const WriteValueType writeValue,
 	std::stringstream tempStream;
 	Util::GenericConversion::toJSON(genericExport, tempStream);
 	const std::string actualSerialization = tempStream.str();
-	CPPUNIT_ASSERT_EQUAL(expectedSerialization, actualSerialization);
+	REQUIRE(expectedSerialization == actualSerialization);
 
 	const Util::Generic genericImport = Util::GenericConversion::fromJSON(tempStream);
-	CPPUNIT_ASSERT_EQUAL(readValue, genericImport.ref<ReadValueType>());
+	REQUIRE(readValue == genericImport.ref<ReadValueType>());
 }
 
 static void testGenericStringSerialization(const std::string & str) {
@@ -85,7 +84,7 @@ static void testGenericStringSerialization(const std::string & str) {
 													   str);
 }
 
-void GenericConversionTest::testBasicSerialization() {
+TEST_CASE("GenericConversionTest_testBasicSerialization", "[GenericConversionTest]") {
 	testGenericSerialization<bool, bool>(true, "true", true);
 	testGenericSerialization<bool, bool>(false, "false", false);
 
@@ -119,7 +118,7 @@ void GenericConversionTest::testBasicSerialization() {
 	testGenericStringSerialization("a\nb\nc");
 }
 
-void GenericConversionTest::testArraySerialization() {
+TEST_CASE("GenericConversionTest_testArraySerialization", "[GenericConversionTest]") {
 	GenericArray array;
 	array.emplace_back(true);
 	array.emplace_back(std::string("[1, 2, \"xyz\"]"));
@@ -139,10 +138,10 @@ void GenericConversionTest::testArraySerialization() {
 	const std::string serialization = tempStream.str();
 
 	const Util::Generic importedGenericArray = Util::GenericConversion::fromJSON(tempStream);
-	CPPUNIT_ASSERT(checkGenericsEqual(genericArray, importedGenericArray));
+	REQUIRE(checkGenericsEqual(genericArray, importedGenericArray));
 }
 
-void GenericConversionTest::testMapSerialization() {
+TEST_CASE("GenericConversionTest_testMapSerialization", "[GenericConversionTest]") {
 	GenericMap map;
 	map.emplace(Util::StringIdentifier("firstBool"), Util::Generic(true));
 	map.emplace(Util::StringIdentifier("secondBool"), Util::Generic(false));
@@ -164,5 +163,5 @@ void GenericConversionTest::testMapSerialization() {
 	const std::string serialization = tempStream.str();
 
 	const Util::Generic importedGenericArray = Util::GenericConversion::fromJSON(tempStream);
-	CPPUNIT_ASSERT(checkGenericsEqual(genericMap, importedGenericArray));
+	REQUIRE(checkGenericsEqual(genericMap, importedGenericArray));
 }

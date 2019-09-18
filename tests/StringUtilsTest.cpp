@@ -1,27 +1,24 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2011-2012 Benjamin Eikel <benjamin@eikel.org>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#include "StringUtilsTest.h"
 #include "StringUtils.h"
-#include <cppunit/TestAssert.h>
+#include <catch2/catch.hpp>
 #include <cstdint>
 #include <string>
-CPPUNIT_TEST_SUITE_REGISTRATION(StringUtilsTest);
-
-using namespace CppUnit;
 
 #define NUMBER_TEST(_TYPE, _VALUE) \
 {\
 	const _TYPE number = _VALUE;\
-	CPPUNIT_ASSERT_EQUAL(std::string(#_VALUE), Util::StringUtils::toString<_TYPE>(number));\
+	REQUIRE(std::string(#_VALUE) == Util::StringUtils::toString<_TYPE>(number));\
 }
 
-void StringUtilsTest::testToString() {
+TEST_CASE("StringUtilsTest", "[StringUtilsTest]") {
 	NUMBER_TEST(uint64_t, 0)
 	NUMBER_TEST(uint64_t, 1)
 	NUMBER_TEST(uint64_t, 10)
