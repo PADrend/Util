@@ -18,6 +18,16 @@ endif()
 
 include(CMakeDependentOption)
 
+if(POLICY CMP0048)
+  set(CMAKE_POLICY_DEFAULT_CMP0048 NEW)
+endif()
+if(POLICY CMP0063)
+  set(CMAKE_POLICY_DEFAULT_CMP0063 NEW)
+endif()
+if(POLICY CMP0058)
+  set(CMAKE_POLICY_DEFAULT_CMP0058 NEW)
+endif()
+
 # ------------------------------------------------------------------------------
 # zlib (required by several other libraries)
 
