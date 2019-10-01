@@ -34,7 +34,6 @@ if(UTIL_BUILD_TESTS)
 		
 	target_link_libraries(UtilTest PRIVATE Util)
 	set_target_properties(UtilTest PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 	target_link_libraries(UtilTest PRIVATE UtilExtern)
 
@@ -82,7 +81,10 @@ if(UTIL_BUILD_TESTS)
 		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT tests
 		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT tests
 	)
-
+	
+	configure_file(${CMAKE_CURRENT_LIST_DIR}/CTestCustom.cmake ${CMAKE_BINARY_DIR})
+	
+	enable_testing()
 	add_test(NAME BidirectionalMapTest COMMAND UtilTest [BidirectionalMapTest])
 	add_test(NAME EncodingTest COMMAND UtilTest [EncodingTest])
 	add_test(NAME FactoryTest COMMAND UtilTest [FactoryTest])
