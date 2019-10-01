@@ -118,17 +118,17 @@ static void typedNumberTest() {
 
 #define NUMBER_TEST(type) TEST_CASE("GenericAttributeTest_testNumber_" #type, "[GenericAttributeTest]") { typedNumberTest<type>(); }
 
-NUMBER_TEST(char);
-NUMBER_TEST(int8_t);
-NUMBER_TEST(uint8_t);
-NUMBER_TEST(int16_t);
-NUMBER_TEST(uint16_t);
-NUMBER_TEST(int32_t);
-NUMBER_TEST(uint32_t);
-NUMBER_TEST(int64_t);
-NUMBER_TEST(uint64_t);
-NUMBER_TEST(float);
-NUMBER_TEST(double);
+NUMBER_TEST(char)
+NUMBER_TEST(int8_t)
+NUMBER_TEST(uint8_t)
+NUMBER_TEST(int16_t)
+NUMBER_TEST(uint16_t)
+NUMBER_TEST(int32_t)
+NUMBER_TEST(uint32_t)
+NUMBER_TEST(int64_t)
+NUMBER_TEST(uint64_t)
+NUMBER_TEST(float)
+NUMBER_TEST(double)
 
 static void testStringGetters(const Util::StringAttribute & attribute, const std::string & expectedString, bool expectedBool, int expectedNumber) {
 	REQUIRE(expectedString == attribute.get());
