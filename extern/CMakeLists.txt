@@ -28,6 +28,10 @@ if(POLICY CMP0058)
   set(CMAKE_POLICY_DEFAULT_CMP0058 NEW)
 endif()
 
+# store state of BUILD_SHARED_LIBS to later restore
+set(OLD_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
 # ------------------------------------------------------------------------------
 # zlib (required by several other libraries)
 
@@ -90,7 +94,8 @@ else()
   endif()
   
 	target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_GLFW)
-	target_link_libraries(UtilExtern INTERFACE glfw)
+	target_link_libraries(UtilExtern INTERFACE glfw)  
+  set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -370,10 +375,7 @@ if(UTIL_BUILD_LIBZIP)
   target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ZIP)
   target_link_libraries(UtilExtern INTERFACE zip)
   target_include_directories(UtilExtern INTERFACE ${libzip_SOURCE_DIR}/lib ${libzip_BINARY_DIR})
-  set_target_properties(zip PROPERTIES 
-    BUILD_SHARED_LIBS OFF
-    POSITION_INDEPENDENT_CODE ON
-  )
+  set_target_properties(zip PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -417,3 +419,5 @@ endif()
 if(MINGW)
   target_link_libraries(UtilExtern INTERFACE ws2_32 crypt32 wldap32)
 endif()
+
+set(BUILD_SHARED_LIBS ${OLD_BUILD_SHARED_LIBS} CACHE INTERNAL "" FORCE)
