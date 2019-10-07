@@ -410,11 +410,14 @@ WindowGLFW::WindowGLFW(const Window::Properties & properties) :
 	glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 	
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, properties.contextVersionMajor);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, properties.contextVersionMinor);
+	
 	if(properties.compatibilityProfile) {
-		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 	} else {
-		//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	}
 
 	if (properties.multisampled) {

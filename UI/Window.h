@@ -43,6 +43,8 @@ class Window {
 			uint32_t clientAreaWidth,clientAreaHeight;	//! The size of the client area of the window.
 			int32_t posX,posY;				//! (if positioned == true) The position of the upper left corner of the window 
 			uint32_t multisamples;			//! (if multisampled == true) Number of samples used for multisampling; default is 4.
+			uint32_t contextVersionMajor; //! The major rendering API version that the created context must be compatible with.
+			uint32_t contextVersionMinor; //! The minor rendering API version that the created context must be compatible with.
 
 			std::string title;				//! The title string commonly displayed in the title bar of the window.
 			enum RenderingAPI {
@@ -54,7 +56,7 @@ class Window {
 			Properties() : borderless(false),debug(false),compatibilityProfile(true),
 					fullscreen(false),multisampled(false),positioned(false),resizable(false),
 					clientAreaWidth(0),clientAreaHeight(0),posX(0),posY(0),multisamples(4),
-					renderingAPI(GL){}
+					contextVersionMajor(1), contextVersionMinor(0), renderingAPI(GL){}
 		};
 		
 		//! Destroy the window and free the allocated resources.
