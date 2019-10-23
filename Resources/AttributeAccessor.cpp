@@ -18,10 +18,10 @@
 
 namespace Util {
 
-static std::unordered_map<uint8_t, AttributeAccessor::AccessorFactory_t>& getAccessorRegistry() {
+/*static std::unordered_map<uint8_t, AttributeAccessor::AccessorFactory_t>& getAccessorRegistry() {
 	static std::unordered_map<uint8_t, AttributeAccessor::AccessorFactory_t> registry;
 	return registry;
-}
+}*/
 
 template<typename T>
 T clamp(T value, T min, T max) { return std::min(max, std::max(min, value)); }
@@ -64,7 +64,7 @@ double unnormalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
 
 //-------------
 
-static uint32_t toFloat11(float f) {
+/*static uint32_t toFloat11(float f) {
 	uint32_t floatBits;
 	memcpy(&floatBits, &f, sizeof(float));
 	uint32_t exponent = (floatBits >> 23) & 0xffu;
@@ -102,7 +102,7 @@ static float fromFloat10(uint32_t float10Bits) {
 	uint32_t floatBits = (exponent << 23) | mantissa;
 	memcpy(&f, &floatBits, sizeof(float));
 	return f;
-}
+}*/
 
 //-------------------------------------------------------------
 // StandardAttributeAccessor
@@ -252,7 +252,7 @@ public:
 //-------------------------------------------------------------
 // R11G11B10FloatAccessor
 
-class R11G11B10FloatAccessor : public AttributeAccessor {
+/*class R11G11B10FloatAccessor : public AttributeAccessor {
 public:
 	R11G11B10FloatAccessor(uint8_t* ptr, size_t size, const ResourceFormat::Attribute& attr, size_t stride) :
 		AttributeAccessor(ptr, size, attr, stride) {}
@@ -308,12 +308,12 @@ public:
 	}
 	
 	virtual void writeValues(size_t index, const double* values, size_t count) const { _writeValues(index, values, count); }
-};
+};*/
 
 //-------------------------------------------------------------
 // RGBA8UnormSrgbAccessor
 
-class RGBA8UnormSrgbAccessor : public AttributeAccessor {
+/*class RGBA8UnormSrgbAccessor : public AttributeAccessor {
 public:
 	RGBA8UnormSrgbAccessor(uint8_t* ptr, size_t size, const ResourceFormat::Attribute& attr, size_t stride) :
 		AttributeAccessor(ptr, size, attr, stride) {}
@@ -360,7 +360,7 @@ public:
 	virtual void writeValues(size_t index, const uint64_t* values, size_t count) const { _writeValues(index, values, count); }
 	virtual void writeValues(size_t index, const float* values, size_t count) const { _writeValues(index, values, count); }
 	virtual void writeValues(size_t index, const double* values, size_t count) const { _writeValues(index, values, count); }
-};
+};*/
 
 //-------------------------------------------------------------
 // AttributeAccessor
@@ -368,37 +368,39 @@ public:
 Reference<AttributeAccessor> AttributeAccessor::create(uint8_t* ptr, size_t size, const ResourceFormat::Attribute& attr, size_t stride) {
 	if(attr.isNormalized()) {
 		switch (attr.getDataType()) {
-			case static_cast<uint8_t>(TypeConstant::UINT8): return new UnsignedNormalizedAttributeAccessor<uint8_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::UINT16): return new UnsignedNormalizedAttributeAccessor<uint16_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::UINT32): return new UnsignedNormalizedAttributeAccessor<uint32_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::UINT64): return new UnsignedNormalizedAttributeAccessor<uint64_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::INT8): return new SignedNormalizedAttributeAccessor<int8_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::INT16): return new SignedNormalizedAttributeAccessor<int16_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::INT32): return new SignedNormalizedAttributeAccessor<int32_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::INT64): return new SignedNormalizedAttributeAccessor<int64_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::FLOAT): return new SignedNormalizedAttributeAccessor<float>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::DOUBLE): return new SignedNormalizedAttributeAccessor<double>(ptr, size, attr, stride);
+			case TypeConstant::UINT8: return new UnsignedNormalizedAttributeAccessor<uint8_t>(ptr, size, attr, stride);
+			case TypeConstant::UINT16: return new UnsignedNormalizedAttributeAccessor<uint16_t>(ptr, size, attr, stride);
+			case TypeConstant::UINT32: return new UnsignedNormalizedAttributeAccessor<uint32_t>(ptr, size, attr, stride);
+			case TypeConstant::UINT64: return new UnsignedNormalizedAttributeAccessor<uint64_t>(ptr, size, attr, stride);
+			case TypeConstant::INT8: return new SignedNormalizedAttributeAccessor<int8_t>(ptr, size, attr, stride);
+			case TypeConstant::INT16: return new SignedNormalizedAttributeAccessor<int16_t>(ptr, size, attr, stride);
+			case TypeConstant::INT32: return new SignedNormalizedAttributeAccessor<int32_t>(ptr, size, attr, stride);
+			case TypeConstant::INT64: return new SignedNormalizedAttributeAccessor<int64_t>(ptr, size, attr, stride);
+			case TypeConstant::FLOAT: return new SignedNormalizedAttributeAccessor<float>(ptr, size, attr, stride);
+			case TypeConstant::DOUBLE: return new SignedNormalizedAttributeAccessor<double>(ptr, size, attr, stride);
+			default: break;
 		}
 	} else {
 		switch (attr.getDataType()) {
-			case static_cast<uint8_t>(TypeConstant::UINT8): return new StandardAttributeAccessor<uint8_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::UINT16): return new StandardAttributeAccessor<uint16_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::UINT32): return new StandardAttributeAccessor<uint32_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::UINT64): return new StandardAttributeAccessor<uint64_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::INT8): return new StandardAttributeAccessor<int8_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::INT16): return new StandardAttributeAccessor<int16_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::INT32): return new StandardAttributeAccessor<int32_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::INT64): return new StandardAttributeAccessor<int64_t>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::FLOAT): return new StandardAttributeAccessor<float>(ptr, size, attr, stride);
-			case static_cast<uint8_t>(TypeConstant::DOUBLE): return new StandardAttributeAccessor<double>(ptr, size, attr, stride);
+			case TypeConstant::UINT8: return new StandardAttributeAccessor<uint8_t>(ptr, size, attr, stride);
+			case TypeConstant::UINT16: return new StandardAttributeAccessor<uint16_t>(ptr, size, attr, stride);
+			case TypeConstant::UINT32: return new StandardAttributeAccessor<uint32_t>(ptr, size, attr, stride);
+			case TypeConstant::UINT64: return new StandardAttributeAccessor<uint64_t>(ptr, size, attr, stride);
+			case TypeConstant::INT8: return new StandardAttributeAccessor<int8_t>(ptr, size, attr, stride);
+			case TypeConstant::INT16: return new StandardAttributeAccessor<int16_t>(ptr, size, attr, stride);
+			case TypeConstant::INT32: return new StandardAttributeAccessor<int32_t>(ptr, size, attr, stride);
+			case TypeConstant::INT64: return new StandardAttributeAccessor<int64_t>(ptr, size, attr, stride);
+			case TypeConstant::FLOAT: return new StandardAttributeAccessor<float>(ptr, size, attr, stride);
+			case TypeConstant::DOUBLE: return new StandardAttributeAccessor<double>(ptr, size, attr, stride);
+			default: break;
 		}
 	}
 	
-	auto& registry = getAccessorRegistry();
+	/*auto& registry = getAccessorRegistry();
 	auto factory = registry.find(attr.getDataType());
 	if(factory != registry.end()) {
 		return factory->second(ptr, size, attr, stride);
-	}
+	}*/
 	
 	WARN("Could not create attribute accessor for attribute: " + attr.toString());
 	return nullptr;
@@ -415,15 +417,15 @@ void AttributeAccessor::throwRangeError(uint32_t index) const {
 
 //-------------
 
-bool AttributeAccessor::registerAccessor(uint8_t type, const AccessorFactory_t& factory) {
+/*bool AttributeAccessor::registerAccessor(uint8_t type, const AccessorFactory_t& factory) {
 	getAccessorRegistry().emplace(type, factory);
 	return true;
-}
+}*/
 
 //-------------------------------------------------------------
 // Initialize special accessors
 
-static const bool R11G11B10FloatAccRegistered = AttributeAccessor::registerAccessor(ResourceFormat::Attribute::TYPE_R11G11B10Float, R11G11B10FloatAccessor::create);
-static const bool RGBA8UnormSrgbAccRegistered = AttributeAccessor::registerAccessor(ResourceFormat::Attribute::TYPE_RGBA8UnormSrgb, RGBA8UnormSrgbAccessor::create);
+//static const bool R11G11B10FloatAccRegistered = AttributeAccessor::registerAccessor(ResourceFormat::Attribute::TYPE_R11G11B10Float, R11G11B10FloatAccessor::create);
+//static const bool RGBA8UnormSrgbAccRegistered = AttributeAccessor::registerAccessor(ResourceFormat::Attribute::TYPE_RGBA8UnormSrgb, RGBA8UnormSrgbAccessor::create);
 
 } /* Util */

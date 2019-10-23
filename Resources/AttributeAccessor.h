@@ -31,9 +31,7 @@ protected:
 	void assertRange(uint32_t index) const { if(index*stride>=dataSize) throwRangeError(index); }
 public:
 	virtual ~AttributeAccessor() = default;
-	
-	using AccessorFactory_t = std::function<Reference<AttributeAccessor>(uint8_t*, size_t, const ResourceFormat::Attribute&, size_t)>;
-	
+		
 	/**
 	* Creates a new attribute accessor for the given data using the specified resource format.
 	*/
@@ -42,10 +40,8 @@ public:
 		return format.hasAttribute(name) ? create(ptr, size, format.getAttribute(name), format.getSize()) : nullptr;
 	}
 	
-	/**
-	* Registers a new specialized accessor for a custom type.
-	*/
-	static bool registerAccessor(uint8_t type, const AccessorFactory_t& factory);
+	//using AccessorFactory_t = std::function<Reference<AttributeAccessor>(uint8_t*, size_t, const ResourceFormat::Attribute&, size_t)>;
+	//static bool registerAccessor(uint8_t type, const AccessorFactory_t& factory);
 	
 	virtual void readValues(size_t index, int8_t* values, size_t count) const = 0;
 	virtual void readValues(size_t index, int16_t* values, size_t count) const = 0;

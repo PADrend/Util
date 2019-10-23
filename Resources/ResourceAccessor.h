@@ -43,7 +43,7 @@ public:
 	void writeRaw(size_t index, const uint8_t* sourcePtr, size_t count=1);	
 	
 	template<typename T>
-	void readValues(size_t index, uint16_t location, double* values, size_t count) {
+	void readValues(size_t index, uint16_t location, T* values, size_t count) {
 		assertRangeLocation(index, location);
 		accessors[location]->readValues(index, values, count);
 	}

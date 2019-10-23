@@ -31,22 +31,22 @@ const ResourceFormat ResourceFormat::BYTE_FORMAT = createByteFormat();
 
 //------------------
 
-ResourceFormat::Attribute::Attribute() : nameId(0), dataType(0), dataSize(0), offset(0), numValues(0), normalized(false) { }
+ResourceFormat::Attribute::Attribute() : nameId(0), dataType(TypeConstant::UINT8), dataSize(0), offset(0), numValues(0), normalized(false) { }
 
 //------------------
 
-ResourceFormat::Attribute::Attribute(const StringIdentifier& _nameId, uint8_t _dataType, uint16_t _dataSize, uint16_t _offset) :
-	nameId(_nameId), dataType(_dataType), dataSize(_dataSize),  offset(_offset), numValues(1), normalized(false) { }
+//ResourceFormat::Attribute::Attribute(const StringIdentifier& _nameId, uint8_t _dataType, uint16_t _dataSize, uint16_t _offset) :
+//	nameId(_nameId), dataType(_dataType), dataSize(_dataSize),  offset(_offset), numValues(1), normalized(false) { }
 
 //------------------
 
 ResourceFormat::Attribute::Attribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint8_t _numValues, bool _normalized, uint16_t _offset) :
-	nameId(_nameId), dataType(static_cast<uint8_t>(_dataType)), dataSize(getNumBytes(_dataType)*_numValues), 
+	nameId(_nameId), dataType(_dataType), dataSize(getNumBytes(_dataType)*_numValues), 
 	offset(_offset), numValues(_numValues), normalized(_normalized) { }
 
 //------------------
 
-ResourceFormat::Attribute::Attribute(const StringIdentifier& _nameId, uint8_t _dataType, uint16_t _dataSize, uint8_t _numValues, bool _normalized, uint16_t _offset) :
+ResourceFormat::Attribute::Attribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint8_t _numValues, bool _normalized, uint16_t _offset) :
 	nameId(_nameId), dataType(_dataType), dataSize(_dataSize), 
 	offset(_offset), numValues(_numValues), normalized(_normalized) { }
 
@@ -79,15 +79,15 @@ bool ResourceFormat::Attribute::operator<(const Attribute& other) const {
 std::string ResourceFormat::Attribute::toString() const {
 	std::ostringstream s;
 	s << nameId.toString() << " (" << offset << "): ";
-	if(dataType <= static_cast<uint8_t>(TypeConstant::DOUBLE)) {
+	//if(dataType <= static_cast<uint8_t>(TypeConstant::DOUBLE)) {
 		s << static_cast<unsigned int>(numValues) << " " << getTypeString(static_cast<TypeConstant>(dataType));
-	} else if(dataType == TYPE_R11G11B10Float) {
-		s << "R11G11B10Float";
-	} else if(dataType == TYPE_RGBA8UnormSrgb) {
-		s << "RGBA8UnormSrgb";
-	} else {
-		s << "type " << static_cast<uint32_t>(dataType) << ", " << dataSize << " byte";
-	}
+	//} else if(dataType == TYPE_R11G11B10Float) {
+	//	s << "R11G11B10Float";
+	//} else if(dataType == TYPE_RGBA8UnormSrgb) {
+	//	s << "RGBA8UnormSrgb";
+	//} else {
+	//	s << "type " << static_cast<uint32_t>(dataType) << ", " << dataSize << " byte";
+	//}
 	
 	if(normalized)
 		s << " (normalized)";	
@@ -96,12 +96,12 @@ std::string ResourceFormat::Attribute::toString() const {
 
 //------------------
 
-const ResourceFormat::Attribute& ResourceFormat::appendAttribute(const StringIdentifier& nameId, uint8_t type, uint16_t dataSize) {
-	size_t offset = align(size, attributeAlignment);
-	attributes.emplace_back(nameId, type, dataSize, offset);
-	size = align(offset + attributes.back().dataSize, attributeAlignment);
-	return attributes.back();
-}
+//const ResourceFormat::Attribute& ResourceFormat::appendAttribute(const StringIdentifier& nameId, uint8_t type, uint16_t dataSize) {
+//	size_t offset = align(size, attributeAlignment);
+//	attributes.emplace_back(nameId, type, dataSize, offset);
+//	size = align(offset + attributes.back().dataSize, attributeAlignment);
+//	return attributes.back();
+//}
 
 //------------------
 

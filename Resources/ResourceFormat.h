@@ -26,11 +26,11 @@ class ResourceFormat {
 public:
 	class Attribute {
 		public:
-			static const uint8_t TYPE_R11G11B10Float = 100; //! Special type
-			static const uint8_t TYPE_RGBA8UnormSrgb = 101; //! Special type
+			//static const uint8_t TYPE_R11G11B10Float = 100; //! Special type
+			//static const uint8_t TYPE_RGBA8UnormSrgb = 101; //! Special type
 						
 			Attribute();
-			Attribute(const StringIdentifier& _nameId, uint8_t _dataType, uint16_t _dataSize, uint16_t _offset=0);
+			//Attribute(const StringIdentifier& _nameId, uint8_t _dataType, uint16_t _dataSize, uint16_t _offset=0);
 			Attribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint8_t _numValues, bool _normalized, uint16_t _offset=0);
 			
 			bool operator==(const Attribute& other) const;
@@ -40,17 +40,17 @@ public:
 			uint16_t getOffset() const { return offset; }
 			uint16_t getDataSize() const { return dataSize; }
 			uint8_t getNumValues() const { return numValues; }
-			uint8_t getDataType() const { return dataType; }
+			TypeConstant getDataType() const { return dataType; }
 			bool isNormalized() const { return normalized; }
 			StringIdentifier getNameId() const { return nameId; }
 			std::string getName() const { return nameId.toString(); }
 			bool isEmpty() const { return numValues == 0; }
 		private:
 			friend class ResourceFormat;
-			Attribute(const StringIdentifier& _nameId, uint8_t _dataType, uint16_t _dataSize, uint8_t _numValues, bool _normalized, uint16_t _offset);
+			Attribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint8_t _numValues, bool _normalized, uint16_t _offset);
 			
 			StringIdentifier nameId;
-			uint8_t dataType;
+			TypeConstant dataType;
 			uint16_t dataSize;
 			uint16_t offset;
 			uint8_t numValues;
@@ -68,7 +68,7 @@ public:
 		\return the new attribute
 		\note the owner of the attribute is the ResourceFormat
 		\note Before using this function, check a default method can be used instead (e.g. append appendVec3) */
-	const Attribute& appendAttribute(const StringIdentifier& nameId, uint8_t type, uint16_t dataSize);
+	//const Attribute& appendAttribute(const StringIdentifier& nameId, uint8_t type, uint16_t dataSize);
 	const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint8_t numValues, bool normalized=false);
 		
 	//! Add an attribute with the given name and the given number of float values.
