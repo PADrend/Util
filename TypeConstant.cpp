@@ -17,3 +17,18 @@ size_t Util::getNumBytes(TypeConstant t){
 		throw std::invalid_argument("getNumBytes: Invalid type constant.");
 	return byteSizes[index];
 }
+
+std::string Util::getTypeString(TypeConstant t) {
+	switch (t) {
+		case TypeConstant::UINT8: return "uint8";
+		case TypeConstant::UINT16: return "uint16";
+		case TypeConstant::UINT32: return "uint32";
+		case TypeConstant::UINT64: return "uint64";
+		case TypeConstant::INT8: return "int8";
+		case TypeConstant::INT16: return "int16";
+		case TypeConstant::INT32: return "int32";
+		case TypeConstant::INT64: return "int64";
+		case TypeConstant::FLOAT: return "float";
+		case TypeConstant::DOUBLE: return "double";
+	}
+}

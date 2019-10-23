@@ -3,6 +3,7 @@
 	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
+	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
@@ -11,6 +12,8 @@
 #include "PixelFormat.h"
 
 namespace Util {
+const StringIdentifier PixelFormat::COLOR("color");
+	
 const PixelFormat PixelFormat::RGB( 		TypeConstant::UINT8, 0,1,2,PixelFormat::NONE);
 const PixelFormat PixelFormat::RGB_FLOAT(	TypeConstant::FLOAT, 0,4,8,PixelFormat::NONE);
 const PixelFormat PixelFormat::BGR( 		TypeConstant::UINT8, 2,1,0,PixelFormat::NONE);

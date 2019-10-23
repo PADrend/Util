@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 namespace Util {
 
@@ -29,6 +30,8 @@ enum class TypeConstant : uint8_t{
 };
 
 size_t getNumBytes(TypeConstant t);
+
+std::string getTypeString(TypeConstant t);
 
 }
 
