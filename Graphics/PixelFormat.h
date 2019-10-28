@@ -50,7 +50,7 @@ public:
 	uint8_t getNumComponents() const { return getAttributes().front().getNumValues(); }
 	uint8_t getBytesPerComponent() const { return getNumBytes(getValueType()); }
 	TypeConstant getValueType() const { return static_cast<TypeConstant>(getAttributes().front().getDataType()); }
-	bool isValid() const { return !getAttributes().front().isEmpty(); }
+	bool isValid() const { return !getAttributes().front().empty(); }
 
 	// ---------------------------------
 	// default pixel formats (assuming little endianess)

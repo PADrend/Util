@@ -44,7 +44,7 @@ public:
 			bool isNormalized() const { return normalized; }
 			StringIdentifier getNameId() const { return nameId; }
 			std::string getName() const { return nameId.toString(); }
-			bool isEmpty() const { return numValues == 0; }
+			bool empty() const { return numValues == 0; }
 		private:
 			friend class ResourceFormat;
 			Attribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint8_t _numValues, bool _normalized, uint16_t _offset);
