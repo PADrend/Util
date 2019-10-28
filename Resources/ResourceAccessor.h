@@ -40,7 +40,7 @@ public:
 		Writes count many elements to the resource at the given index
 		@node ptr needs to be large enough to hold count many elements of the resources format size
 	*/
-	void writeRaw(size_t index, const uint8_t* sourcePtr, size_t count=1);	
+	void writeRaw(size_t index, const uint8_t* sourcePtr, size_t count=1);
 	
 	template<typename T>
 	void readValues(size_t index, uint16_t location, T* values, size_t count) {
@@ -56,10 +56,25 @@ public:
 	}
 	
 	template<typename T> 
-	std::vector<T> readValues(size_t index, uint16_t location) {
-		std::vector<T> values;
-		readValues(index, values.data(), values.size());
+	std::vector<T> readValues(size_t index, uint16_t location, size_t count) {
+		std::vector<T> values(count);
+		readValues(index, location, values.data(), values.size());
 		return values;
+	}
+	
+	template<typename T>
+	void readValues(size_t index, const StringIdentifier& id, T* values, size_t count) {
+		return readValues<T>(index, locations[id], values, count);
+	}
+		
+	template<typename T> 
+	T readValue(size_t index, const StringIdentifier& id) {
+		return readValues<T>(index, locations[id]);
+	}
+	
+	template<typename T> 
+	std::vector<T> readValues(size_t index, const StringIdentifier& id, size_t count) {
+		return readValues<T>(index, locations[id], count);
 	}
 	
 	template<typename T>
