@@ -100,7 +100,12 @@ public:
 	bool hasAttribute(const std::string& name) const {
 		return hasAttribute(StringIdentifier(name));
 	}
-
+	
+	const uint16_t getAttributeLocation(const StringIdentifier& nameId) const;
+	const uint16_t getAttributeLocation(const std::string& name) const {
+		return getAttributeLocation(StringIdentifier(name));
+	}
+	
 	/**
 	 * Update an existing attribute of or append a new attribute to the ResourceFormat.
 	 *

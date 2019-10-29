@@ -116,7 +116,7 @@ const ResourceFormat::Attribute& ResourceFormat::appendAttribute(const StringIde
 
 const ResourceFormat::Attribute& ResourceFormat::getAttribute(const StringIdentifier& nameId) const {
 	static const Attribute emptyAttribute;
-	for(const auto & attr : getAttributes()) {
+	for(const auto & attr : attributes) {
 		if(attr.getNameId() == nameId) {
 			return attr;
 		}
@@ -127,12 +127,23 @@ const ResourceFormat::Attribute& ResourceFormat::getAttribute(const StringIdenti
 //------------------
 
 bool ResourceFormat::hasAttribute(const StringIdentifier& nameId) const {
-	for(const auto & attr : getAttributes()) {
+	for(const auto & attr : attributes) {
 		if(attr.nameId == nameId) {
 			return true;
 		}
 	}
 	return false;
+}
+
+//------------------
+
+const uint16_t ResourceFormat::getAttributeLocation(const StringIdentifier& nameId) const {
+	for(uint16_t i=0; i<attributes.size(); ++i) {
+		if(attributes[i].nameId == nameId) {
+			return i;
+		}
+	}
+	return attributes.size();
 }
 
 //------------------

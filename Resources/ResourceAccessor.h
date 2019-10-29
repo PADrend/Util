@@ -43,38 +43,38 @@ public:
 	void writeRaw(size_t index, const uint8_t* sourcePtr, size_t count=1);
 	
 	template<typename T>
-	void readValues(size_t index, uint16_t location, T* values, size_t count) {
+	void readValues(size_t index, uint16_t location, T* values, size_t count) const {
 		assertRangeLocation(index, location);
 		accessors[location]->readValues(index, values, count);
 	}
 		
 	template<typename T> 
-	T readValue(size_t index, uint16_t location) {
+	T readValue(size_t index, uint16_t location) const {
 		T value;
-		readValues(index, &value, 1);
+		readValues(index, location, &value, 1);
 		return value;
 	}
 	
 	template<typename T> 
-	std::vector<T> readValues(size_t index, uint16_t location, size_t count) {
+	std::vector<T> readValues(size_t index, uint16_t location, size_t count) const {
 		std::vector<T> values(count);
 		readValues(index, location, values.data(), values.size());
 		return values;
 	}
 	
 	template<typename T>
-	void readValues(size_t index, const StringIdentifier& id, T* values, size_t count) {
-		return readValues<T>(index, locations[id], values, count);
+	void readValues(size_t index, const StringIdentifier& id, T* values, size_t count) const {
+		return readValues<T>(index, locations.at(id), values, count);
 	}
 		
 	template<typename T> 
-	T readValue(size_t index, const StringIdentifier& id) {
-		return readValues<T>(index, locations[id]);
+	T readValue(size_t index, const StringIdentifier& id) const {
+		return readValue<T>(index, locations.at(id));
 	}
 	
 	template<typename T> 
-	std::vector<T> readValues(size_t index, const StringIdentifier& id, size_t count) {
-		return readValues<T>(index, locations[id], count);
+	std::vector<T> readValues(size_t index, const StringIdentifier& id, size_t count) const {
+		return readValues<T>(index, locations.at(id), count);
 	}
 	
 	template<typename T>
@@ -85,7 +85,7 @@ public:
 	
 	template<typename T>
 	void writeValues(size_t index, const StringIdentifier& id, const T* values, size_t count) {
-		writeValues(index, locations[id], values, count);
+		writeValues(index, locations.at(id), values, count);
 	}
 	
 	template<typename T> 
@@ -95,7 +95,7 @@ public:
 	
 	template<typename T> 
 	void writeValue(size_t index, const StringIdentifier& id, const T& value) {
-		writeValues(index, locations[id], &value, 1);
+		writeValues(index, locations.at(id), &value, 1);
 	}
 	
 	template<typename T> 
@@ -105,9 +105,13 @@ public:
 	
 	template<typename T> 
 	void writeValues(size_t index, const StringIdentifier& id, const std::vector<T>& values) {
-		writeValues(index, locations[id], values.data(), values.size());
+		writeValues(index, locations.at(id), values.data(), values.size());
 	}
 	
+	const ResourceFormat& getFormat() const { return format; }
+	size_t getDataSize() const { return dataSize; }
+	size_t getElementCount() const { return elementCount; }
+	uint16_t getAttributeLocation(const StringIdentifier& id) const { return format.getAttributeLocation(id); }
 private:	
 	const ResourceFormat format;
 	uint8_t* const dataPtr;

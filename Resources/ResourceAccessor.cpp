@@ -31,6 +31,7 @@ void ResourceAccessor::assertRangeLocation(uint32_t index, uint16_t location) co
 
 ResourceAccessor::ResourceAccessor(uint8_t* ptr, size_t size, ResourceFormat format) : format(format), dataPtr(ptr), dataSize(size), elementCount(size / format.getSize()) {
 	const auto& attributes = format.getAttributes();
+	accessors.resize(attributes.size());
 	for(uint32_t i=0; i<attributes.size(); ++i) {
 		locations[attributes[i].getNameId()] = i;
 		accessors[i] = AttributeAccessor::create(dataPtr, size, attributes[i], format.getSize());
