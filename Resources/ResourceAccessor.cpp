@@ -9,23 +9,7 @@
 
 #include "ResourceAccessor.h"
 
-#include <limits>
-#include <sstream>
-
 namespace Util {
-
-void ResourceAccessor::assertRangeLocation(uint32_t index, uint16_t location) const {
-	if(location >= format.getNumAttributes()) {
-		std::ostringstream s;
-		s << "Trying to access attribute at location " << location << " of overall " << format.getNumAttributes() << " attributes.";
-		throw std::range_error(s.str());
-	}
-	if(index >= elementCount) {
-		std::ostringstream s;
-		s << "Trying to access element at index " << index << " of overall " << elementCount << " elements.";
-		throw std::range_error(s.str());
-	}
-}
 
 //-------------------
 

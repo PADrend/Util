@@ -17,6 +17,7 @@
 #include <vector>
 #include <unordered_map>
 #include <cstdlib>
+#include <sstream>
 
 namespace Util {
 
@@ -26,6 +27,7 @@ namespace Util {
 class ResourceAccessor : public ReferenceCounter<ResourceAccessor> {
 protected:
 	void assertRangeLocation(uint32_t index, uint16_t location) const;
+	void assertAttribute(const StringIdentifier& id) const;
 public:
 	ResourceAccessor(uint8_t* ptr, size_t size, ResourceFormat format);
 	virtual ~ResourceAccessor();
@@ -64,28 +66,32 @@ public:
 	
 	template<typename T>
 	void readValues(size_t index, const StringIdentifier& id, T* values, size_t count) const {
+		assertAttribute(id);
 		return readValues<T>(index, locations.at(id), values, count);
 	}
 		
 	template<typename T> 
 	T readValue(size_t index, const StringIdentifier& id) const {
+		assertAttribute(id);
 		return readValue<T>(index, locations.at(id));
 	}
 	
 	template<typename T> 
 	std::vector<T> readValues(size_t index, const StringIdentifier& id, size_t count) const {
+		assertAttribute(id);
 		return readValues<T>(index, locations.at(id), count);
 	}
 	
 	template<typename T>
 	void writeValues(size_t index, uint16_t location, const T* values, size_t count) {
+		if(location >= format.getNumAttributes()) return; // ignore invalid locations
 		assertRangeLocation(index, location);
 		accessors[location]->writeValues(index, values, count);
 	}
 	
 	template<typename T>
 	void writeValues(size_t index, const StringIdentifier& id, const T* values, size_t count) {
-		writeValues(index, locations.at(id), values, count);
+		writeValues(index, locations.find(id) != locations.end() ? locations.at(id) : format.getNumAttributes(), values, count);
 	}
 	
 	template<typename T> 
@@ -95,7 +101,7 @@ public:
 	
 	template<typename T> 
 	void writeValue(size_t index, const StringIdentifier& id, const T& value) {
-		writeValues(index, locations.at(id), &value, 1);
+		writeValues(index, locations.find(id) != locations.end() ? locations.at(id) : format.getNumAttributes(), &value, 1);
 	}
 	
 	template<typename T> 
@@ -105,7 +111,7 @@ public:
 	
 	template<typename T> 
 	void writeValues(size_t index, const StringIdentifier& id, const std::vector<T>& values) {
-		writeValues(index, locations.at(id), values.data(), values.size());
+		writeValues(index, locations.find(id) != locations.end() ? locations.at(id) : format.getNumAttributes(), values.data(), values.size());
 	}
 	
 	const ResourceFormat& getFormat() const { return format; }
@@ -120,7 +126,30 @@ private:
 	std::unordered_map<StringIdentifier, uint16_t> locations;
 	std::vector<Reference<AttributeAccessor>> accessors;
 };
-	
+
+inline
+void ResourceAccessor::assertRangeLocation(uint32_t index, uint16_t location) const {
+	if(location >= format.getNumAttributes()) {
+		std::ostringstream s;
+		s << "Trying to access attribute at location " << location << " of overall " << format.getNumAttributes() << " attributes.";
+		throw std::range_error(s.str());
+	}
+	if(index >= elementCount) {
+		std::ostringstream s;
+		s << "Trying to access element at index " << index << " of overall " << elementCount << " elements.";
+		throw std::range_error(s.str());
+	}
+}
+
+inline
+void ResourceAccessor::assertAttribute(const StringIdentifier& id) const {
+	if(!format.hasAttribute(id)) {
+		std::ostringstream s;
+		s << "There is no attribue named '" << id.toString() << "'.";
+		throw std::range_error(s.str());
+	}
+}
+
 } /* Util */
 
 #endif /* end of include guard: UTIL_RESOURCES_RESOURCEACCESSOR_H_ */
