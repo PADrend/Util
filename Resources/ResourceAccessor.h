@@ -145,7 +145,7 @@ inline
 void ResourceAccessor::assertAttribute(const StringIdentifier& id) const {
 	if(!format.hasAttribute(id)) {
 		std::ostringstream s;
-		s << "There is no attribue named '" << id.toString() << "'.";
+		s << "There is no attribute named '" << id.toString() << "'.";
 		throw std::range_error(s.str());
 	}
 }
