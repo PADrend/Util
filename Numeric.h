@@ -17,8 +17,10 @@
 #include <limits>
 
 namespace Util {
+//! @ingroup util_helper
 namespace Numeric {
-
+	
+	
 /**
  * Test if the two parameters are essentially equal as defined in
  * the given reference by Knuth.

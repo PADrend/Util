@@ -15,6 +15,9 @@
 
 namespace Util {
 
+//! @addtogroup util_helper
+//! @{
+	
 //! This constants should not change and may be used for serialization.
 enum class TypeConstant : uint8_t{
 	UINT8	= 0,
@@ -34,6 +37,8 @@ size_t getNumBytes(TypeConstant t);
 
 std::string getTypeString(TypeConstant t);
 
+//! @}
+	
 }
 
 #endif // TYPE_CONSTANT_H

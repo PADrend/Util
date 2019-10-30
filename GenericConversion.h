@@ -18,6 +18,7 @@ class Generic;
  * 
  * Conversion functions to convert from other formats to Generic and from
  * Generic to other formats.
+ * @ingroup generic_attr
  */
 namespace GenericConversion {
 

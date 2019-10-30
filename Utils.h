@@ -18,7 +18,9 @@
 #include <vector>
 
 namespace Util {
-namespace Utils {
+//! @addtogroup util_helper
+//! @{
+namespace Utils {	
 
 /**
  * Get the resident set size/working set size of the current process.
@@ -162,5 +164,6 @@ std::string md5(const std::string& str);
 //    std::string getInfo();
 //    void clearInfo();
 
+//! @}
 }
 #endif // UTILS_H_INCLUDED

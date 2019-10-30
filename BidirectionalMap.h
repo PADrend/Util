@@ -19,6 +19,8 @@
 
 namespace Util {
 
+//! @addtogroup data_structures
+//! @{
 
 /*! Collection of policies used for BinaryMaps */
 namespace BidirectionalMapPolicies{
@@ -353,6 +355,8 @@ public:
 	~BidirectionalUnorderedMap(){}
 };
 
+
+//! @}
 }
 
 #endif // BIDIRECTIONALUNORDEREDMAP_H

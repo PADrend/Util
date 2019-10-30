@@ -15,36 +15,42 @@
 
 namespace Util {
 	
-	/**
-	 * Function used to dynamically load a library at runtime.
-	 *
-	 * @note This is highly experimental and not intended for use in production code. Use with caution.
-	 *
-	 * @param filename File path to the dynamic library.
-	 * @return StringIdentifier of the filename on success (used as library handle), or empty StringIdentifier on failure.
-	 */
-  const StringIdentifier loadLibrary(const std::string& filename);
+//! @addtogroup util_helper
+//! @{
+
+/**
+ * Function used to dynamically load a library at runtime.
+ *
+ * @note This is highly experimental and not intended for use in production code. Use with caution.
+ *
+ * @param filename File path to the dynamic library.
+ * @return StringIdentifier of the filename on success (used as library handle), or empty StringIdentifier on failure.
+ */
+const StringIdentifier loadLibrary(const std::string& filename);
+
+/**
+ * Loads a function of a dynamically loaded library at runtime.
+ *
+ * @note This is highly experimental and not intended for use in production code. Use with caution.
+ *
+ * @param libraryId Library handle received from loadLibrary.
+ * @param name name of the function.
+ * @return Function handle or nullptr.
+ */
+void* loadFunction(const StringIdentifier& libraryId, const std::string& name);
+
+/**
+ * Function used to unload a dynamically loaded library.
+ *
+ * @note This is highly experimental and not intended for use in production code. Use with caution.  
+ *       Actually, don't use it at all, because it can cause unforseeable side effects. 
+ *
+ * @param libraryId Library handle received from loadLibrary.
+ */
+void unloadLibrary(const StringIdentifier& libraryId);
 	
-	/**
-	 * Loads a function of a dynamically loaded library at runtime.
-	 *
-	 * @note This is highly experimental and not intended for use in production code. Use with caution.
-	 *
-	 * @param libraryId Library handle received from loadLibrary.
-	 * @param name name of the function.
-	 * @return Function handle or nullptr.
-	 */
-  void* loadFunction(const StringIdentifier& libraryId, const std::string& name);
 	
-	/**
-	 * Function used to unload a dynamically loaded library.
-	 *
-	 * @note This is highly experimental and not intended for use in production code. Use with caution.  
-	 *       Actually, don't use it at all, because it can cause unforseeable side effects. 
-	 *
-	 * @param libraryId Library handle received from loadLibrary.
-	 */
-  void unloadLibrary(const StringIdentifier& libraryId);
+//! @}
 }
 
 #endif /* end of include guard: UTIL_LOADLIBRARY_H_ */

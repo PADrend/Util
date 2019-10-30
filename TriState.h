@@ -22,6 +22,7 @@ namespace Util{
  *
  * @author Ralf Petring
  * @date 2013-01-16
+ * @ingroup util_helper
  */
 class TriState {
 

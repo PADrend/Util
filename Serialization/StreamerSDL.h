@@ -19,6 +19,7 @@
 
 namespace Util {
 class Bitmap;
+namespace Serialization {
 
 /**
  * Very inefficient streamer that relies on saving temporary files.
@@ -40,6 +41,8 @@ class StreamerSDL : public AbstractBitmapStreamer {
 
 		static bool init();
 };
+
+}
 }
 
 #endif /* UTIL_STREAMERSDL_H_ */

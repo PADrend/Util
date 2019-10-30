@@ -20,6 +20,7 @@
 
 namespace Util {
 class Bitmap;
+namespace Serialization {
 
 class StreamerSTB : public AbstractBitmapStreamer {
 	public:
@@ -34,6 +35,8 @@ class StreamerSTB : public AbstractBitmapStreamer {
 
 		static bool init();
 };
+
+}
 }
 
 #endif /* UTIL_STREAMERSTB_H_ */

@@ -20,12 +20,14 @@
 
 namespace Util {
 class Bitmap;
+namespace Serialization {
 
 /**
  * Interface for classes that are capable of converting between bitmaps and streams.
  *
  * @author Benjamin Eikel
  * @date 2011-09-08
+ * @ingroup util_serialization
  */
 class AbstractBitmapStreamer : public AbstractStreamer {
 	public:
@@ -58,6 +60,7 @@ class AbstractBitmapStreamer : public AbstractStreamer {
 		}
 };
 
+}
 }
 
 #endif /* UTIL_ABSTRACTBITMAPSTREAMER_H_ */

@@ -15,6 +15,12 @@
 
 namespace Util {
 template<class _T> class WeakPointer;
+
+//! @defgroup reference References
+
+//! @addtogroup reference
+//! @{
+
 /**
  * Smart-pointer for objects using reference counters (via base class ReferenceCounter).
  */
@@ -149,6 +155,8 @@ class WeakPointer {
 		bool operator<(const WeakPointer<_T> & other) const		{	return other.obj < obj;	}
 		explicit operator bool()const							{	return obj;	}
 };
+
+//! @}
 }
 
 #endif // REFERENCES_H_INCLUDED

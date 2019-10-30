@@ -25,6 +25,7 @@
 #include <iostream>
 
 namespace Util {
+using namespace Serialization;
 
 bool init() {
 	static int initializationCount = 0;

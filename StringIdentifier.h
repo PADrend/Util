@@ -24,6 +24,7 @@ namespace Util {
  * This mapping is guaranteed to be unique during one execution of the program.
  *
  * @author Claudius Jähn, Benjamin Eikel
+ * @ingroup strings
  */
 class StringIdentifier {
 		uint32_t value;

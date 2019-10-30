@@ -136,6 +136,7 @@ class Color4ub {
 };
 
 //! Representation of an RGBA color that is stored as four floats.
+//! @ingroup graphics
 class Color4f {
 	private:
 		std::array<float, 4> values;		

@@ -17,6 +17,8 @@
 #include <ostream>
 
 namespace Util {
+	
+//! @ingroup factory
 namespace FallbackPolicies {
 
 /**

@@ -18,10 +18,11 @@
 
 namespace Util {
 
-/***
- ** MicroXML
- ** @description Very simple XML-Parser
- **/
+/**
+ * MicroXML
+ * @description Very simple XML-Parser
+ * @ingroup util_helper
+ */
 namespace MicroXML {
 
 typedef std::unordered_map<std::string, std::string> attributes_t;

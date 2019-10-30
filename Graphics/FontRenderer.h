@@ -19,6 +19,7 @@
 namespace Util {
 class Bitmap;
 
+//! @ingroup graphics
 struct GlyphInfo {
 	//! Pixel position of the glyph inside the bitmap.
 	std::pair<int, int> position;
@@ -29,6 +30,8 @@ struct GlyphInfo {
 	//! Pixel offset to advance the cursor after rendering the glyph.
 	int xAdvance;
 };
+
+//! @ingroup graphics
 struct FontInfo {
 	//! Number of pixels above the baseline.
 	int ascender;

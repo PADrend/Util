@@ -16,6 +16,7 @@
 
 namespace Util {
 
+//! @ingroup reference
 template<class Obj_t>
 struct ObjectDeleter {
 	static void release(Obj_t * obj)	{	delete obj;	}
@@ -30,6 +31,7 @@ struct ObjectDeleter {
  * 
  * @tparam Obj_t The inheriting class
  * @tparam ObjReleaseHandler_t A class with a function <tt>static void release(Obj_t *)</tt>
+ * @ingroup reference
  */
 template<class Obj_t, class ObjReleaseHandler_t = ObjectDeleter<Obj_t>>
 class ReferenceCounter {

@@ -30,6 +30,7 @@ COMPILER_WARN_POP
 #endif /* defined(UTIL_HAVE_LIB_SDL2) */
 
 namespace Util {
+namespace Serialization {
 
 #if defined(UTIL_HAVE_LIB_SDL2)
 
@@ -107,4 +108,5 @@ bool StreamerSDL::init() {
 	return true;
 }
 
+}
 }

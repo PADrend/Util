@@ -16,6 +16,11 @@
 #include <map>
 
 namespace Util {
+	
+//! @defgroup factory Factory
+
+//! @addtogroup factory
+//! @{
 
 /**
  * @brief Generic factory for objects
@@ -103,6 +108,8 @@ class PointerHolderCreator {
 		}
 };
 
+
+//! @}
 }
 
 #endif /* UTIL_FACTORY_FACTORY_H */

@@ -15,6 +15,9 @@
 
 namespace Util {
 
+//! @addtogroup registry
+//! @{
+	
 /**
  * @brief Safe storage for a RegistryHandle
  * 
@@ -153,6 +156,7 @@ class OptionalRegistryHandleHolder {
 		}
 };
 
+//! @}
 }
 
 #endif /* UTIL_REGISTRYHELPER_H */

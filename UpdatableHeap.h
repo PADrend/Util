@@ -17,7 +17,9 @@
 #include <utility>
 
 namespace Util {
+//! @defgroup data_structures Data Structures
 
+//! @ingroup data_structures
 template<typename Key_t, typename Data_t>
 class UpdatableHeap {
 	public:

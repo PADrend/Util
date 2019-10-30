@@ -12,6 +12,8 @@
 #define UTIL_UTIL_H
 
 namespace Util {
+	
+//! @defgroup util_helper Helper
 
 /**
  * Initialize the Util library.

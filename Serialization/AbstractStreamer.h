@@ -18,6 +18,7 @@
 
 namespace Util {
 class GenericAttributeList;
+namespace Serialization {
 
 /**
  * Interface for classes that are capable of converting between objects and streams.
@@ -74,6 +75,7 @@ class AbstractStreamer {
 		}
 };
 
+}
 }
 
 #endif /* UTIL_ABSTRACTSTREAMER_H_ */

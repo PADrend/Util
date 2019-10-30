@@ -15,13 +15,19 @@
 #include <stdexcept>
 
 namespace Util {
-	enum output_priority_t {
-		OUTPUT_DEBUG,
-		OUTPUT_WARNING,
-		OUTPUT_ERROR
-	};
-	void output(output_priority_t priority,const std::string & message);
-	std::string composeDebugMessage(const std::string & message,const char * file, int line);
+	
+//! @addtogroup util_helper
+//! @{
+
+enum output_priority_t {
+	OUTPUT_DEBUG,
+	OUTPUT_WARNING,
+	OUTPUT_ERROR
+};
+void output(output_priority_t priority,const std::string & message);
+std::string composeDebugMessage(const std::string & message,const char * file, int line);
+
+//! @}
 }
 
 #ifdef DEBUG_MODE

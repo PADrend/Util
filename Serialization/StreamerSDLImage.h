@@ -19,6 +19,7 @@
 
 namespace Util {
 class Bitmap;
+namespace Serialization {
 
 class StreamerSDLImage : public AbstractBitmapStreamer {
 	public:
@@ -32,6 +33,8 @@ class StreamerSDLImage : public AbstractBitmapStreamer {
 
 		static bool init();
 };
+
+}
 }
 
 #endif /* UTIL_STREAMERSDLIMAGE_H_ */

@@ -51,6 +51,7 @@ namespace Util {
  * timer.stop();
  * std::cout << "doPartA() and doPartB() took " << timer.getSeconds() << " s." << std::endl;
  * @endcode
+ * @ingroup util_helper
  */
 class Timer {
 	private:

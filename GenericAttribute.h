@@ -33,6 +33,9 @@ typedef _StringAttribute<std::string> StringAttribute;
 class GenericAttributeMap;
 class GenericAttributeList;
 
+//! @addtogroup generic_attr
+//! @{
+
 /**
  * Abstract base class of all generic attributes. A generic attribute is used to
  * store arbitrary types of data into a location.
@@ -609,6 +612,8 @@ class GenericAttributeList : public GenericAttribute	{
 		std::string toString() const override;
 		bool operator==(const GenericAttribute &) const override;
 };
+
+//! @}
 
 }
 

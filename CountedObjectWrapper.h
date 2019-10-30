@@ -16,6 +16,7 @@
 
 namespace Util {
 
+//! @ingroup reference
 template<class _T>
 class CountedObjectWrapper : public ReferenceCounter<CountedObjectWrapper<_T>>{
 		_T obj;

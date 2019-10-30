@@ -18,6 +18,8 @@
 #include <deque>
 
 namespace Util {
+	
+//! @defgroup resources Resources
 
 /** ResourceFormat
  * @ingroup resources

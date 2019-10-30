@@ -28,6 +28,7 @@ COMPILER_WARN_POP
 #endif /* UTIL_HAVE_LIB_PNG */
 
 namespace Util {
+namespace Serialization {
 
 #ifdef UTIL_HAVE_LIB_PNG
 
@@ -237,4 +238,5 @@ bool StreamerPNG::init() {
 	return true;
 }
 
+}
 }

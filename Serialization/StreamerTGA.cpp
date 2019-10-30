@@ -27,6 +27,7 @@ COMPILER_WARN_POP
 #endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
 
 namespace Util {
+namespace Serialization {
 
 #if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
 
@@ -58,4 +59,5 @@ bool StreamerTGA::init() {
 	return true;
 }
 
+}
 }

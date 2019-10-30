@@ -21,7 +21,7 @@ class StructuredAccessor : public ResourceAccessor {
 public:
 	using Type_t = T;
 	
-	StructuredAccessor(Resource* resource, bool readOnly=false) : ResourceAccessor(resource, readOnly) {}
+	StructuredAccessor(uint8_t* ptr, size_t size, ResourceFormat format) : ResourceAccessor(ptr, size, format) {}
 	virtual ~StructuredAccessor() = default;
 	
 	Type_t read(size_t index) {

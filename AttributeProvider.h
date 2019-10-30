@@ -21,6 +21,7 @@ namespace Util {
  * Mixin class to provide a GenericAttributeMap including access functions for classes inheriting it.
  * The map itself is created when the first attribute is added;
  * so that the minimal memory overhead is of the size of a single pointer.
+ * @ingroup generic_attr
  */
 class AttributeProvider {
 	private:

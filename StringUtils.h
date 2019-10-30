@@ -21,6 +21,10 @@
 #include <limits>
 
 namespace Util {
+	
+//! @defgroup strings Strings
+
+//! @ingroup strings
 namespace StringUtils {
 
 //! Does subject begin with @p find?  

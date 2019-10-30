@@ -21,6 +21,9 @@
 #include <utility>
 
 namespace Util {
+		
+//! @addtogroup util_helper
+//! @{
 
 /*! @defgroup objext ObjectExtensions
 	ObjectExtensions can be used to dynamically extend objects inheriting from AttributeProvider
@@ -215,6 +218,7 @@ template<typename extension_t> bool hasObjectExtension(const StringIdentifier & 
 	return getObjectExtension<extension_t>(extName,obj)!=nullptr;
 }
 
+//! @}
 //! @}
 }
 #endif // OBJECTEXTENSION_H_INCLUDED

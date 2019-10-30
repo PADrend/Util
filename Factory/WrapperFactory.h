@@ -18,6 +18,9 @@
 
 namespace Util {
 
+//! @addtogroup factory
+//! @{
+
 /**
  * @brief Generic factory for wrapper objects
  *
@@ -92,6 +95,7 @@ class PolymorphicWrapperCreator {
 		}
 };
 
+//! @}
 }
 
 #endif /* UTIL_FACTORY_WRAPPERFACTORY_H */

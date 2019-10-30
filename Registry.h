@@ -12,6 +12,11 @@
 #include <utility>
 
 namespace Util {
+	
+//! @defgroup registry Registry
+
+//! @addtogroup registry
+//! @{
 
 /**
  * @brief Handle used by Registry
@@ -104,6 +109,7 @@ class Registry {
 		}
 };
 
+//! @}
 }
 
 #endif /* UTIL_REGISTRY_H */

@@ -13,6 +13,8 @@
 #include <string>
 
 namespace Util {
+	
+//! @ingroup registry
 namespace LibRegistry {
 
 /*! Call once for each used third-party library. 

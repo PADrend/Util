@@ -38,6 +38,7 @@ static bool libNameInitailized = [](){
 #endif /* defined(UTIL_HAVE_LIB_STB) */
 
 namespace Util {
+namespace Serialization {
 
 #if defined(UTIL_HAVE_LIB_STB) and not defined(UTIL_PREFER_SDL_IMAGE)
 
@@ -131,4 +132,5 @@ bool StreamerSTB::init() {
 	return true;
 }
 
+}
 }

@@ -20,6 +20,7 @@
 
 namespace Util {
 class Bitmap;
+namespace Serialization {
 
 class StreamerTGA : public AbstractBitmapStreamer {
 	public:
@@ -33,6 +34,8 @@ class StreamerTGA : public AbstractBitmapStreamer {
 
 		static bool init();
 };
+
+}
 }
 
 #endif /* UTIL_STREAMERTGA_H_ */

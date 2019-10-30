@@ -31,6 +31,7 @@ class GenericAttribute;
  * 		std::cout << attr->toJSON() << std::endl;
  * 	}
  * @endcode
+ * @ingroup util_helper
  */
 class JSON_Parser {
 	public:

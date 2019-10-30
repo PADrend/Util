@@ -21,6 +21,7 @@ namespace Util {
  *
  * @author Paul Justus, Benjamin Eikel
  * @date 2010-06-08
+ * @ingroup util_helper
  */
 class ProgressIndicator {
 		std::string textOutput; /*!< Text that precedes the progress in the output */

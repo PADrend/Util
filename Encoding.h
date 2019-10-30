@@ -16,9 +16,13 @@
 #include <vector>
 
 namespace Util {
+	
+//! @addtogroup util_helper
+//! @{
 
 std::string encodeBase64(const std::vector<uint8_t> & source);
 std::vector<uint8_t> decodeBase64(const std::string & source);
 
+//! @}
 }
 #endif // ENCODING_H

@@ -27,6 +27,7 @@ class GenericAttributeMap;
  * Class for serialization and unserialization of GenericAttribute objects.
  * @author Benjamin Eikel
  * @date 2012-03-12
+ * @ingroup generic_attr
  */
 class GenericAttributeSerialization {
 	public:

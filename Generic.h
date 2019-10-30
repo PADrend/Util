@@ -15,7 +15,9 @@
 #include <utility>
 
 namespace Util {
-
+	
+//! @defgroup generic_attr Generic Attributes
+	
 /**
  * @brief Container for a value with generic type
  * 
@@ -34,6 +36,7 @@ namespace Util {
  * 
  * @author Benjamin Eikel
  * @date 2013-05-28
+ * @ingroup generic_attr
  */
 class Generic {
 	private:
