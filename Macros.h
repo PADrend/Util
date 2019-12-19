@@ -40,6 +40,18 @@ std::string composeDebugMessage(const std::string & message,const char * file, i
 #define WARN(M) \
 	Util::output(Util::OUTPUT_WARNING, Util::composeDebugMessage(M, __FILE__, __LINE__))
 
+#define WARN_AND_RETURN(M,V) \
+	Util::output(Util::OUTPUT_WARNING, Util::composeDebugMessage(M, __FILE__, __LINE__)); return V
+
+#define WARN_IF(C,M) \
+	if(C) Util::output(Util::OUTPUT_WARNING, Util::composeDebugMessage(M, __FILE__, __LINE__))
+
+#define WARN_AND_RETURN_IF(C,M,V) \
+	do{ if(C) { \
+		Util::output(Util::OUTPUT_WARNING, Util::composeDebugMessage(M, __FILE__, __LINE__)); \
+		return V; \
+	}} while(false)
+
 #define FAIL() \
 	do{ \
 		const std::string msg = Util::composeDebugMessage( "Runtime error.", __FILE__, __LINE__);\
