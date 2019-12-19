@@ -159,6 +159,12 @@ uint32_t calcHash(const uint8_t * ptr,size_t size);
 
 std::string md5(const std::string& str);
 
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v) {
+	std::hash<T> hasher;
+	seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
 //    void useStdInfo();
 //    void useInternalInfo();
 //    std::string getInfo();
