@@ -12,6 +12,7 @@ install(FILES
 	Factory.h
 	FallbackPolicies.h
 	LambdaFactory.h
+	ObjectCache.h
 	WrapperFactory.h
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Factory
 	COMPONENT headers
