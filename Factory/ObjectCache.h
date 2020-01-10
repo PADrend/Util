@@ -79,7 +79,7 @@ class ObjectCache {
 			if(registrations.find(id) == registrations.end())
 				return fallbackPolicy.onUnknownType(std::bind(&ObjectCache::create<>, this, std::placeholders::_1), id);
 
-			auto registration = registrations.at(id);
+			auto& registration = registrations.at(id);
 			auto creator = static_cast<std::function<ObjectType(Args...)>*>(registration.creator);
 
 			if(typeid(creator) != *(registration.signature))
@@ -92,7 +92,8 @@ class ObjectCache {
 				return it->second;
 			
 			ObjectType obj = (*creator)(args...);
-			return registration.cache.emplace(hash, obj).first->second;
+			registration.cache.emplace(hash, obj);
+			return obj;
 		}
 
 		void release(const IdentifierType & id, size_t hash) {
