@@ -99,7 +99,7 @@ class ObjectCache {
 		void release(const IdentifierType & id, size_t hash) {
 			if(registrations.find(id) == registrations.end())
 				return fallbackPolicy.onUnknownType(std::bind(&ObjectCache::create<>, this, std::placeholders::_1), id);
-			auto registration = registrations.at(id);
+			auto& registration = registrations.at(id);
 			registration.cache.erase(hash);
 		}
 
