@@ -9,7 +9,7 @@
 #ifndef UTIL_FACTORY_OBJECTPOOL_H
 #define UTIL_FACTORY_OBJECTPOOL_H
 
-#include "LambdaFactory.h"
+#include "FallbackPolicies.h"
 #include "../Utils.h"
 
 #include <unordered_map>
@@ -38,25 +38,26 @@ template < class ObjectType,
 		 template<class, typename> class FallbackPolicy = FallbackPolicies::ExceptionFallback >
 class ObjectPool {
 	private:
-		typedef std::deque<size_t, ObjectType> pool_t;
-		struct Cache final {
+		typedef std::deque<ObjectType> pool_t;
+		struct Pool final {
+			Pool(const ObjectCreator& creator) : creator(creator) {}
 			ObjectCreator creator;
 			pool_t pool;
 		};
-		typedef std::unordered_map<IdentifierType, Cache> registrations_t;
+		typedef std::unordered_map<IdentifierType, Pool> registrations_t;
 		registrations_t registrations;
 	public:
 		typedef FallbackPolicy<ObjectType, IdentifierType> fallbackPolicy_t;
 		fallbackPolicy_t fallbackPolicy;
-		ObjectCache() : fallbackPolicy() { }
-		ObjectCache(fallbackPolicy_t policy) : fallbackPolicy(policy) { }
-		~ObjectCache() = default
+		ObjectPool() : fallbackPolicy() { }
+		ObjectPool(fallbackPolicy_t policy) : fallbackPolicy(policy) { }
+		~ObjectPool() = default;
 
 		void registerType(const IdentifierType& id, ObjectCreator creator) {
 			auto it = registrations.find(id);
 			if(it != registrations.end()) 
 				throw std::invalid_argument("the pool already exists");
-			registrations.emplace(id, creator, {});
+			registrations.emplace(id, creator);
 		}
 
 		void unregisterType(const IdentifierType& id) {
@@ -66,7 +67,7 @@ class ObjectPool {
 		ObjectType create(const IdentifierType& id) {
 			auto it = registrations.find(id);
 			if(it == registrations.end()) 
-				return fallbackPolicy.onUnknownType(std::bind(&ObjectCache::create, this, std::placeholders::_1), id);
+				return fallbackPolicy.onUnknownType(std::bind(&ObjectPool::create, this, std::placeholders::_1), id);
 			if(it->second.pool.empty())
 				return (it->second.creator)();
 			auto obj = it->second.pool.front();
@@ -76,9 +77,8 @@ class ObjectPool {
 
 		void free(const IdentifierType& id, const ObjectType& obj) {
 			auto it = registrations.find(id);
-			if(it == registrations.end()) 
-				return fallbackPolicy.onUnknownType(std::bind(&ObjectCache::create, this, std::placeholders::_1), id);
-			it->second.pool.emplace_back(obj);
+			if(it != registrations.end())
+				it->second.pool.emplace_back(obj);
 		}
 
 		void reset() {
