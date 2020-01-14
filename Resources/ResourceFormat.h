@@ -21,44 +21,48 @@ namespace Util {
 	
 //! @defgroup resources Resources
 
+/** ResourceAttribute
+ * @ingroup resources
+ */
+class ResourceAttribute {
+public:
+	//static const uint8_t TYPE_R11G11B10Float = 100; //! Special type
+	//static const uint8_t TYPE_RGBA8UnormSrgb = 101; //! Special type
+				
+	ResourceAttribute();
+	//FormatAttribute(const StringIdentifier& _nameId, uint8_t _dataType, uint16_t _dataSize, uint16_t _offset=0);
+	ResourceAttribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint8_t _numValues, bool _normalized, uint16_t _offset=0);
+	
+	bool operator==(const ResourceAttribute& other) const;
+	bool operator<(const ResourceAttribute& other) const;
+	std::string toString() const;
+
+	uint16_t getOffset() const { return offset; }
+	uint16_t getDataSize() const { return dataSize; }
+	uint8_t getNumValues() const { return numValues; }
+	TypeConstant getDataType() const { return dataType; }
+	bool isNormalized() const { return normalized; }
+	StringIdentifier getNameId() const { return nameId; }
+	std::string getName() const { return nameId.toString(); }
+	bool empty() const { return numValues == 0; }
+private:
+	friend class ResourceFormat;
+	ResourceAttribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint8_t _numValues, bool _normalized, uint16_t _offset);
+	
+	StringIdentifier nameId;
+	TypeConstant dataType;
+	uint16_t dataSize;
+	uint16_t offset;
+	uint8_t numValues;
+	bool normalized;
+};
+
 /** ResourceFormat
  * @ingroup resources
  */
 class ResourceFormat {
 public:
-	class Attribute {
-		public:
-			//static const uint8_t TYPE_R11G11B10Float = 100; //! Special type
-			//static const uint8_t TYPE_RGBA8UnormSrgb = 101; //! Special type
-						
-			Attribute();
-			//Attribute(const StringIdentifier& _nameId, uint8_t _dataType, uint16_t _dataSize, uint16_t _offset=0);
-			Attribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint8_t _numValues, bool _normalized, uint16_t _offset=0);
-			
-			bool operator==(const Attribute& other) const;
-			bool operator<(const Attribute& other) const;
-			std::string toString() const;
-
-			uint16_t getOffset() const { return offset; }
-			uint16_t getDataSize() const { return dataSize; }
-			uint8_t getNumValues() const { return numValues; }
-			TypeConstant getDataType() const { return dataType; }
-			bool isNormalized() const { return normalized; }
-			StringIdentifier getNameId() const { return nameId; }
-			std::string getName() const { return nameId.toString(); }
-			bool empty() const { return numValues == 0; }
-		private:
-			friend class ResourceFormat;
-			Attribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint8_t _numValues, bool _normalized, uint16_t _offset);
-			
-			StringIdentifier nameId;
-			TypeConstant dataType;
-			uint16_t dataSize;
-			uint16_t offset;
-			uint8_t numValues;
-			bool normalized;
-	};
-	
+	using Attribute = ResourceAttribute;	
 	using AttributeContainer_t = std::deque<Attribute>;
 	
 	static const ResourceFormat BYTE_FORMAT;
