@@ -155,6 +155,12 @@ extern DebugOutput info;
 void enableInfo();
 void disableInfo();
 
+
+template<typename T>
+static inline T align(T offset, T alignment) {
+  return alignment > 1 ? (offset + (alignment - offset % alignment) % alignment) : offset;
+}
+
 uint32_t calcHash(const uint8_t * ptr,size_t size);
 
 std::string md5(const std::string& str);
