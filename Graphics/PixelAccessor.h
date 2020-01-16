@@ -14,6 +14,7 @@
 #include "Bitmap.h"
 #include "Color.h"
 #include "PixelFormat.h"
+#include "../Resources/AttributeAccessor.h"
 #include "../Macros.h"
 #include "../ReferenceCounter.h"
 #include "../References.h"
@@ -29,14 +30,14 @@ namespace Util {
 		the Bitmap, it will be deleted if the PixelAccessor is deleted.
 	@ingroup graphics
 */
-class PixelAccessor : public ReferenceCounter<PixelAccessor> {
+class PixelAccessor : AttributeAccessor {
 		Reference<Bitmap> myBitmap;
 	protected:
 		bool checkRange(uint32_t x,uint32_t y) const { return x<myBitmap->getWidth() && y<myBitmap->getHeight(); }
 		bool crop(uint32_t & x,uint32_t & y,uint32_t & width,uint32_t & height) const;
 
 		PixelAccessor(Reference<Bitmap> bitmap) :
-			ReferenceCounter_t(),
+			AttributeAccessor(bitmap->data(), bitmap->getDataSize(), bitmap->getPixelFormat(), bitmap->getPixelFormat().getDataSize()),
 			myBitmap(std::move(bitmap)) {
 		}
 	public:
@@ -78,12 +79,11 @@ class PixelAccessor : public ReferenceCounter<PixelAccessor> {
 		/*! Direct access to the pixel data.
 			\note Be careful: No boundary checks are performed! */
 		template<typename _T> _T * _ptr(const uint32_t x, const uint32_t y){
-			return reinterpret_cast<_T*>( myBitmap->data() + (y*myBitmap->getWidth() + x) * myBitmap->getPixelFormat().getBytesPerPixel() );
+			return _ptr<T>((y*myBitmap->getWidth() + x) * getDataSize()));
 		}
 		template<typename _T> const _T * _ptr(const uint32_t x, const uint32_t y) const{
-			return reinterpret_cast<_T*>( myBitmap->data() + (y*myBitmap->getWidth() + x) * myBitmap->getPixelFormat().getBytesPerPixel() );
+			return _ptr<T>((y*myBitmap->getWidth() + x) * getDataSize()));
 		}
-
 	private:
 		//! ---o
 		virtual Color4f doReadColor4f(uint32_t x, uint32_t y) const = 0;

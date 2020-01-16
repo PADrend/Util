@@ -40,7 +40,7 @@ namespace Util {
 class Bitmap : public ReferenceCounter<Bitmap> {
 	public:
 		//! Create a new bitmap.
-		explicit Bitmap(const uint32_t width=0,const uint32_t height=0,PixelFormat pixelFormat = PixelFormat::RGBA);
+		explicit Bitmap(const uint32_t width=0,const uint32_t height=0,AttributeFormat pixelFormat = PixelFormat::RGBA);
 
 		/*! Create a new bitmap which containing only raw data. A direct pixel access is not possible.
 			\note This can e.g. be used to store compressed textures */
@@ -55,7 +55,7 @@ class Bitmap : public ReferenceCounter<Bitmap> {
 		uint32_t getWidth() const 					{	return width;	}
 		uint32_t getHeight() const 					{	return height;	}
 
-		const PixelFormat & getPixelFormat()const	{	return pixelFormat;		}
+		const AttributeFormat & getPixelFormat()const	{	return pixelFormat;		}
 
 		//!	Return the number of bytes that are allocated by this Bitmap or that will be allocated.
 		size_t getDataSize() const 					{	return pixelData.size();	}
@@ -79,7 +79,7 @@ class Bitmap : public ReferenceCounter<Bitmap> {
 		void flipVertically();
 
 	private:
-		PixelFormat pixelFormat;
+		AttributeFormat pixelFormat;
 
 		uint32_t width; 		//!< Horizontal size
 		uint32_t height;		//!< Vertical size

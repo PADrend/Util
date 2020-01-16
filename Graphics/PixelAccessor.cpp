@@ -9,8 +9,10 @@
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
 #include "PixelAccessor.h"
+#include "../Resources/AttributeAccessor.h"
 #include "../Macros.h"
 #include <algorithm>
+#include <cstring>
 
 namespace Util {
 
@@ -33,6 +35,110 @@ void PixelAccessor::doFill(uint32_t x,uint32_t y,uint32_t width,uint32_t height,
 			doWriteColor(cx,cy,c);
 }
 
+//-------------
+
+static uint32_t toFloat11(float f) {
+	uint32_t floatBits;
+	memcpy(&floatBits, &f, sizeof(float));
+	uint32_t exponent = (floatBits >> 23) & 0xffu;
+	if(f <= 0 || exponent < 112) return 0;
+	return ((exponent - 127 + 15) << 6) | ((floatBits & 0x7fffffu) >> 17);
+}
+
+//-------------
+
+static uint32_t toFloat10(float f) {
+	uint32_t floatBits;
+	memcpy(&floatBits, &f, sizeof(float));
+	uint32_t exponent = (floatBits >> 23) & 0xffu;
+	if(f <= 0 || exponent < 112) return 0;
+	return ((exponent - 127 + 15) << 5) | ((floatBits & 0x7fffffu) >> 18);
+}
+
+//-------------
+
+static float fromFloat11(uint32_t float11Bits) {
+	float f;
+	uint32_t exponent = ((float11Bits & 0x7ffu) >> 6) + 127 - 15;
+	uint32_t mantissa = (float11Bits & 0x3fu);
+	uint32_t floatBits = (exponent << 23) | mantissa;
+	memcpy(&f, &floatBits, sizeof(float));
+	return f;
+}
+
+//-------------
+
+static float fromFloat10(uint32_t float10Bits) {
+	float f;
+	uint32_t exponent = ((float10Bits & 0x3ffu) >> 5) + 127 - 15;
+	uint32_t mantissa = (float10Bits & 0x1fu);
+	uint32_t floatBits = (exponent << 23) | mantissa;
+	memcpy(&f, &floatBits, sizeof(float));
+	return f;
+}
+
+//-------------------------------------------------------------
+// R11G11B10FloatAccessor
+
+class R11G11B10FloatAccessor : public AttributeAccessor {
+public:
+	R11G11B10FloatAccessor(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) :
+		AttributeAccessor(ptr, size, attr, stride) {}
+		
+	static Reference<AttributeAccessor> create(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) {
+		return new R11G11B10FloatAccessor(ptr, size, attr, stride);
+	}
+		
+	template<typename S>
+	void _readValues(size_t index, S* values, size_t count) const {	
+		std::vector<float> floatValues(count);
+		readValues(index, floatValues.data(), count);
+		std::copy(floatValues.begin(), floatValues.end(), values);
+	}
+	
+	template<typename S>
+	void _writeValues(size_t index, const S* values, size_t count) const {
+		std::vector<float> floatValues(values, values + count);
+		writeValues(index, floatValues.data(), count);
+	}
+	
+	virtual void readValues(size_t index, int8_t* values, size_t count) const { _readValues(index, values, count); }
+	virtual void readValues(size_t index, int16_t* values, size_t count) const { _readValues(index, values, count); }
+	virtual void readValues(size_t index, int32_t* values, size_t count) const { _readValues(index, values, count); }
+	virtual void readValues(size_t index, int64_t* values, size_t count) const { _readValues(index, values, count); }
+	virtual void readValues(size_t index, uint8_t* values, size_t count) const { _readValues(index, values, count); }
+	virtual void readValues(size_t index, uint16_t* values, size_t count) const { _readValues(index, values, count); }
+	virtual void readValues(size_t index, uint32_t* values, size_t count) const { _readValues(index, values, count); }
+	virtual void readValues(size_t index, uint64_t* values, size_t count) const { _readValues(index, values, count); }
+	virtual void readValues(size_t index, float* values, size_t count) const {
+		assertRange(index);
+		uint32_t v = *_ptr<const uint32_t>(index);
+		if(count >= 0) *(values+0) = fromFloat11(v);
+		if(count >= 1) *(values+1) = fromFloat11(v >> 11);
+		if(count >= 2) *(values+2) = fromFloat10(v >> 22);
+	}
+	
+	virtual void readValues(size_t index, double* values, size_t count) const { _readValues(index, values, count); }
+	virtual void writeValues(size_t index, const int8_t* values, size_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(size_t index, const int16_t* values, size_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(size_t index, const int32_t* values, size_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(size_t index, const int64_t* values, size_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(size_t index, const uint8_t* values, size_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(size_t index, const uint16_t* values, size_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(size_t index, const uint32_t* values, size_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(size_t index, const uint64_t* values, size_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(size_t index, const float* values, size_t count) const {
+		assertRange(index);
+		uint32_t r = count >= 0 ? toFloat11(*(values+0)) : 0;
+		uint32_t g = count >= 1 ? toFloat11(*(values+1)) : 0;
+		uint32_t b = count >= 2 ? toFloat10(*(values+2)) : 0;
+		*_ptr<uint32_t>(index) = r | (g << 11) | (b << 22);
+	}
+	
+	virtual void writeValues(size_t index, const double* values, size_t count) const { _writeValues(index, values, count); }
+};
+
+static const bool R11G11B10FloatAccRegistered = AttributeAccessor::registerAccessor(PixelFormat::R11G11B10_FLOAT, R11G11B10FloatAccessor::create);
 
 // ------------------------------------
 
