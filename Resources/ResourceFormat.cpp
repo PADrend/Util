@@ -3,7 +3,7 @@
 	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
-	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
+	Copyright (C) 2019-2020 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
@@ -15,107 +15,21 @@
 #include <sstream>
 
 namespace Util {
-	
-static size_t align(size_t offset, size_t alignment) {
-  return alignment > 1 ? (offset + (alignment - offset % alignment) % alignment) : offset;
-}
-
-static ResourceFormat createByteFormat() {
-	StringIdentifier byteId("byte");
-	ResourceFormat format;
-	format.appendAttribute(byteId, TypeConstant::UINT8, 1, false);
-	return format;
-}
-
-const ResourceFormat ResourceFormat::BYTE_FORMAT = createByteFormat();
 
 //------------------
 
-ResourceAttribute::ResourceAttribute() : nameId(0), dataType(TypeConstant::UINT8), dataSize(0), offset(0), numValues(0), normalized(false) { }
 
-//------------------
-
-//ResourceAttribute::ResourceAttribute(const StringIdentifier& _nameId, uint8_t _dataType, uint16_t _dataSize, uint16_t _offset) :
-//	nameId(_nameId), dataType(_dataType), dataSize(_dataSize),  offset(_offset), numValues(1), normalized(false) { }
-
-//------------------
-
-ResourceAttribute::ResourceAttribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint8_t _numValues, bool _normalized, uint16_t _offset) :
-	nameId(_nameId), dataType(_dataType), dataSize(getNumBytes(_dataType)*_numValues), 
-	offset(_offset), numValues(_numValues), normalized(_normalized) { }
-
-//------------------
-
-ResourceAttribute::ResourceAttribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint8_t _numValues, bool _normalized, uint16_t _offset) :
-	nameId(_nameId), dataType(_dataType), dataSize(_dataSize), 
-	offset(_offset), numValues(_numValues), normalized(_normalized) { }
-
-//------------------
-
-bool ResourceAttribute::operator==(const ResourceAttribute& o) const {
-	return nameId == o.nameId && dataType == o.dataType && dataSize == o.dataSize && offset == o.offset && numValues == o.numValues && normalized == o.normalized;
-}
-
-//------------------
-
-bool ResourceAttribute::operator<(const ResourceAttribute& other) const {
-	if(offset!=other.offset) {
-		return offset<other.offset;
-	} else if(numValues!=other.numValues) {
-		return numValues<other.numValues;
-	} else if(dataSize!=other.dataSize) {
-		return dataSize<other.dataSize;
-	} else if(dataType!=other.dataType) {
-		return dataType<other.dataType;
-	} else if(nameId!=other.nameId) {
-		return nameId<other.nameId;
-	} else if(normalized!=other.normalized) {
-		return normalized<other.normalized;
-	} else return false;
-}
-
-//------------------
-
-std::string ResourceAttribute::toString() const {
-	std::ostringstream s;
-	s << nameId.toString() << " (" << offset << "): ";
-	//if(dataType <= static_cast<uint8_t>(TypeConstant::DOUBLE)) {
-		s << static_cast<unsigned int>(numValues) << " " << getTypeString(static_cast<TypeConstant>(dataType));
-	//} else if(dataType == TYPE_R11G11B10Float) {
-	//	s << "R11G11B10Float";
-	//} else if(dataType == TYPE_RGBA8UnormSrgb) {
-	//	s << "RGBA8UnormSrgb";
-	//} else {
-	//	s << "type " << static_cast<uint32_t>(dataType) << ", " << dataSize << " byte";
-	//}
-	
-	if(normalized)
-		s << " (normalized)";	
-	return s.str();
-}
-
-//------------------
-
-//const ResourceAttribute& ResourceFormat::appendAttribute(const StringIdentifier& nameId, uint8_t type, uint16_t dataSize) {
-//	size_t offset = align(size, attributeAlignment);
-//	attributes.emplace_back(nameId, type, dataSize, offset);
-//	size = align(offset + attributes.back().dataSize, attributeAlignment);
-//	return attributes.back();
-//}
-
-//------------------
-
-const ResourceAttribute& ResourceFormat::appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint8_t numValues, bool normalized) {
+const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint8_t numValues, bool normalized, uint32_t internalType) {
 	size_t offset = align(size, attributeAlignment);
-	attributes.emplace_back(nameId, type, numValues, normalized, offset);
+	attributes.emplace_back(std::move(AttributeFormat(nameId, type, numValues, normalized, internalType, offset)));
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 	return attributes.back();
 }
 
 //------------------
 
-const ResourceAttribute& ResourceFormat::getAttribute(const StringIdentifier& nameId) const {
-	static const ResourceAttribute emptyAttribute;
+const AttributeFormat& ResourceFormat::getAttribute(const StringIdentifier& nameId) const {
+	static const AttributeFormat emptyAttribute;
 	for(const auto & attr : attributes) {
 		if(attr.getNameId() == nameId) {
 			return attr;
@@ -137,7 +51,7 @@ bool ResourceFormat::hasAttribute(const StringIdentifier& nameId) const {
 
 //------------------
 
-const uint16_t ResourceFormat::getAttributeLocation(const StringIdentifier& nameId) const {
+const uint32_t ResourceFormat::getAttributeLocation(const StringIdentifier& nameId) const {
 	for(uint16_t i=0; i<attributes.size(); ++i) {
 		if(attributes[i].nameId == nameId) {
 			return i;
@@ -148,27 +62,28 @@ const uint16_t ResourceFormat::getAttributeLocation(const StringIdentifier& name
 
 //------------------
 
-void ResourceFormat::updateAttribute(const ResourceAttribute& attr) {
+void ResourceFormat::updateAttribute(const AttributeFormat& attr, bool recalculateOffsets) {
+	// Find existing attribute
 	for(auto it = attributes.begin(); it != attributes.end(); ++it) {
-		ResourceAttribute& currentAttr = *it;
+		AttributeFormat& currentAttr = *it;
 		if(currentAttr.getNameId() == attr.getNameId()) {
-			currentAttr = ResourceAttribute(attr.nameId, attr.dataType, attr.dataSize, attr.numValues, attr.normalized, currentAttr.offset);
-			// Update the offsets.
+			currentAttr = AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.numValues, attr.normalized, attr.internalType, recalculateOffsets ? currentAttr.offset : attr.offset);
 			size = static_cast<std::size_t>(currentAttr.getOffset() + currentAttr.getDataSize());
 
+			// Update the offsets.
 			auto toUpdateIt = it;
 			std::advance(toUpdateIt, 1);
 			for(; toUpdateIt != attributes.end(); ++toUpdateIt) {
-				ResourceAttribute & toUpdateAttr = *toUpdateIt;
-				toUpdateAttr.offset = size;
+				AttributeFormat & toUpdateAttr = *toUpdateIt;
+				if(recalculateOffsets) toUpdateAttr.offset = size;
 				size += toUpdateAttr.getDataSize();
 			}
 			return;
 		}
 	}
-	// ResourceAttribute was not found.
-	size_t offset = align(size, attributeAlignment);
-	attributes.emplace_back(ResourceAttribute(attr.nameId, attr.dataType, attr.dataSize, attr.numValues, attr.normalized, offset));
+	// AttributeFormat was not found.
+	size_t offset = recalculateOffsets ? align(size, attributeAlignment) : attr.offset;
+	attributes.emplace_back(std::move(AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.numValues, attr.normalized, attr.internalType, offset)));
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 }
 

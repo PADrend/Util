@@ -1,6 +1,6 @@
 /*
 	This file is part of the Util library.
-	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
+	Copyright (C) 2019-2020 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
@@ -9,15 +9,17 @@
 #ifndef UTIL_RESOURCES_ATTRIBUTEACCESSOR_H_
 #define UTIL_RESOURCES_ATTRIBUTEACCESSOR_H_
 
-#include "ResourceFormat.h"
+#include "AttributeFormat.h"
 #include "../ReferenceCounter.h"
 #include "../StringIdentifier.h"
 
 #include <vector>
 #include <cstdlib>
 #include <functional>
+#include <sstream>
 
 namespace Util {
+class ResourceFormat;
 
 /** AttributeAccessor
 	Generic accessor for attributes of a resource format.
@@ -25,23 +27,29 @@ namespace Util {
 */
 class AttributeAccessor : public ReferenceCounter<AttributeAccessor> {
 protected:
-	AttributeAccessor(uint8_t* ptr, size_t size, const ResourceFormat::Attribute& attr, size_t stride) :
+	AttributeAccessor(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) :
 		dataPtr(ptr + attr.getOffset()), dataSize(size), attribute(attr), stride(stride) {}
-	
-	void assertRange(uint32_t index) const { if(index*stride>=dataSize) throwRangeError(index); }
+		
+	inline void assertRange(uint32_t index) const { 
+		if(!checkRange(index)) {
+			std::ostringstream s;
+			s << "Trying to access attribute at index " << index << " of overall " << (dataSize/stride) << " indices.";
+			throw std::range_error(s.str());
+		}
+	 }
 public:
+	using Ref = Reference<AttributeAccessor>;
 	virtual ~AttributeAccessor() = default;
 		
-	/**
-	* Creates a new attribute accessor for the given data using the specified resource format.
-	*/
-	static Reference<AttributeAccessor> create(uint8_t* ptr, size_t size, const ResourceFormat::Attribute& attr, size_t stride);
-	static Reference<AttributeAccessor> create(uint8_t* ptr, size_t size, const ResourceFormat& format, const StringIdentifier& name) {
-		return format.hasAttribute(name) ? create(ptr, size, format.getAttribute(name), format.getSize()) : nullptr;
-	}
+	//! Creates a new attribute accessor for the given data using the specified resource format.
+	static Ref create(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride=0);
+	static Ref create(uint8_t* ptr, size_t size, const ResourceFormat& format, const StringIdentifier& name);
 	
-	//using AccessorFactory_t = std::function<Reference<AttributeAccessor>(uint8_t*, size_t, const ResourceFormat::Attribute&, size_t)>;
-	//static bool registerAccessor(uint8_t type, const AccessorFactory_t& factory);
+	//! (uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) -> Ref
+	using AccessorFactory_t = std::function<Ref(uint8_t*, size_t, const AttributeFormat&, size_t)>;
+
+	//! Registers an accessor for an internal type.
+	static bool registerAccessor(uint32_t internalType, const AccessorFactory_t& factory);
 	
 	virtual void readValues(size_t index, int8_t* values, size_t count) const = 0;
 	virtual void readValues(size_t index, int16_t* values, size_t count) const = 0;
@@ -108,19 +116,25 @@ public:
 	/**
 	* Returns the resource format attribute this accessor is associated with. 
 	*/
-	const ResourceFormat::Attribute& getAttribute() const { return attribute; }
+	const AttributeFormat& getAttribute() const { return attribute; }
+	
+	/**
+	* Checks whether the @p index is in range. 
+	*/
+	inline bool checkRange(uint32_t index) const { return index*stride<dataSize; }
 	
 	/**
 	* Returns the raw data pointer to the resource attribute at the given index. 
 	*/
 	template<typename number_t>
 	number_t * _ptr(size_t index) const { return reinterpret_cast<number_t*>(dataPtr+index*stride); }	
-private:
-	void throwRangeError(uint32_t index) const;
 
+	//! Get the size in bytes of the accessed data.
+	size_t getDataSize() const { return dataSize; }
+private:
 	uint8_t* const dataPtr;
 	const size_t dataSize;
-	const ResourceFormat::Attribute attribute;
+	const AttributeFormat attribute;
 	const size_t stride;		
 };
 

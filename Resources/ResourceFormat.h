@@ -3,7 +3,7 @@
 	Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
 	Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
 	Copyright (C) 2007-2012 Ralf Petring <ralf@petring.net>
-	Copyright (C) 2019 Sascha Brandt <sascha@brandt.graphics>
+	Copyright (C) 2019-2020 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
@@ -12,8 +12,10 @@
 #ifndef UTIL_RESOURCES_RESOURCE_FORMAT_H_
 #define UTIL_RESOURCES_RESOURCE_FORMAT_H_
 
+#include "AttributeFormat.h"
 #include "../StringIdentifier.h"
 #include "../TypeConstant.h"
+#include "../Utils.h"
 
 #include <deque>
 
@@ -21,61 +23,30 @@ namespace Util {
 	
 //! @defgroup resources Resources
 
-/** ResourceAttribute
- * @ingroup resources
- */
-class ResourceAttribute {
-public:
-	//static const uint8_t TYPE_R11G11B10Float = 100; //! Special type
-	//static const uint8_t TYPE_RGBA8UnormSrgb = 101; //! Special type
-				
-	ResourceAttribute();
-	//FormatAttribute(const StringIdentifier& _nameId, uint8_t _dataType, uint16_t _dataSize, uint16_t _offset=0);
-	ResourceAttribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint8_t _numValues, bool _normalized, uint16_t _offset=0);
-	
-	bool operator==(const ResourceAttribute& other) const;
-	bool operator<(const ResourceAttribute& other) const;
-	std::string toString() const;
-
-	uint16_t getOffset() const { return offset; }
-	uint16_t getDataSize() const { return dataSize; }
-	uint8_t getNumValues() const { return numValues; }
-	TypeConstant getDataType() const { return dataType; }
-	bool isNormalized() const { return normalized; }
-	StringIdentifier getNameId() const { return nameId; }
-	std::string getName() const { return nameId.toString(); }
-	bool empty() const { return numValues == 0; }
-private:
-	friend class ResourceFormat;
-	ResourceAttribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint8_t _numValues, bool _normalized, uint16_t _offset);
-	
-	StringIdentifier nameId;
-	TypeConstant dataType;
-	uint16_t dataSize;
-	uint16_t offset;
-	uint8_t numValues;
-	bool normalized;
-};
-
 /** ResourceFormat
  * @ingroup resources
  */
 class ResourceFormat {
 public:
-	using Attribute = ResourceAttribute;	
+	using Attribute = AttributeFormat;	
 	using AttributeContainer_t = std::deque<Attribute>;
-	
-	static const ResourceFormat BYTE_FORMAT;
-	
+		
 	ResourceFormat(size_t _attributeAlignment=0) : attributeAlignment(_attributeAlignment) {}
 	virtual ~ResourceFormat() = default;
 	
 	/*! Create and add a new attribute to the ResourceFormat.
-		\return the new attribute
-		\note the owner of the attribute is the ResourceFormat
-		\note Before using this function, check a default method can be used instead (e.g. append appendVec3) */
-	//const Attribute& appendAttribute(const StringIdentifier& nameId, uint8_t type, uint16_t dataSize);
-	const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint8_t numValues, bool normalized=false);
+		@param nameId The name of the attribute.
+		@param type The base type of the attribute.
+		@param numValue The number of channels the attribute has (e.g., 3 for RGB)
+		@param normalized Specifies, that the underlying type is automatically converted to/from float value in the range [-1.0,1.0] or [0.0,1.0]
+		@param internalType User defined internal type id (e.g., for compressed data). 
+		@return the new attribute
+		@note the owner of the attribute is the ResourceFormat
+		@note Before using this function, check a default method can be used instead (e.g. @p appendFloat)
+		@note When @p internalType is set, the @p type and @p numValues are still used for size calculation, 
+		e.g., if a R10G10B10A2 attribute is packed into a single 32 bit integer, the numValues should be 1.
+	*/
+	const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint8_t numValues, bool normalized=false, uint32_t internalType=0);
 		
 	//! Add an attribute with the given name and the given number of float values.
 	const Attribute & appendFloat(const Util::StringIdentifier& nameId, uint8_t numValues, bool normalized=false) {
@@ -107,8 +78,9 @@ public:
 		return hasAttribute(StringIdentifier(name));
 	}
 	
-	const uint16_t getAttributeLocation(const StringIdentifier& nameId) const;
-	const uint16_t getAttributeLocation(const std::string& name) const {
+	//! Returns the location index of the attribute within the the resource format.
+	const uint32_t getAttributeLocation(const StringIdentifier& nameId) const;
+	const uint32_t getAttributeLocation(const std::string& name) const {
 		return getAttributeLocation(StringIdentifier(name));
 	}
 	
@@ -116,18 +88,30 @@ public:
 	 * Update an existing attribute of or append a new attribute to the ResourceFormat.
 	 *
 	 * @param attr Attribute that contains the new data.
-	 * @note The offsets of all attributes may be recalculated and therefore old values may become invalid.
+	 * @param recalculateOffsets If @p true, the offsets of all attributes will be recalculated (The size will be recalculated either way).
+	 * @warning When manually setting the offsets, make sure that they fit within the sizes and offsets of the other attributes.
+	 * Otherwise, unpredictable side effects can occur.
 	 */
-	void updateAttribute(const Attribute& attr);
+	void updateAttribute(const Attribute& attr, bool recalculateOffsets=true);
 
-	size_t getSize() const { return size; }
+	//! Returns the number of attributes
 	size_t getNumAttributes() const { return attributes.size(); }
 	const AttributeContainer_t& getAttributes() const { return attributes; }
+
+	/**
+	 * Forcefully set the size of the resource format.
+	 * This can be useful when requiring specific alignments.
+	 * @note When adding/updating an attribute, the size gets recalculated.
+	 * 
+	 * @param value The size.
+	 */ 
+	void setSize(size_t value) { size = value; }
+	size_t getSize() const { return size; }
+
+	std::string toString() const;
 	bool operator==(const ResourceFormat& other) const;
 	bool operator!=(const ResourceFormat& other) const;
 	bool operator<(const ResourceFormat& other) const;
-
-	std::string toString() const;
 private:
 	AttributeContainer_t attributes;
 	size_t size = 0;
