@@ -155,11 +155,56 @@ extern DebugOutput info;
 void enableInfo();
 void disableInfo();
 
+//-------------
 
 template<typename T>
-static inline T align(T offset, T alignment) {
-  return alignment > 1 ? (offset + (alignment - offset % alignment) % alignment) : offset;
+inline T align(T offset, T alignment) {
+	return alignment > 1 ? (offset + (alignment - offset % alignment) % alignment) : offset;
 }
+
+//-------------
+
+template<typename T>
+inline T clamp(T value, T min, T max) { return std::min(max, std::max(min, value)); }
+
+//-------------
+
+template<typename T>
+double normalizeUnsigned(T value) { return static_cast<double>(value)/std::numeric_limits<T>::max(); }
+template<>
+double normalizeUnsigned(float value) { return clamp(value, 0.0f, 1.0f); }
+template<>
+double normalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
+
+//-------------
+
+template<typename T>
+T unnormalizeUnsigned(double value) { return static_cast<T>(clamp(value, 0.0, 1.0) * std::numeric_limits<T>::max()); }
+template<>
+float unnormalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
+template<>
+double unnormalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
+
+//-------------
+
+template<typename T>
+double normalizeSigned(T value) { return std::max(static_cast<double>(value)/std::numeric_limits<T>::max(), -1.0); }
+template<>
+double normalizeSigned(float value) { return clamp(value, -1.0f, 1.0f); }
+template<>
+double normalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
+
+//-------------
+
+template<typename T>
+T unnormalizeSigned(double value) { return static_cast<T>(clamp(value, -1.0, 1.0) * std::numeric_limits<T>::max()); }
+template<>
+float unnormalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
+template<>
+double unnormalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
+
+//-----------------------------------------------------------------------------------
+// Hashing
 
 uint32_t calcHash(const uint8_t * ptr,size_t size);
 
@@ -182,6 +227,24 @@ template <typename T, typename... Args>
 inline void hash_param(size_t& seed, const T& first_arg, const Args& ...args) {
 	hash_combine(seed, first_arg);
 	hash_param(seed, args...);
+}
+
+// FNV1a c++11 constexpr compile time hash functions, 32 and 64 bit
+// str should be a null terminated string literal, value should be left out 
+// e.g hash32("example")
+// code license: public domain or equivalent
+// post: https://notes.underscorediscovery.com/constexpr-fnv1a/
+constexpr uint32_t val_32_const = 0x811c9dc5;
+constexpr uint32_t prime_32_const = 0x1000193;
+constexpr uint64_t val_64_const = 0xcbf29ce484222325;
+constexpr uint64_t prime_64_const = 0x100000001b3;
+
+inline constexpr uint32_t hash32(const char* const str, const uint32_t value = val_32_const) noexcept {
+	return (str[0] == '\0') ? value : hash32(&str[1], (value ^ uint32_t(str[0])) * prime_32_const);
+}
+
+inline constexpr uint64_t hash64(const char* const str, const uint64_t value = val_64_const) noexcept {
+	return (str[0] == '\0') ? value : hash64(&str[1], (value ^ uint64_t(str[0])) * prime_64_const);
 }
 
 //    void useStdInfo();
