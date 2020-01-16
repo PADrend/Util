@@ -25,7 +25,7 @@ namespace Util {
 class Bitmap;
 class Color4f;
 class PixelAccessor;
-class PixelFormat;
+class AttributeFormat;
 
 /**
  * Collection of Bitmap related operations.
@@ -52,14 +52,14 @@ void alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op);
 
 
 //! Blend all given images into one having the given format.
-Reference<Bitmap> blendTogether(const PixelFormat & targetFormat, 
+Reference<Bitmap> blendTogether(const AttributeFormat & targetFormat, 
 									   const std::vector<Reference<Bitmap> > & sources);
 
 /**
  * Combines all given images into one having the given format.
  * \note first pixel of first bitmap, first pixel of second bitmap, etc...
  */
-Reference<Bitmap> combineInterleaved(const PixelFormat & targetFormat, 
+Reference<Bitmap> combineInterleaved(const AttributeFormat & targetFormat, 
 											const std::vector<Reference<Bitmap> > & sources);
 
 /**
@@ -71,7 +71,7 @@ Reference<Bitmap> combineInterleaved(const PixelFormat & targetFormat,
  * @return a new bitmap of the specified format with the content of the given bitmap
  */
 Reference<Bitmap> convertBitmap(const Bitmap & source, 
-									   const PixelFormat & newFormat);
+									   const AttributeFormat & newFormat);
 
 /**
  * Create a black/transparent - white bitmap with the given format based on a 
@@ -80,7 +80,7 @@ Reference<Bitmap> convertBitmap(const Bitmap & source,
  */
 Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
 												 const uint32_t height,
-												 const PixelFormat & format,
+												 const AttributeFormat & format,
 												 const size_t dataSize,
 												 const uint8_t * data);
 

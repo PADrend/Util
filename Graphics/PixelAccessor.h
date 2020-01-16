@@ -14,13 +14,13 @@
 #include "Bitmap.h"
 #include "Color.h"
 #include "PixelFormat.h"
-#include "../Resources/AttributeAccessor.h"
 #include "../Macros.h"
 #include "../ReferenceCounter.h"
 #include "../References.h"
 #include <cstdint>
 
 namespace Util {
+class AttributeAccessor;
 
 /*! Class for direct access to the pixels of a Bitmap.
 
@@ -30,25 +30,28 @@ namespace Util {
 		the Bitmap, it will be deleted if the PixelAccessor is deleted.
 	@ingroup graphics
 */
-class PixelAccessor : AttributeAccessor {
+class PixelAccessor : public ReferenceCounter<PixelAccessor> {
+	private:
 		Reference<Bitmap> myBitmap;
 	protected:
 		bool checkRange(uint32_t x,uint32_t y) const { return x<myBitmap->getWidth() && y<myBitmap->getHeight(); }
 		bool crop(uint32_t & x,uint32_t & y,uint32_t & width,uint32_t & height) const;
+		inline uint32_t getIndex(uint32_t x,uint32_t y) const { return (y * myBitmap->getWidth() + x); }
 
 		PixelAccessor(Reference<Bitmap> bitmap) :
-			AttributeAccessor(bitmap->data(), bitmap->getDataSize(), bitmap->getPixelFormat(), bitmap->getPixelFormat().getDataSize()),
+			ReferenceCounter<PixelAccessor>(),
 			myBitmap(std::move(bitmap)) {
 		}
 	public:
+		using Ref = Reference<PixelAccessor>;
 		/*! Create a PixelAccessor for the given bitmap. According to the format of the Bitmap,
 			an appropriate Accesor-type is chosen. If no accessor is available due to an unsupported
 			format, nullptr is returned.	*/
-		static Reference<PixelAccessor> create(Reference<Bitmap> bitmap);
+		static Ref create(Reference<Bitmap> bitmap);
 
-		virtual ~PixelAccessor() { }
+		virtual ~PixelAccessor() = default;
 
-		const PixelFormat& getPixelFormat() const { return myBitmap->getPixelFormat(); }
+		const AttributeFormat& getPixelFormat() const { return myBitmap->getPixelFormat(); }
 		const Reference<Bitmap>& getBitmap() const { return myBitmap; }
 		uint32_t getWidth() const { return myBitmap->getWidth(); }
 		uint32_t getHeight() const { return myBitmap->getHeight(); }
@@ -79,10 +82,10 @@ class PixelAccessor : AttributeAccessor {
 		/*! Direct access to the pixel data.
 			\note Be careful: No boundary checks are performed! */
 		template<typename _T> _T * _ptr(const uint32_t x, const uint32_t y){
-			return _ptr<T>((y*myBitmap->getWidth() + x) * getDataSize()));
+			return reinterpret_cast<_T*>( myBitmap->data() + getIndex(x,y) * myBitmap->getPixelFormat().getDataSize() );
 		}
 		template<typename _T> const _T * _ptr(const uint32_t x, const uint32_t y) const{
-			return _ptr<T>((y*myBitmap->getWidth() + x) * getDataSize()));
+			return reinterpret_cast<_T*>( myBitmap->data() + getIndex(x,y) * myBitmap->getPixelFormat().getDataSize() );
 		}
 	private:
 		//! ---o

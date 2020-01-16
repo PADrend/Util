@@ -85,7 +85,7 @@ Reference<Bitmap> StreamerPNG::loadBitmap(std::istream & input) {
 					&width, &height,
 					&bit_depth, &color_type, nullptr, nullptr, nullptr);
 
-	PixelFormat pixelFormat = PixelFormat::RGB;
+	auto pixelFormat = PixelFormat::RGB;
 	switch(color_type) {
 		case PNG_COLOR_TYPE_GRAY:
 			// Convert bpp less than 8 to 8 bits.
@@ -152,7 +152,7 @@ bool StreamerPNG::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 	volatile int colorType = 0; // volatile is needed because of the setjmp later on.
 	volatile int transforms = 0;
 
-	const PixelFormat & pixelFormat = bitmap.getPixelFormat();
+	const auto& pixelFormat = bitmap.getPixelFormat();
 	if(pixelFormat == PixelFormat::RGBA) {
 		colorType = PNG_COLOR_TYPE_RGB_ALPHA;
 		transforms = PNG_TRANSFORM_IDENTITY;
@@ -213,7 +213,7 @@ bool StreamerPNG::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 	// Write the image.
 	std::vector<png_bytep> row_pointers;
 	row_pointers.reserve(height);
-	const uint8_t bytes = pixelFormat.getBytesPerPixel();
+	const uint8_t bytes = pixelFormat.getDataSize();
 	for (uint_fast32_t row = 0; row < height; ++row) {
 		// Take over rows in the same order.
 		row_pointers.push_back(reinterpret_cast<png_bytep>(const_cast<uint8_t *>(bitmap.data()) + row * width * bytes));

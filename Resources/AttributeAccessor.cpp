@@ -37,7 +37,7 @@ public:
 	template<typename S>
 	void _readValues(size_t index, S* values, size_t count) const {	
 		assertRange(index);
-		count = std::min<size_t>(count, getAttribute().getNumValues());
+		count = std::min<size_t>(count, getAttribute().getComponentCount());
 		const T* v = _ptr<const T>(index);
 		std::copy(v, v + count, values);
 	}
@@ -45,7 +45,7 @@ public:
 	template<typename S>
 	void _writeValues(size_t index, const S* values, size_t count) const {
 		assertRange(index);
-		count = std::min<size_t>(count, getAttribute().getNumValues());
+		count = std::min<size_t>(count, getAttribute().getComponentCount());
 		T* v = _ptr<T>(index);
 		std::copy(values, values + count, v);
 	}
@@ -84,7 +84,7 @@ public:
 	template<typename S>
 	void _readValues(size_t index, S* values, size_t count) const {
 		assertRange(index);
-		count = std::min<size_t>(count, getAttribute().getNumValues());
+		count = std::min<size_t>(count, getAttribute().getComponentCount());
 		const T* v = _ptr<const T>(index);
 		for(size_t i=0; i<count; ++i)
 			*(values+i) = unnormalizeUnsigned<S>(normalizeUnsigned<T>(*(v+i)));
@@ -93,7 +93,7 @@ public:
 	template<typename S>
 	void _writeValues(size_t index, const S* values, size_t count) const {
 		assertRange(index);
-		count = std::min<size_t>(count, getAttribute().getNumValues());
+		count = std::min<size_t>(count, getAttribute().getComponentCount());
 		T* v = _ptr<T>(index);
 		for(size_t i=0; i<count; ++i)
 			*(v+i) = unnormalizeUnsigned<T>(normalizeUnsigned<S>(*(values+i)));
@@ -133,7 +133,7 @@ public:
 	template<typename S>
 	void _readValues(size_t index, S* values, size_t count) const {
 		assertRange(index);
-		count = std::min<size_t>(count, getAttribute().getNumValues());
+		count = std::min<size_t>(count, getAttribute().getComponentCount());
 		const T* v = _ptr<const T>(index);
 		for(size_t i=0; i<count; ++i)
 			*(values+i) = unnormalizeSigned<S>(normalizeSigned<T>(*(v+i)));
@@ -142,7 +142,7 @@ public:
 	template<typename S>
 	void _writeValues(size_t index, const S* values, size_t count) const {
 		assertRange(index);
-		count = std::min<size_t>(count, getAttribute().getNumValues());
+		count = std::min<size_t>(count, getAttribute().getComponentCount());
 		T* v = _ptr<T>(index);
 		for(size_t i=0; i<count; ++i)
 			*(v+i) = unnormalizeSigned<T>(normalizeSigned<S>(*(values+i)));
@@ -174,11 +174,9 @@ public:
 // AttributeAccessor
 
 Reference<AttributeAccessor> AttributeAccessor::create(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) {
-	if(stride == 0)
-		stride = attr.getDataSize();
 	
 	if(attr.getInternalType() != 0) {
-		auto& registry = getAccessorRegistry();
+		const auto& registry = getAccessorRegistry();
 		auto factory = registry.find(attr.getInternalType());
 		if(factory != registry.end()) {
 			return factory->second(ptr, size, attr, stride);
@@ -231,6 +229,17 @@ Reference<AttributeAccessor> AttributeAccessor::create(uint8_t* ptr, size_t size
 bool AttributeAccessor::registerAccessor(uint32_t type, const AccessorFactory_t& factory) {
 	getAccessorRegistry().emplace(type, factory);
 	return true;
+}
+
+//-------------
+
+bool AttributeAccessor::hasAccessor(const AttributeFormat& attr) {
+	if(attr.getInternalType() != 0) {
+		const auto& registry = getAccessorRegistry();
+		return registry.find(attr.getInternalType()) != registry.end();
+	} else {
+		return attr.getDataType() != TypeConstant::HALF;
+	}
 }
 
 } /* Util */

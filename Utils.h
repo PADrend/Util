@@ -16,6 +16,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <limits>
 
 namespace Util {
 //! @addtogroup util_helper
@@ -170,38 +171,38 @@ inline T clamp(T value, T min, T max) { return std::min(max, std::max(min, value
 //-------------
 
 template<typename T>
-double normalizeUnsigned(T value) { return static_cast<double>(value)/std::numeric_limits<T>::max(); }
+inline double normalizeUnsigned(T value) { return static_cast<double>(value)/std::numeric_limits<T>::max(); }
 template<>
-double normalizeUnsigned(float value) { return clamp(value, 0.0f, 1.0f); }
+inline double normalizeUnsigned(float value) { return clamp(value, 0.0f, 1.0f); }
 template<>
-double normalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
+inline double normalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
 
 //-------------
 
 template<typename T>
-T unnormalizeUnsigned(double value) { return static_cast<T>(clamp(value, 0.0, 1.0) * std::numeric_limits<T>::max()); }
+inline T unnormalizeUnsigned(double value) { return static_cast<T>(clamp(value, 0.0, 1.0) * std::numeric_limits<T>::max()); }
 template<>
-float unnormalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
+inline float unnormalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
 template<>
-double unnormalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
+inline double unnormalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
 
 //-------------
 
 template<typename T>
-double normalizeSigned(T value) { return std::max(static_cast<double>(value)/std::numeric_limits<T>::max(), -1.0); }
+inline double normalizeSigned(T value) { return std::max(static_cast<double>(value)/std::numeric_limits<T>::max(), -1.0); }
 template<>
-double normalizeSigned(float value) { return clamp(value, -1.0f, 1.0f); }
+inline double normalizeSigned(float value) { return clamp(value, -1.0f, 1.0f); }
 template<>
-double normalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
+inline double normalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
 
 //-------------
 
 template<typename T>
-T unnormalizeSigned(double value) { return static_cast<T>(clamp(value, -1.0, 1.0) * std::numeric_limits<T>::max()); }
+inline T unnormalizeSigned(double value) { return static_cast<T>(clamp(value, -1.0, 1.0) * std::numeric_limits<T>::max()); }
 template<>
-float unnormalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
+inline float unnormalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
 template<>
-double unnormalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
+inline double unnormalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
 
 //-----------------------------------------------------------------------------------
 // Hashing

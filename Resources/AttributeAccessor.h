@@ -27,8 +27,8 @@ class ResourceFormat;
 */
 class AttributeAccessor : public ReferenceCounter<AttributeAccessor> {
 protected:
-	AttributeAccessor(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) :
-		dataPtr(ptr + attr.getOffset()), dataSize(size), attribute(attr), stride(stride) {}
+	AttributeAccessor(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride=0) :
+		dataPtr(ptr + attr.getOffset()), dataSize(size), attribute(attr), stride(stride == 0 ? attr.getDataSize() : stride) {}
 		
 	inline void assertRange(uint32_t index) const { 
 		if(!checkRange(index)) {
@@ -50,6 +50,7 @@ public:
 
 	//! Registers an accessor for an internal type.
 	static bool registerAccessor(uint32_t internalType, const AccessorFactory_t& factory);
+	static bool hasAccessor(const AttributeFormat& attr);
 	
 	virtual void readValues(size_t index, int8_t* values, size_t count) const = 0;
 	virtual void readValues(size_t index, int16_t* values, size_t count) const = 0;

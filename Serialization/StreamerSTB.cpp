@@ -56,13 +56,13 @@ Reference<Bitmap> StreamerSTB::loadBitmap(std::istream & input) {
 		WARN(std::string("Could not create image. ") + stbi_failure_reason());
 		return nullptr;
 	}
-	PixelFormat pixelFormat = PixelFormat::RGB;
+	auto pixelFormat = PixelFormat::RGB;
 	switch (components) {
 		case STBI_grey:
 			pixelFormat = PixelFormat::MONO;
 			break;
 		case STBI_grey_alpha:
-			pixelFormat = PixelFormat(TypeConstant::UINT8,0,1,PixelFormat::NONE,PixelFormat::NONE);
+			pixelFormat = PixelFormat::RG;
 			break;
 		case STBI_rgb:
 			pixelFormat = PixelFormat::RGB;
@@ -91,7 +91,7 @@ static void writeData(void* ctx, void* data, int size) {
 
 bool StreamerSTB::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 	WriteContext context(output);
-	const PixelFormat& pixelFormat = bitmap.getPixelFormat();
+	const auto& pixelFormat = bitmap.getPixelFormat();
 	int components = bitmap.getHeight();
 	const int width = bitmap.getWidth();
 	const int height = bitmap.getHeight();
@@ -106,7 +106,7 @@ bool StreamerSTB::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 	} else if(pixelFormat == PixelFormat::BGR) {
 		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, PixelFormat::RGB);
 		return saveBitmap(*tmp.get(), output);
-	} else if(pixelFormat == PixelFormat(TypeConstant::UINT8,0,1,PixelFormat::NONE,PixelFormat::NONE)) {
+	} else if(pixelFormat == PixelFormat::RG) {
 		components =2;
 	} else if(pixelFormat == PixelFormat::MONO) {
 		components = 1;

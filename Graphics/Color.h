@@ -40,6 +40,10 @@ class Color4ub {
 			*reinterpret_cast<uint32_t *>(values.data()) = u32;
 		}
 		explicit inline Color4ub(const Color4f & other); // explicit due to possible information loss
+		explicit Color4ub(const std::vector<uint8_t> & arr){
+			assert(arr.size() == 4);
+			set(arr[0],arr[1],arr[2],arr[3]);
+		}
 		Color4ub(const Color4ub &) = default;
 		Color4ub(Color4ub &&) = default;
 

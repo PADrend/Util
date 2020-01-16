@@ -27,25 +27,38 @@ namespace PixelFormat {
 
 	// ---------------------------------
 	// default pixel formats
-	static const AttributeFormat RGB;			// 0x00B_G_R_
-	static const AttributeFormat RGB_FLOAT;		// 0xR_______G_______B_______
-	static const AttributeFormat BGR;			// 0x00R_G_B_
-	static const AttributeFormat BGR_FLOAT;		// 0xB_______G_______R_______
-	static const AttributeFormat RGBA;			// 0xA_B_G_R_
-	static const AttributeFormat RGBA_FLOAT;	// 0xR_______G_______B_______A_______
-	static const AttributeFormat BGRA;			// 0xA_R_G_B_
-	static const AttributeFormat BGRA_FLOAT;	// 0xB_______G_______R_______A_______
-	static const AttributeFormat MONO;			// 0xR_
-	static const AttributeFormat MONO_FLOAT;	// 0xR_______
-	static const AttributeFormat R11G11B10_FLOAT;	
-	static const AttributeFormat UNKNOWN;		// numComponents is 0. No direct pixel access is possible.
+	extern const AttributeFormat RG;			// 0xR_G_
+	extern const AttributeFormat RG_FLOAT;		// 0xR_______G_______
+	extern const AttributeFormat RG_INT32;		// 0xR_______G_______
+	extern const AttributeFormat RG_UINT32;		// 0xR_______G_______
+	extern const AttributeFormat RGB;			// 0x00B_G_R_
+	extern const AttributeFormat RGB_FLOAT;		// 0xR_______G_______B_______
+	extern const AttributeFormat RGB_INT32;		// 0xR_______G_______B_______
+	extern const AttributeFormat RGB_UINT32;		// 0xR_______G_______B_______
+	extern const AttributeFormat BGR;			// 0x00R_G_B_
+	extern const AttributeFormat BGR_FLOAT;		// 0xB_______G_______R_______
+	extern const AttributeFormat BGR_INT32;		// 0xB_______G_______R_______
+	extern const AttributeFormat BGR_UINT32;		// 0xB_______G_______R_______
+	extern const AttributeFormat RGBA;			// 0xA_B_G_R_
+	extern const AttributeFormat RGBA_FLOAT;	// 0xR_______G_______B_______A_______
+	extern const AttributeFormat RGBA_INT32;	// 0xR_______G_______B_______A_______
+	extern const AttributeFormat RGBA_UINT32;	// 0xR_______G_______B_______A_______
+	extern const AttributeFormat BGRA;			// 0xA_R_G_B_
+	extern const AttributeFormat BGRA_FLOAT;	// 0xB_______G_______R_______A_______
+	extern const AttributeFormat BGRA_INT32;	// 0xB_______G_______R_______A_______
+	extern const AttributeFormat BGRA_UINT32;	// 0xB_______G_______R_______A_______
+	extern const AttributeFormat MONO;			// 0xR_
+	extern const AttributeFormat MONO_FLOAT;	// 0xR_______
+	extern const AttributeFormat MONO_INT32;	// 0xR_______
+	extern const AttributeFormat MONO_UINT32;	// 0xR_______
+	extern const AttributeFormat R11G11B10_FLOAT;	
+	extern const AttributeFormat UNKNOWN;		// numComponents is 0. No direct pixel access is possible.
 
 	
 	//! Internal type identifiers for special pixel formats
-	enum class InternalType {
-		DEFAULT = 0u,
-		R11G11B10_FLOAT = hash32("R11G11B10_FLOAT"),
-		BGRA8 = hash32("BGRA8"),
+	enum InternalType_t : uint32_t {
+		INTERNAL_TYPE_R11G11B10_FLOAT = hash32("R11G11B10_FLOAT"),
+		INTERNAL_TYPE_BGRA = hash32("BGRA"),
 	};
 };
 

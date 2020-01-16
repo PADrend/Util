@@ -38,7 +38,7 @@ public:
 		@param nameId The name of the attribute.
 		@param type The base type of the attribute.
 		@param numValue The number of channels the attribute has (e.g., 3 for RGB)
-		@param normalized Specifies, that the underlying type is automatically converted to/from float value in the range [-1.0,1.0] or [0.0,1.0]
+		@param normalized Specifies that the underlying type is automatically converted to/from float value in the range [-1.0,1.0] or [0.0,1.0]
 		@param internalType User defined internal type id (e.g., for compressed data). 
 		@return the new attribute
 		@note the owner of the attribute is the ResourceFormat
@@ -46,20 +46,20 @@ public:
 		@note When @p internalType is set, the @p type and @p numValues are still used for size calculation, 
 		e.g., if a R10G10B10A2 attribute is packed into a single 32 bit integer, the numValues should be 1.
 	*/
-	const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint8_t numValues, bool normalized=false, uint32_t internalType=0);
+	const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized=false, uint32_t internalType=0);
 		
 	//! Add an attribute with the given name and the given number of float values.
-	const Attribute & appendFloat(const Util::StringIdentifier& nameId, uint8_t numValues, bool normalized=false) {
+	const Attribute & appendFloat(const Util::StringIdentifier& nameId, uint32_t numValues, bool normalized=false) {
 		return appendAttribute(nameId, TypeConstant::FLOAT, numValues, normalized);
 	}
 
 	//! Add an attribute with the given name and the given number of unsigned int values.
-	const Attribute & appendUInt(const Util::StringIdentifier& nameId, uint8_t numValues) {
+	const Attribute & appendUInt(const Util::StringIdentifier& nameId, uint32_t numValues) {
 		return appendAttribute(nameId, TypeConstant::UINT32, numValues, false);
 	}
 
 	//! Add an attribute with the given name and the given number of int values.
-	const Attribute & appendInt(const Util::StringIdentifier& nameId, uint8_t numValues) {
+	const Attribute & appendInt(const Util::StringIdentifier& nameId, uint32_t numValues) {
 		return appendAttribute(nameId, TypeConstant::INT32, numValues, false);
 	}
 		
@@ -95,7 +95,7 @@ public:
 	void updateAttribute(const Attribute& attr, bool recalculateOffsets=true);
 
 	//! Returns the number of attributes
-	size_t getNumAttributes() const { return attributes.size(); }
+	uint32_t getNumAttributes() const { return static_cast<uint32_t>(attributes.size()); }
 	const AttributeContainer_t& getAttributes() const { return attributes; }
 
 	/**

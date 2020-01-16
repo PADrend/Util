@@ -19,9 +19,9 @@ namespace Util {
 //------------------
 
 
-const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint8_t numValues, bool normalized, uint32_t internalType) {
+const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t components, bool normalized, uint32_t internalType) {
 	size_t offset = align(size, attributeAlignment);
-	attributes.emplace_back(std::move(AttributeFormat(nameId, type, numValues, normalized, internalType, offset)));
+	attributes.emplace_back(std::move(AttributeFormat(nameId, type, components, normalized, internalType, offset)));
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 	return attributes.back();
 }
@@ -67,7 +67,7 @@ void ResourceFormat::updateAttribute(const AttributeFormat& attr, bool recalcula
 	for(auto it = attributes.begin(); it != attributes.end(); ++it) {
 		AttributeFormat& currentAttr = *it;
 		if(currentAttr.getNameId() == attr.getNameId()) {
-			currentAttr = AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.numValues, attr.normalized, attr.internalType, recalculateOffsets ? currentAttr.offset : attr.offset);
+			currentAttr = AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.components, attr.normalized, attr.internalType, recalculateOffsets ? currentAttr.offset : attr.offset);
 			size = static_cast<std::size_t>(currentAttr.getOffset() + currentAttr.getDataSize());
 
 			// Update the offsets.
@@ -83,7 +83,7 @@ void ResourceFormat::updateAttribute(const AttributeFormat& attr, bool recalcula
 	}
 	// AttributeFormat was not found.
 	size_t offset = recalculateOffsets ? align(size, attributeAlignment) : attr.offset;
-	attributes.emplace_back(std::move(AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.numValues, attr.normalized, attr.internalType, offset)));
+	attributes.emplace_back(std::move(AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.components, attr.normalized, attr.internalType, offset)));
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 }
 
