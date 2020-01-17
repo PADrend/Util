@@ -48,12 +48,15 @@ public:
 	size_t getDataSize() const { return dataSize; }
 	const ResourceFormat& getFormat() const { return format; }
 
-	bool hasDataChanged() const { return dataHasChanged; }
-	void markAsChanged() { dataHasChanged = true; }
+	//! Boolean value indicating that there were changes in the local data.
+	//bool hasDataChanged() const { return dataHasChanged; }
+	//! 
+	//void markAsChanged() { dataHasChanged = true; }
 protected:
 	const ResourceFormat format;
 	size_t dataSize = 0;
-	bool dataHasChanged = false;
+	//bool dataHasChanged = false;
+	bool checkRange(size_t offset, size_t size) const { return offset+size <= dataSize; }
 
 	virtual void doUpload(const uint8_t* srcData, size_t size, size_t offset=0) = 0;
 	virtual void doDownload(uint8_t* tgtData, size_t size, size_t offset=0) = 0;
