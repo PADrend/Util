@@ -63,7 +63,7 @@ public:
 	//! deprecated alias
 	[[deprecated]] uint32_t getNumComponents() const { return components; }
 	//! deprecated alias
-	[[deprecated]] bool empty() const { return components != 0; }
+	[[deprecated]] bool empty() const { return components == 0; }
 private:
 	friend class ResourceFormat;
 	AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint32_t _components, bool _normalized, uint32_t _internalType, size_t _offset);

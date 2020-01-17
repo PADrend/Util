@@ -200,7 +200,7 @@ class WrappedPixelAccessor : public PixelAccessor{
 	Reference<AttributeAccessor> acc;
 public:
 	WrappedPixelAccessor(Reference<Bitmap> bitmap) : PixelAccessor(std::move(bitmap)),
-		acc(AttributeAccessor::create(bitmap->data(), bitmap->getDataSize(), bitmap->getPixelFormat())) { }
+		acc(AttributeAccessor::create(getBitmap()->data(), getBitmap()->getDataSize(), getBitmap()->getPixelFormat())) { }
 
 	virtual ~WrappedPixelAccessor() = default;
 
