@@ -609,7 +609,7 @@ static void md5_update(MD5_Context& ctx, const uint8_t* data, size_t size) {
 	memcpy(ctx.buffer, data, size);
 }
  
-#define OUT(dst, src) \
+#define OUT_MD5(dst, src) \
 	(dst)[0] = static_cast<uint8_t>(src); \
 	(dst)[1] = static_cast<uint8_t>((src) >> 8); \
 	(dst)[2] = static_cast<uint8_t>((src) >> 16); \
@@ -642,8 +642,8 @@ std::string md5(const std::string& str) {
 	memset(&ctx.buffer[used], 0, available - 8);
  
 	ctx.lo <<= 3;
-	OUT(&ctx.buffer[56], ctx.lo)
-	OUT(&ctx.buffer[60], ctx.hi)
+	OUT_MD5(&ctx.buffer[56], ctx.lo)
+	OUT_MD5(&ctx.buffer[60], ctx.hi)
  
 	md5_body(ctx, ctx.buffer, 64);
 	
