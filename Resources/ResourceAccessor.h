@@ -26,10 +26,13 @@ namespace Util {
 */
 class ResourceAccessor : public ReferenceCounter<ResourceAccessor> {
 protected:
-	void assertRangeLocation(uint32_t index, uint16_t location) const;
+	void assertRangeLocation(uint32_t index, uint32_t location) const;
 	void assertAttribute(const StringIdentifier& id) const;
 public:
-	ResourceAccessor(uint8_t* ptr, size_t size, ResourceFormat format);
+	using Ref = Util::Reference<ResourceAccessor>;
+	static Ref create(uint8_t* ptr, size_t size, ResourceFormat format) { return new ResourceAccessor(ptr, size, format); }
+
+	explicit ResourceAccessor(uint8_t* ptr, size_t size, ResourceFormat format);
 	virtual ~ResourceAccessor();
 	
 	/** Reads one or more elements without any conversion
@@ -45,20 +48,30 @@ public:
 	void writeRaw(size_t index, const uint8_t* sourcePtr, size_t count=1);
 	
 	template<typename T>
-	void readValues(size_t index, uint16_t location, T* values, size_t count) const {
+	void readValues(size_t index, uint32_t location, T* values, size_t count) const {
 		assertRangeLocation(index, location);
 		accessors[location]->readValues(index, values, count);
 	}
 		
 	template<typename T> 
-	T readValue(size_t index, uint16_t location) const {
+	T readValue(size_t index, uint32_t location) const {
 		T value;
 		readValues(index, location, &value, 1);
 		return value;
 	}
 	
+	void readRawValue(size_t index, uint32_t location, uint8_t* data, size_t size) const {
+		assertRangeLocation(index, location);
+		accessors[location]->readRaw(index, data, size);
+	}
+	
+	void readRawValue(size_t index, const StringIdentifier& id, uint8_t* data, size_t size) const {
+		assertAttribute(id);
+		readRawValue(index, locations.at(id), data, size);
+	}
+	
 	template<typename T> 
-	std::vector<T> readValues(size_t index, uint16_t location, size_t count) const {
+	std::vector<T> readValues(size_t index, uint32_t location, size_t count) const {
 		std::vector<T> values(count);
 		readValues(index, location, values.data(), values.size());
 		return values;
@@ -83,7 +96,7 @@ public:
 	}
 	
 	template<typename T>
-	void writeValues(size_t index, uint16_t location, const T* values, size_t count) {
+	void writeValues(size_t index, uint32_t location, const T* values, size_t count) {
 		if(location >= format.getNumAttributes()) return; // ignore invalid locations
 		assertRangeLocation(index, location);
 		accessors[location]->writeValues(index, values, count);
@@ -95,7 +108,7 @@ public:
 	}
 	
 	template<typename T> 
-	void writeValue(size_t index, uint16_t location, const T& value) {
+	void writeValue(size_t index, uint32_t location, const T& value) {
 		writeValues(index, location, &value, 1);
 	}
 	
@@ -104,8 +117,17 @@ public:
 		writeValues(index, locations.find(id) != locations.end() ? locations.at(id) : format.getNumAttributes(), &value, 1);
 	}
 	
+	void writeRawValue(size_t index, uint32_t location, const uint8_t* data, size_t size) {
+		if(location >= format.getNumAttributes()) return; // ignore invalid locations
+		accessors[location]->writeRaw(index, data, size);
+	}
+	
+	void writeRawValue(size_t index, const StringIdentifier& id, const uint8_t* data, size_t size) {
+		writeRawValue(index, locations.find(id) != locations.end() ? locations.at(id) : format.getNumAttributes(), data, size);
+	}
+	
 	template<typename T> 
-	void writeValues(size_t index, uint16_t location, const std::vector<T>& values) {
+	void writeValues(size_t index, uint32_t location, const std::vector<T>& values) {
 		writeValues(index, location, values.data(), values.size());
 	}
 	
@@ -117,18 +139,18 @@ public:
 	const ResourceFormat& getFormat() const { return format; }
 	size_t getDataSize() const { return dataSize; }
 	size_t getElementCount() const { return elementCount; }
-	uint16_t getAttributeLocation(const StringIdentifier& id) const { return format.getAttributeLocation(id); }
+	uint32_t getAttributeLocation(const StringIdentifier& id) const { return format.getAttributeLocation(id); }
 private:	
 	const ResourceFormat format;
 	uint8_t* const dataPtr;
 	const size_t dataSize;
 	const size_t elementCount;
-	std::unordered_map<StringIdentifier, uint16_t> locations;
+	std::unordered_map<StringIdentifier, uint32_t> locations;
 	std::vector<Reference<AttributeAccessor>> accessors;
 };
 
 inline
-void ResourceAccessor::assertRangeLocation(uint32_t index, uint16_t location) const {
+void ResourceAccessor::assertRangeLocation(uint32_t index, uint32_t location) const {
 	if(location >= format.getNumAttributes()) {
 		std::ostringstream s;
 		s << "Trying to access attribute at location " << location << " of overall " << format.getNumAttributes() << " attributes.";

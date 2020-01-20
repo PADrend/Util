@@ -62,8 +62,8 @@ bool AttributeFormat::operator<(const AttributeFormat& other) const {
 
 std::string AttributeFormat::toString() const {
 	std::ostringstream s;
-	s << nameId.toString() << " (" << offset << "): ";	
-	s << static_cast<unsigned int>(components) << " " << getTypeString(dataType);	
+	s << nameId.toString() << " (off " << offset << "): ";	
+	s << static_cast<unsigned int>(components) << " " << getTypeString(dataType) << " (" << dataSize << " bytes)";	
 	if(normalized)
 		s << " (normalized)";	
 	if(internalType>0)

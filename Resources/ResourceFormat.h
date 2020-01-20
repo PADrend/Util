@@ -47,6 +47,9 @@ public:
 		e.g., if a R10G10B10A2 attribute is packed into a single 32 bit integer, the numValues should be 1.
 	*/
 	const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized=false, uint32_t internalType=0);
+
+	//! directly appends the attribute without recalculating offsets
+	const Attribute& _appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized, uint32_t internalType, size_t offset);
 		
 	//! Add an attribute with the given name and the given number of float values.
 	const Attribute & appendFloat(const Util::StringIdentifier& nameId, uint32_t numValues, bool normalized=false) {
@@ -72,6 +75,9 @@ public:
 	const Attribute& getAttribute(const std::string& name) const {
 		return getAttribute(StringIdentifier(name));
 	}
+	const Attribute& getAttribute(uint32_t location) const {
+		return attributes.at(location);
+	}
 
 	bool hasAttribute(const StringIdentifier& nameId) const;
 	bool hasAttribute(const std::string& name) const {
@@ -92,7 +98,10 @@ public:
 	 * @warning When manually setting the offsets, make sure that they fit within the sizes and offsets of the other attributes.
 	 * Otherwise, unpredictable side effects can occur.
 	 */
-	void updateAttribute(const Attribute& attr, bool recalculateOffsets=true);
+	void updateAttribute(const Attribute& attr);
+
+	//! Merges this resource format with another.
+	void merge(const ResourceFormat& other);
 
 	//! Returns the number of attributes
 	uint32_t getNumAttributes() const { return static_cast<uint32_t>(attributes.size()); }
@@ -108,7 +117,9 @@ public:
 	void setSize(size_t value) { size = value; }
 	size_t getSize() const { return size; }
 
-	std::string toString() const;
+	size_t getAlignment() const { return attributeAlignment; }
+
+	std::string toString(bool formatted=false) const;
 	bool operator==(const ResourceFormat& other) const;
 	bool operator!=(const ResourceFormat& other) const;
 	bool operator<(const ResourceFormat& other) const;
@@ -119,5 +130,18 @@ private:
 };
 
 } /* Util */
+
+
+template <> struct std::hash<Util::ResourceFormat> {
+	std::size_t operator()(const Util::ResourceFormat& format) const {
+		std::size_t result = 0;
+		Util::hash_combine(result, format.getSize());
+		Util::hash_combine(result, format.getAlignment());
+		for(const auto& attr : format.getAttributes())
+			Util::hash_combine(result, attr);
+		return result;
+	}
+};
+
 
 #endif /* end of include guard: UTIL_RESOURCES_RESOURCE_FORMAT_H_ */

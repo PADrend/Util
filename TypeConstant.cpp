@@ -9,7 +9,7 @@
 #include "TypeConstant.h"
 #include <stdexcept>
 
-static const uint8_t byteSizes[] = { 1,2,4,8,1,2,4,8,4,8,2 };
+static const uint8_t byteSizes[] = { 1,2,4,8,1,2,4,8,4,8,2,4 };
 	
 size_t Util::getNumBytes(TypeConstant t){
 	const uint8_t index = static_cast<uint8_t>(t);
@@ -31,5 +31,6 @@ std::string Util::getTypeString(TypeConstant t) {
 		case TypeConstant::FLOAT: return "float";
 		case TypeConstant::DOUBLE: return "double";
 		case TypeConstant::HALF: return "half";
+		case TypeConstant::BOOL: return "bool";
 	}
 }

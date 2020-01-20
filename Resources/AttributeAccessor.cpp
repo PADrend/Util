@@ -242,4 +242,24 @@ bool AttributeAccessor::hasAccessor(const AttributeFormat& attr) {
 	}
 }
 
+
+//-------------
+
+void AttributeAccessor::readRaw(size_t index, uint8_t* data, size_t size) const {
+	assertRange(index);
+	size = std::min<size_t>(size, getAttribute().getDataSize());
+	const uint8_t* ptr = _ptr<const uint8_t>(index);
+	std::copy(ptr, ptr + size, data);
+}
+
+//-------------
+	
+void AttributeAccessor::writeRaw(size_t index, const uint8_t* data, size_t size) const {
+	assertRange(index);
+	size = std::min<size_t>(size, getAttribute().getDataSize());
+	uint8_t* ptr = _ptr<uint8_t>(index);
+	std::copy(data, data + size, ptr);
+}
+
+//-------------
 } /* Util */

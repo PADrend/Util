@@ -79,4 +79,16 @@ private:
 
 } /* Util */
 
+template <> struct std::hash<Util::AttributeFormat> {
+	std::size_t operator()(const Util::AttributeFormat& format) const {
+		std::size_t result = format.getNameId().getValue();
+		Util::hash_combine(result, format.getDataType());
+		Util::hash_combine(result, format.getComponentCount());
+		Util::hash_combine(result, format.isNormalized());
+		Util::hash_combine(result, format.getInternalType());
+		Util::hash_combine(result, format.getOffset());
+		return result;
+	}
+};
+
 #endif /* end of include guard: UTIL_RESOURCES_RESOURCE_ATTRIBUTE_H_ */

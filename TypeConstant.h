@@ -30,7 +30,8 @@ enum class TypeConstant : uint8_t{
 	INT64	= 7,
 	FLOAT	= 8,
 	DOUBLE = 9,
-	HALF = 10
+	HALF = 10,
+	BOOL = 11
 };
 
 size_t getNumBytes(TypeConstant t);

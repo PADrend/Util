@@ -52,6 +52,7 @@ public:
 	static bool registerAccessor(uint32_t internalType, const AccessorFactory_t& factory);
 	static bool hasAccessor(const AttributeFormat& attr);
 	
+	void readRaw(size_t index, uint8_t* data, size_t size) const;
 	virtual void readValues(size_t index, int8_t* values, size_t count) const = 0;
 	virtual void readValues(size_t index, int16_t* values, size_t count) const = 0;
 	virtual void readValues(size_t index, int32_t* values, size_t count) const = 0;
@@ -85,6 +86,7 @@ public:
 		return values;
 	}
 	
+	void writeRaw(size_t index, const uint8_t* data, size_t size) const;
 	virtual void writeValues(size_t index, const int8_t* values, size_t count) const = 0;
 	virtual void writeValues(size_t index, const int16_t* values, size_t count) const = 0;
 	virtual void writeValues(size_t index, const int32_t* values, size_t count) const = 0;
@@ -136,7 +138,7 @@ private:
 	uint8_t* const dataPtr;
 	const size_t dataSize;
 	const AttributeFormat attribute;
-	const size_t stride;		
+	const size_t stride;
 };
 
 } /* Util */
