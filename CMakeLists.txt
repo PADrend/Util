@@ -34,6 +34,7 @@ target_sources(Util PRIVATE
 	GenericAttribute.cpp
 	GenericAttributeSerialization.cpp
 	GenericConversion.cpp
+	Hashing.cpp
 	JSON_Parser.cpp
 	LibRegistry.cpp
 	LoadLibrary.cpp
@@ -57,6 +58,7 @@ install(FILES
 	GenericAttributeSerialization.h
 	GenericConversion.h
 	Generic.h
+	Hashing.h
 	JSON_Parser.h
 	LibRegistry.h
 	LoadLibrary.h
