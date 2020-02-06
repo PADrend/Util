@@ -64,6 +64,10 @@ class ObjectPool {
 			registrations.erase(id);
 		}
 
+		bool hasType(const IdentifierType& id) {
+			return registrations.find(id) != registrations.end();
+		}
+
 		ObjectType create(const IdentifierType& id) {
 			auto it = registrations.find(id);
 			if(it == registrations.end()) 
@@ -82,8 +86,8 @@ class ObjectPool {
 		}
 
 		void reset() {
-			for(auto entry : registrations)
-				entry.pool.clear();
+			for(auto& entry : registrations)
+				entry.second.pool.clear();
 		}
 };
 

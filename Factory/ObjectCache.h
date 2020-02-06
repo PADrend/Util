@@ -74,6 +74,10 @@ class ObjectCache {
 			registrations.erase(id);
 		}
 
+		bool hasType(const IdentifierType& id) {
+			return registrations.find(id) != registrations.end();
+		}
+
 		template<typename ...Args>
 		ObjectType create(const IdentifierType & id, Args... args) {
 			if(registrations.find(id) == registrations.end())
