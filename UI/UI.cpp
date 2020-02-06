@@ -46,19 +46,19 @@ std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle
 	return splash;
 }
 
-std::unique_ptr<Window> createWindow(const Window::Properties & properties) {
-	std::unique_ptr<Window> window;
+Util::Reference<Window> createWindow(const Window::Properties & properties) {
+	Util::Reference<Window> window;
 	try {
 #if defined(UTIL_PREFER_SDL_CONTEXT) and defined(UTIL_HAVE_LIB_SDL2)
-		window.reset(new WindowSDL(properties));
+		window = new WindowSDL(properties);
 #elif defined(UTIL_HAVE_LIB_GLFW)
-		window.reset(new WindowGLFW(properties));
+		window = new WindowGLFW(properties);
 #else
 		throw std::logic_error("no window library available");
 #endif
 	} catch(const std::exception & exception) {
 		WARN(std::string("Creating window failed. ") + exception.what());
-		window.reset();
+		window = nullptr;
 	}
 	return window;
 }

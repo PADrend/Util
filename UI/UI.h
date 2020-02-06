@@ -49,7 +49,7 @@ std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle
  * @param properties @see Window.h.
  * @return Object of preferred Window implementation. If no implementation was found or an error occurred, @c nullptr will be returned.
  */
-std::unique_ptr<Window> createWindow(const Window::Properties & properties);
+Util::Reference<Window> createWindow(const Window::Properties & properties);
 
 }
 }

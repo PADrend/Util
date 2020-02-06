@@ -68,7 +68,7 @@ class WindowSDL : public Window {
 		WindowSDL(const Properties & properties);
 
 		//! Allow access to constructor from factory.
-		friend std::unique_ptr<Window> createWindow(const Properties & properties);
+		friend Util::Reference<Window> createWindow(const Properties & properties);
 
 		//! ---|> Window
 		void doSetCursor(const Cursor * cursor) override;

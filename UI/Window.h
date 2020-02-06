@@ -118,6 +118,9 @@ class Window {
 		
 		//! Enables rendering to this window.
 		virtual void makeCurrent() = 0;
+		
+		//! Returns the properties, the window was created with.
+		const Properties& getProperties() const { return properties; }
 	protected:
 		//! Stores the size of the window's client area.
 		uint32_t width,height;
@@ -131,7 +134,7 @@ class Window {
 		}
 
 		//! Allow access to members from factory.
-		friend std::unique_ptr<Window> createWindow(const Properties & properties);
+		friend Util::Reference<Window> createWindow(const Properties & properties);
 
 	private:
 
