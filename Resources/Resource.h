@@ -10,8 +10,9 @@
 #ifndef UTIL_RESOURCES_RESOURCE_H_
 #define UTIL_RESOURCES_RESOURCE_H_
 
-#include "../ReferenceCounter.h"
+#include "ResourceAllocator.h"
 #include "ResourceFormat.h"
+#include "../ReferenceCounter.h"
 
 #include <vector>
 #include <cstdint>
@@ -20,17 +21,21 @@ namespace Util {
 
 class Resource : public Util::ReferenceCounter<Resource> {
 public:
-	explicit Resource(const ResourceFormat& format);
-	virtual ~Resource() = default;
+	explicit Resource(const ResourceFormat& format, ResourceAllocator* allocator=nullptr);
+	virtual ~Resource();
+	Resource(const Resource&) = delete;
+	Resource(Resource&&) = default;
+	Resource& operator=(const Resource& o) = delete;
+	Resource& operator=(Resource&& o) = default;
 
-	void upload(const uint8_t* srcData, size_t size, size_t offset=0);
+	virtual void upload(const uint8_t* srcData, size_t size, size_t offset=0);
 
 	template<typename T>
 	void upload(const std::vector<T>& data, size_t offset = 0) {
 		upload(reinterpret_cast<const uint8_t*>(data.data()), data.size() * sizeof(T), offset);
 	}
 
-	void download(uint8_t* tgtData, size_t size, size_t offset=0);
+	virtual void download(uint8_t* tgtData, size_t size, size_t offset=0);
 
 	template<typename T>
 	std::vector<T> download(size_t numberOfElements, size_t offset=0) {
@@ -45,21 +50,14 @@ public:
 	virtual uint8_t* map() = 0;
 	virtual void unmap() {}
 
-	size_t getDataSize() const { return dataSize; }
+	size_t getSize() const { return dataSize; }
 	const ResourceFormat& getFormat() const { return format; }
-
-	//! Boolean value indicating that there were changes in the local data.
-	//bool hasDataChanged() const { return dataHasChanged; }
-	//! 
-	//void markAsChanged() { dataHasChanged = true; }
 protected:
-	const ResourceFormat format;
 	size_t dataSize = 0;
-	//bool dataHasChanged = false;
 	bool checkRange(size_t offset, size_t size) const { return offset+size <= dataSize; }
-
-	virtual void doUpload(const uint8_t* srcData, size_t size, size_t offset=0) = 0;
-	virtual void doDownload(uint8_t* tgtData, size_t size, size_t offset=0) = 0;
+private:
+	ResourceFormat format;
+	ResourceAllocator* allocator = nullptr;
 };
 
 } /* Util */
