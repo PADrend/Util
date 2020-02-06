@@ -11,6 +11,8 @@
 #ifndef UTIL_COLOR_H_
 #define UTIL_COLOR_H_
 
+#include "../Utils.h"
+
 #include <array>
 #include <istream>
 #include <ostream>
@@ -305,5 +307,31 @@ inline Color4ub::Color4ub(const Color4f & other) {
 }
 
 }
+
+//-------------
+
+template <> struct std::hash<Util::Color4ub> {
+	std::size_t operator()(const Util::Color4ub& color) const {
+		std::size_t result = 0;
+		Util::hash_combine(result, color.r());
+		Util::hash_combine(result, color.g());
+		Util::hash_combine(result, color.b());
+		Util::hash_combine(result, color.a());
+		return result;
+	}
+};
+
+//-------------
+
+template <> struct std::hash<Util::Color4f> {
+	std::size_t operator()(const Util::Color4f& color) const {
+		std::size_t result = 0;
+		Util::hash_combine(result, color.r());
+		Util::hash_combine(result, color.g());
+		Util::hash_combine(result, color.b());
+		Util::hash_combine(result, color.a());
+		return result;
+	}
+};
 
 #endif /* UTIL_COLOR_H_ */
