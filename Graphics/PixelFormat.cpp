@@ -14,27 +14,27 @@
 namespace Util {
 namespace PixelFormat {
 
-const AttributeFormat RG({"RG"}, TypeConstant::UINT8, 2, false, 0);
+const AttributeFormat RG({"RG"}, TypeConstant::UINT8, 2, true, 0);
 const AttributeFormat RG_FLOAT({"RG_FLOAT"}, TypeConstant::FLOAT, 2, false, 0);
 const AttributeFormat RG_INT32({"RG_INT32"}, TypeConstant::INT32, 2, false, 0);
 const AttributeFormat RG_UINT32({"RG_UINT32"}, TypeConstant::UINT32, 2, false, 0);
-const AttributeFormat RGB({"RGB"}, TypeConstant::UINT8, 3, false, 0);
+const AttributeFormat RGB({"RGB"}, TypeConstant::UINT8, 3, true, 0);
 const AttributeFormat RGB_FLOAT({"RGB_FLOAT"}, TypeConstant::FLOAT, 3, false, 0);
 const AttributeFormat RGB_INT32({"RGB_INT32"}, TypeConstant::INT32, 3, false, 0);
 const AttributeFormat RGB_UINT32({"RGB_UINT32"}, TypeConstant::UINT32, 3, false, 0);
-const AttributeFormat BGR({"BGR"}, TypeConstant::UINT8, 3, false, INTERNAL_TYPE_BGRA);
+const AttributeFormat BGR({"BGR"}, TypeConstant::UINT8, 3, true, INTERNAL_TYPE_BGRA);
 const AttributeFormat BGR_FLOAT({"BGR_FLOAT"}, TypeConstant::FLOAT, 3, false,INTERNAL_TYPE_BGRA);
 const AttributeFormat BGR_INT32({"BGR_INT32"}, TypeConstant::INT32, 3, false,INTERNAL_TYPE_BGRA);
 const AttributeFormat BGR_UINT32({"BGR_UINT32"}, TypeConstant::UINT32, 3, false,INTERNAL_TYPE_BGRA);
-const AttributeFormat RGBA({"RGBA"}, TypeConstant::UINT8, 4, false, 0);
+const AttributeFormat RGBA({"RGBA"}, TypeConstant::UINT8, 4, true, 0);
 const AttributeFormat RGBA_FLOAT({"RGBA_FLOAT"}, TypeConstant::FLOAT, 4, false, 0);
 const AttributeFormat RGBA_INT32({"RGBA_INT32"}, TypeConstant::INT32, 4, false, 0);
 const AttributeFormat RGBA_UINT32({"RGBA_UINT32"}, TypeConstant::UINT32, 4, false, 0);
-const AttributeFormat BGRA({"BGRA"}, TypeConstant::UINT8, 4, false, INTERNAL_TYPE_BGRA);
+const AttributeFormat BGRA({"BGRA"}, TypeConstant::UINT8, 4, true, INTERNAL_TYPE_BGRA);
 const AttributeFormat BGRA_FLOAT({"BGRA_FLOAT"}, TypeConstant::FLOAT, 4, false, INTERNAL_TYPE_BGRA);
 const AttributeFormat BGRA_INT32({"BGRA_INT32"}, TypeConstant::INT32, 4, false, INTERNAL_TYPE_BGRA);
 const AttributeFormat BGRA_UINT32({"BGRA_UINT32"}, TypeConstant::UINT32, 4, false, INTERNAL_TYPE_BGRA);
-const AttributeFormat MONO({"MONO"}, TypeConstant::UINT8, 1, false, 0);
+const AttributeFormat MONO({"MONO"}, TypeConstant::UINT8, 1, true, 0);
 const AttributeFormat MONO_FLOAT({"MONO_FLOAT"}, TypeConstant::FLOAT, 1, false, 0);
 const AttributeFormat MONO_INT32({"MONO_INT32"}, TypeConstant::INT32, 1, false, 0);
 const AttributeFormat MONO_UINT32({"MONO_UINT32"}, TypeConstant::UINT32, 1, false, 0);
