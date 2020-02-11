@@ -12,7 +12,7 @@
 #define WINDOW_H_
 
 #include "Event.h"
-#include "../References.h"
+#include "../ReferenceCounter.h"
 #include <deque>
 #include <memory>
 #include <string>
@@ -28,7 +28,7 @@ class Cursor;
  * @author Benjamin Eikel
  * @date 2010-06-28
  */
-class Window {
+class Window : public Util::ReferenceCounter<Window> {
 	public:
 		//! The Property struct is used to parameterize the creation of a window.
 		struct Properties{
@@ -125,12 +125,13 @@ class Window {
 		//! Stores the size of the window's client area.
 		uint32_t width,height;
 		bool shareContext;
+		Properties properties;
 
 		/**
 		 * Create the window and initialize a rendering context.
 		 */
 		Window(const Properties & properties) :
-			 width(properties.clientAreaWidth), height(properties.clientAreaHeight),shareContext(properties.shareContext),cursorHidden(false),activeCursor(nullptr) {
+			 width(properties.clientAreaWidth), height(properties.clientAreaHeight),shareContext(properties.shareContext),properties(properties),cursorHidden(false),activeCursor(nullptr) {
 		}
 
 		//! Allow access to members from factory.
