@@ -25,6 +25,9 @@
 	static std::unordered_map<std::string, Util::Profiling::Action> _actions; \
 	static bool _loggerRegistered = []() -> bool { _profiler.registerLogger(&_logger); return true; }()
 
+#define INIT_PROFILING_JSON(out) INIT_PROFILING(LoggerJSON, out)
+#define INIT_PROFILING_TSV(out) INIT_PROFILING(LoggerTSV, out)
+#define INIT_PROFILING_XML(out) INIT_PROFILING(LoggerXML, out)
 #define INIT_PROFILING_PLAIN_TEXT(out) INIT_PROFILING(LoggerPlainText, out)
 #define INIT_PROFILING_TIME(out) INIT_PROFILING(LoggerTime, out)
 
@@ -40,11 +43,17 @@
 #else
 
 #define INIT_PROFILING(Logger, out)
+#define INIT_PROFILING_JSON(out)
+#define INIT_PROFILING_TSV(out)
+#define INIT_PROFILING_XML(out)
 #define INIT_PROFILING_PLAIN_TEXT(out)
 #define INIT_PROFILING_TIME(out) 
 #define SCOPED_PROFILING(descr)
 #define BEGIN_PROFILING(descr)
 #define END_PROFILING(descr)
+#define SCOPED_PROFILING_COND(descr, condition)
+#define BEGIN_PROFILING_COND(descr, condition)
+#define END_PROFILING_COND(descr, condition)
 
 #endif // PROFILING_ENABLED
 
