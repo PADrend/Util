@@ -42,8 +42,8 @@ public:
 	virtual ~AttributeAccessor() = default;
 		
 	//! Creates a new attribute accessor for the given data using the specified resource format.
-	static Ref create(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride=0);
-	static Ref create(uint8_t* ptr, size_t size, const ResourceFormat& format, const StringIdentifier& name);
+	UTILAPI static Ref create(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride=0);
+	UTILAPI static Ref create(uint8_t* ptr, size_t size, const ResourceFormat& format, const StringIdentifier& name);
 	
 	//! (uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) -> Ref
 	using AccessorFactory_t = std::function<Ref(uint8_t*, size_t, const AttributeFormat&, size_t)>;

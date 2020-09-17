@@ -59,7 +59,7 @@ typedef std::function<bool (const std::string &, const std::string &)> visitor_d
 // --------------------
 
 namespace Reader {
-void traverse(std::istream & in,
+UTILAPI void traverse(std::istream & in,
 			  const visitor_enter_t & enterFun,
 			  const visitor_leave_t & leaveFun,
 			  const visitor_data_t & dataFun);

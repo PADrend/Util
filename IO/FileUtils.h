@@ -35,7 +35,7 @@ struct FileUtils {
 // @{
 	/*! Registers an additional file system provider for the given fsName.
 		Files of the type "fsName://foo.bar" are than handled by that provider */
-	static bool registerFSProvider(const std::string & fsName, std::function<AbstractFSProvider * ()> providerCreator);
+	UTILAPI static bool registerFSProvider(const std::string & fsName, std::function<AbstractFSProvider * ()> providerCreator);
 // @}
 
 // -------------------------------------------------------------------
@@ -47,39 +47,39 @@ struct FileUtils {
  */
 // @{
 	//! Return an input and output stream (or nullptr on failure) for reading from and writing to a file.
-	static std::unique_ptr<std::iostream> open(const FileName & fileName);
+	UTILAPI static std::unique_ptr<std::iostream> open(const FileName & fileName);
 	//! Return an input stream (or nullptr on failure) for reading from a file.
-	static std::unique_ptr<std::istream> openForReading(const FileName & fileName);
+	UTILAPI static std::unique_ptr<std::istream> openForReading(const FileName & fileName);
 	/**
 	 * Return an output stream (or nullptr on failure) for writing to a file.
 	 * The file is truncated: Any current content is discarded, assuming a length of zero on opening.
 	 */
-	static std::unique_ptr<std::ostream> openForWriting(const FileName & fileName);
+	UTILAPI static std::unique_ptr<std::ostream> openForWriting(const FileName & fileName);
 	/**
 	 * Return an output stream (or nullptr on failure) for appending to a file.
 	 * The stream's position indicator is set to the end of the stream before.
 	 */
-	static std::unique_ptr<std::ostream> openForAppending(const FileName & fileName);
+	UTILAPI static std::unique_ptr<std::ostream> openForAppending(const FileName & fileName);
 // @}
 
 // -------------------------------------------------------------------
 
 /*! @name Loading and saving complete files */
 // @{
-	static std::vector<uint8_t> loadFile(const FileName & filename);
-	static std::string getFileContents(const FileName & filename);
-	static std::string getParsedFileContents(const FileName & filename);
+	UTILAPI static std::vector<uint8_t> loadFile(const FileName & filename);
+	UTILAPI static std::string getFileContents(const FileName & filename);
+	UTILAPI static std::string getParsedFileContents(const FileName & filename);
 
-	static bool saveFile(const FileName & filename,const std::vector<uint8_t> & data,bool overwrite=true);
+	UTILAPI static bool saveFile(const FileName & filename,const std::vector<uint8_t> & data,bool overwrite=true);
 // @}
 
 // -------------------------------------------------------------------
 
 /*! @name Information */
 // @{
-	static bool isFile(const FileName & filename);
-	static bool isDir (const FileName & filename);
-	static size_t fileSize(const FileName & filename);
+	UTILAPI static bool isFile(const FileName & filename);
+	UTILAPI static bool isDir (const FileName & filename);
+	UTILAPI static size_t fileSize(const FileName & filename);
 
 	/**
 	 * Search a file in different paths. The paths are checked absolute and relative to the originating file path.
@@ -89,7 +89,7 @@ struct FileUtils {
 	 * @param newName New file name in the case the file was found.
 	 * @return @c true if the file was found and @c false otherwise.
 	 */
-	static bool findFile(const FileName & fileName, const std::vector<std::string> & pathHints, FileName & newName);
+	UTILAPI static bool findFile(const FileName & fileName, const std::vector<std::string> & pathHints, FileName & newName);
 
 	static const uint8_t DIR_FILES          = 1<<0; //!< flag for dir(...)
 	static const uint8_t DIR_DIRECTORIES    = 1<<1; //!< flag for dir(...)
@@ -100,7 +100,7 @@ struct FileUtils {
 		is determined by @p flags. DIR_RECURSIVE searches recursive in all subdirectories.
 		\note Only the provider and directory part of @p path is taken; you can create an
 			  appropriate Directory-FileName with FileName::createDirName(...) */
-	static bool dir(const FileName & path, std::list<FileName> & result, uint8_t flags);
+	UTILAPI static bool dir(const FileName & path, std::list<FileName> & result, uint8_t flags);
 
 	/*! Try to make the given @p path relative to the given @p fixedPath.
 		If the directory of @p path (or the directory to the container in path) begins with
@@ -123,7 +123,7 @@ struct FileUtils {
 				resulting path:   	"zip://d/Foo.zip$./tree1.ply"
 		@endverbatim
 	*/
-	static bool makeRelativeIfPossible(const FileName & fixedPath,FileName & path);
+	UTILAPI static bool makeRelativeIfPossible(const FileName & fixedPath,FileName & path);
 // @}
 
 // -------------------------------------------------------------------
@@ -131,10 +131,10 @@ struct FileUtils {
 /*! @name Misc */
 // @{
 
-	static bool createDir(const FileName & name, bool recursive = true);
-	static bool remove(const FileName & name, bool recursive = false);
+	UTILAPI static bool createDir(const FileName & name, bool recursive = true);
+	UTILAPI static bool remove(const FileName & name, bool recursive = false);
 
-	static FileName generateNewRandFilename(const FileName & dir,const std::string & prefix,const std::string & postfix,
+	UTILAPI static FileName generateNewRandFilename(const FileName & dir,const std::string & prefix,const std::string & postfix,
 										int randomSize=8);
 
 	/**
@@ -145,7 +145,7 @@ struct FileUtils {
 	 * @param dest Path to destination file
 	 * @return @c true if successful, @c false otherwise
 	 */
-	static bool copyFile(const FileName & source, const FileName & dest);
+	UTILAPI static bool copyFile(const FileName & source, const FileName & dest);
 
 	/**
 	 * Make sure that any pending data will be written to its destination.
@@ -153,7 +153,7 @@ struct FileUtils {
 	 * @param path Path that will be used to determine the correct data to be flushed.
 	 * It is enough if it contains a file system name, e.g. "zip://", "file://".
 	 */
-	static void flush(const FileName & path);
+	UTILAPI static void flush(const FileName & path);
 // @}
 
 };

@@ -29,13 +29,13 @@ class FileName;
 //! @ingroup io
 class AbstractFSProvider : public ReferenceCounter<AbstractFSProvider> {
 public:
-	AbstractFSProvider();
-	virtual ~AbstractFSProvider();
+	UTILAPI AbstractFSProvider();
+	UTILAPI virtual ~AbstractFSProvider();
 
 	enum status_t{
 		OK,FAILURE,UNSUPPORTED
 	};
-	static std::string getStatusMessage(const status_t status);
+	UTILAPI static std::string getStatusMessage(const status_t status);
 
 	virtual bool exists(const FileName &)       {   return false;   }
 	virtual bool isFile(const FileName &)       {   return false;   }
@@ -47,7 +47,7 @@ public:
 
 	virtual status_t remove(const FileName &)			   {   return UNSUPPORTED; }
 	/*! standard implementation uses dir and remove calls to delete all contained files and dirs for their own*/
-	virtual status_t removeRecursive(const FileName &);
+	UTILAPI virtual status_t removeRecursive(const FileName &);
 
 	virtual status_t dir(const FileName &/*path*/, std::list<FileName> &/*result*/, uint8_t/*flags*/){	return UNSUPPORTED;	}
 

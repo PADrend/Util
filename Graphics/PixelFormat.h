@@ -27,32 +27,32 @@ namespace PixelFormat {
 
 	// ---------------------------------
 	// default pixel formats
-	extern const AttributeFormat RG;			// 0xR_G_
-	extern const AttributeFormat RG_FLOAT;		// 0xR_______G_______
-	extern const AttributeFormat RG_INT32;		// 0xR_______G_______
-	extern const AttributeFormat RG_UINT32;		// 0xR_______G_______
-	extern const AttributeFormat RGB;			// 0x00B_G_R_
-	extern const AttributeFormat RGB_FLOAT;		// 0xR_______G_______B_______
-	extern const AttributeFormat RGB_INT32;		// 0xR_______G_______B_______
-	extern const AttributeFormat RGB_UINT32;		// 0xR_______G_______B_______
-	extern const AttributeFormat BGR;			// 0x00R_G_B_
-	extern const AttributeFormat BGR_FLOAT;		// 0xB_______G_______R_______
-	extern const AttributeFormat BGR_INT32;		// 0xB_______G_______R_______
-	extern const AttributeFormat BGR_UINT32;		// 0xB_______G_______R_______
-	extern const AttributeFormat RGBA;			// 0xA_B_G_R_
-	extern const AttributeFormat RGBA_FLOAT;	// 0xR_______G_______B_______A_______
-	extern const AttributeFormat RGBA_INT32;	// 0xR_______G_______B_______A_______
-	extern const AttributeFormat RGBA_UINT32;	// 0xR_______G_______B_______A_______
-	extern const AttributeFormat BGRA;			// 0xA_R_G_B_
-	extern const AttributeFormat BGRA_FLOAT;	// 0xB_______G_______R_______A_______
-	extern const AttributeFormat BGRA_INT32;	// 0xB_______G_______R_______A_______
-	extern const AttributeFormat BGRA_UINT32;	// 0xB_______G_______R_______A_______
-	extern const AttributeFormat MONO;			// 0xR_
-	extern const AttributeFormat MONO_FLOAT;	// 0xR_______
-	extern const AttributeFormat MONO_INT32;	// 0xR_______
-	extern const AttributeFormat MONO_UINT32;	// 0xR_______
-	extern const AttributeFormat R11G11B10_FLOAT;	
-	extern const AttributeFormat UNKNOWN;		// numComponents is 0. No direct pixel access is possible.
+	UTILAPI extern const AttributeFormat RG;			// 0xR_G_
+	UTILAPI extern const AttributeFormat RG_FLOAT;		// 0xR_______G_______
+	UTILAPI extern const AttributeFormat RG_INT32;		// 0xR_______G_______
+	UTILAPI extern const AttributeFormat RG_UINT32;		// 0xR_______G_______
+	UTILAPI extern const AttributeFormat RGB;			// 0x00B_G_R_
+	UTILAPI extern const AttributeFormat RGB_FLOAT;		// 0xR_______G_______B_______
+	UTILAPI extern const AttributeFormat RGB_INT32;		// 0xR_______G_______B_______
+	UTILAPI extern const AttributeFormat RGB_UINT32;		// 0xR_______G_______B_______
+	UTILAPI extern const AttributeFormat BGR;			// 0x00R_G_B_
+	UTILAPI extern const AttributeFormat BGR_FLOAT;		// 0xB_______G_______R_______
+	UTILAPI extern const AttributeFormat BGR_INT32;		// 0xB_______G_______R_______
+	UTILAPI extern const AttributeFormat BGR_UINT32;		// 0xB_______G_______R_______
+	UTILAPI extern const AttributeFormat RGBA;			// 0xA_B_G_R_
+	UTILAPI extern const AttributeFormat RGBA_FLOAT;	// 0xR_______G_______B_______A_______
+	UTILAPI extern const AttributeFormat RGBA_INT32;	// 0xR_______G_______B_______A_______
+	UTILAPI extern const AttributeFormat RGBA_UINT32;	// 0xR_______G_______B_______A_______
+	UTILAPI extern const AttributeFormat BGRA;			// 0xA_R_G_B_
+	UTILAPI extern const AttributeFormat BGRA_FLOAT;	// 0xB_______G_______R_______A_______
+	UTILAPI extern const AttributeFormat BGRA_INT32;	// 0xB_______G_______R_______A_______
+	UTILAPI extern const AttributeFormat BGRA_UINT32;	// 0xB_______G_______R_______A_______
+	UTILAPI extern const AttributeFormat MONO;			// 0xR_
+	UTILAPI extern const AttributeFormat MONO_FLOAT;	// 0xR_______
+	UTILAPI extern const AttributeFormat MONO_INT32;	// 0xR_______
+	UTILAPI extern const AttributeFormat MONO_UINT32;	// 0xR_______
+	UTILAPI extern const AttributeFormat R11G11B10_FLOAT;	
+	UTILAPI extern const AttributeFormat UNKNOWN;		// numComponents is 0. No direct pixel access is possible.
 
 	
 	//! Internal type identifiers for special pixel formats
