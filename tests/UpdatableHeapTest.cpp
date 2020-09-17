@@ -119,7 +119,7 @@ TEST_CASE("UpdatableHeapTest_testDeleteUpdate", "[UpdatableHeapTest]") {
 		HeapElement_t element = heap.insert(key, std::make_pair(
 														std::uniform_int_distribution<uint32_t>(100, 200)(engine),
 														std::uniform_int_distribution<uint32_t>(300, 400)(engine)));
-		switch(std::uniform_int_distribution<uint8_t>(0, 1)(engine)) {
+		switch(std::uniform_int_distribution<uint16_t>(0, 1)(engine)) {
 			case 0:
 				elementsToRemove.push_back(element);
 				break;
