@@ -30,10 +30,10 @@ class StreamerSTB : public AbstractBitmapStreamer {
 		virtual ~StreamerSTB() {
 		}
 
-		Reference<Bitmap> loadBitmap(std::istream & input) override;
-		bool saveBitmap(const Bitmap & bitmap, std::ostream & output) override;
+		UTILAPI Reference<Bitmap> loadBitmap(std::istream & input) override;
+		UTILAPI bool saveBitmap(const Bitmap & bitmap, std::ostream & output) override;
 
-		static bool init();
+		UTILAPI static bool init();
 };
 
 }

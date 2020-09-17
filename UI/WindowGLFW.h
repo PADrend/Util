@@ -27,48 +27,48 @@ struct WindowGLFWInternal;
 class WindowGLFW : public Window {
 	public:
 		//! Destroy the window and free the allocated resources.
-		virtual ~WindowGLFW();
+		UTILAPI virtual ~WindowGLFW();
 
 		//! Swap front and back buffer of the window.
-		void swapBuffers() override;
+		UTILAPI void swapBuffers() override;
 
 		//! @see SDL_GL_GetAttribute
-		int32_t getSwapInterval() const override;
+		UTILAPI int32_t getSwapInterval() const override;
 
 		//! Set the cursor to the given location inside the window.
-		void warpCursor(int x, int y) override;
+		UTILAPI void warpCursor(int x, int y) override;
 
 		//! Grap control of mouse and keyboard input.
-		void grabInput() override;
+		UTILAPI void grabInput() override;
 
 		//! Release control of mouse and keyboard input.
-		void ungrabInput() override;
+		UTILAPI void ungrabInput() override;
 
 		//! Return any pending events for this window.
-		std::deque<Event> fetchEvents() override;
+		UTILAPI std::deque<Event> fetchEvents() override;
 
 		//! Set an image that is shown as the window's icon.
-		void setIcon(const Bitmap & icon) override;
+		UTILAPI void setIcon(const Bitmap & icon) override;
 
 		//! Read text from the clipboard.
-		std::string getClipboardText() const override;
+		UTILAPI std::string getClipboardText() const override;
 
 		//! Write text to the clipboard.
-		void setClipboardText(const std::string & text) override;
+		UTILAPI void setClipboardText(const std::string & text) override;
 		
 		//! Enables rendering to this window.
-		virtual void makeCurrent() override;
+		UTILAPI virtual void makeCurrent() override;
 	private:
 		//! Create a new window.
-		WindowGLFW(const Properties & properties);
+		UTILAPI WindowGLFW(const Properties & properties);
 
 		//! Allow access to constructor from factory.
-		friend std::unique_ptr<Window> createWindow(const Properties & properties);
+		UTILAPI friend std::unique_ptr<Window> createWindow(const Properties & properties);
 
 		//! ---|> Window
-		void doSetCursor(const Cursor * cursor) override;
+		UTILAPI void doSetCursor(const Cursor * cursor) override;
 		//! ---|> Window
-		void doHideCursor() override;
+		UTILAPI void doHideCursor() override;
 		
 		//! Internal data.
 		std::unique_ptr<WindowGLFWInternal> data;

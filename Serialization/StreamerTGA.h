@@ -30,9 +30,9 @@ class StreamerTGA : public AbstractBitmapStreamer {
 		virtual ~StreamerTGA() {
 		}
 
-		Reference<Bitmap> loadBitmap(std::istream & input) override;
+		UTILAPI Reference<Bitmap> loadBitmap(std::istream & input) override;
 
-		static bool init();
+		UTILAPI static bool init();
 };
 
 }

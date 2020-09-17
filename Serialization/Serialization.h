@@ -39,7 +39,7 @@ namespace Serialization {
  * @param file Address to the file containing the bitmap data.
  * @return A single bitmap.
  */
-Reference<Bitmap> loadBitmap(const FileName & url);
+UTILAPI Reference<Bitmap> loadBitmap(const FileName & url);
 
 /**
  * Create a single bitmap from the given data.
@@ -49,7 +49,7 @@ Reference<Bitmap> loadBitmap(const FileName & url);
  * @param data Bitmap data.
  * @return A single bitmap.
  */
-Reference<Bitmap> loadBitmap(const std::string & extension, const std::string & data);
+UTILAPI Reference<Bitmap> loadBitmap(const std::string & extension, const std::string & data);
 
 /**
  * Write a single bitmap to the given address.
@@ -59,7 +59,7 @@ Reference<Bitmap> loadBitmap(const std::string & extension, const std::string & 
  * @param file Address to the file that shall be written.
  * @return @c true if successful, @c false otherwise.
  */
-bool saveBitmap(const Bitmap & bitmap, const FileName & url);
+UTILAPI bool saveBitmap(const Bitmap & bitmap, const FileName & url);
 
 /**
  * Write a single bitmap to the given stream.
@@ -70,7 +70,7 @@ bool saveBitmap(const Bitmap & bitmap, const FileName & url);
  * @param output Stream to which the data shall be written.
  * @return @c true if successful, @c false otherwise.
  */
-bool saveBitmap(const Bitmap & bitmap, const std::string & extension, std::ostream & output);
+UTILAPI bool saveBitmap(const Bitmap & bitmap, const std::string & extension, std::ostream & output);
 
 /**
  * Register a new streamer for the given file extension that supports loading of bitmaps.
@@ -80,7 +80,7 @@ bool saveBitmap(const Bitmap & bitmap, const std::string & extension, std::ostre
  * @retval @c true if the streamer was registered successfully.
  * @retval @c false if another streamer for the extension already existed.
  */
-bool registerBitmapLoader(const std::string & extension, std::function<AbstractBitmapStreamer * ()> loaderCreator);
+UTILAPI bool registerBitmapLoader(const std::string & extension, std::function<AbstractBitmapStreamer * ()> loaderCreator);
 
 /**
  * Register a new streamer for the given file extension that supports saving of bitmaps.
@@ -90,7 +90,7 @@ bool registerBitmapLoader(const std::string & extension, std::function<AbstractB
  * @retval @c true if the streamer was registered successfully.
  * @retval @c false if another streamer for the extension already existed.
  */
-bool registerBitmapSaver(const std::string & extension, std::function<AbstractBitmapStreamer * ()> saverCreator);
+UTILAPI bool registerBitmapSaver(const std::string & extension, std::function<AbstractBitmapStreamer * ()> saverCreator);
 
 }
 }

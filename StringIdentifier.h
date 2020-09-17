@@ -35,7 +35,7 @@ class StringIdentifier {
 		/*implicit*/ StringIdentifier( const std::string & str) : value(calcId(str)) {}
 
 		uint32_t getValue()const								{	return value;	}
-		std::string toString()const;
+		UTILAPI std::string toString()const;
 
 		StringIdentifier & operator=(const std::string & str){
 			value = calcId(str);
@@ -48,8 +48,8 @@ class StringIdentifier {
 		bool operator<(const StringIdentifier & other)const		{	return value < other.value;	}
 
 	private:
-		static uint32_t calcId(const std::string & s);
-		static uint32_t calcHash(const std::string & s);
+		UTILAPI static uint32_t calcId(const std::string & s);
+		UTILAPI static uint32_t calcHash(const std::string & s);
 };
 
 }

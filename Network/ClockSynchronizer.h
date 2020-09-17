@@ -22,13 +22,13 @@ class UDPNetworkSocket;
 
 class ClockSynchronizer {
 	public:
-		static ClockSynchronizer * createServer(uint16_t port);
-		static ClockSynchronizer * createClient(const IPv4Address & remoteIP);
+		UTILAPI static ClockSynchronizer * createServer(uint16_t port);
+		UTILAPI static ClockSynchronizer * createClient(const IPv4Address & remoteIP);
 
 		/** Default destructor */
-		~ClockSynchronizer();
+		UTILAPI ~ClockSynchronizer();
 
-		float getClockSec()const;
+		UTILAPI float getClockSec()const;
 
 	/*! @name State */
 	// @{
@@ -37,15 +37,15 @@ class ClockSynchronizer {
 		mutable std::mutex runningMutex;
 
 	public:
-		bool isRunning() const;
-		void close();
+		UTILAPI bool isRunning() const;
+		UTILAPI void close();
 
 	// @}
 
 	private:
-		ClockSynchronizer(bool startServer, UDPNetworkSocket * socket);
-		void runServer();
-		void runClient();
+		UTILAPI ClockSynchronizer(bool startServer, UDPNetworkSocket * socket);
+		UTILAPI void runServer();
+		UTILAPI void runClient();
 
 		std::unique_ptr<UDPNetworkSocket> mySocket;
 		float diff;

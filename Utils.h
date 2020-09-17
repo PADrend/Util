@@ -29,7 +29,7 @@ namespace Utils {
  * @see proc(5)
  * @see http://msdn.microsoft.com/en-us/library/ms684877(VS.85).aspx
  */
-size_t getResidentSetMemorySize();
+UTILAPI size_t getResidentSetMemorySize();
 
 /**
  * Get the virtual memory size/pagefile space of the current process.
@@ -38,7 +38,7 @@ size_t getResidentSetMemorySize();
  * @see proc(5)
  * @see http://msdn.microsoft.com/en-us/library/ms684877(VS.85).aspx
  */
-size_t getVirtualMemorySize();
+UTILAPI size_t getVirtualMemorySize();
 
 /**
  * Get the dynamic memory allocation size of the current process.
@@ -46,12 +46,12 @@ size_t getVirtualMemorySize();
  * @return Memory size in bytes or 0 if this function is not supported on this platform.
  * @see mallinfo(3)
  */
-size_t getAllocatedMemorySize();
+UTILAPI size_t getAllocatedMemorySize();
 
 /**
  * Output memory usage information to standard output.
  */
-void outputProcessMemory();
+UTILAPI void outputProcessMemory();
 
 /**
  * Get the number of bytes that were read by this process.
@@ -60,7 +60,7 @@ void outputProcessMemory();
  * @see Documentation/filesystems/proc.txt
  * @see http://msdn.microsoft.com/en-us/library/ms683218(VS.85).aspx
  */
-size_t getIOBytesRead();
+UTILAPI size_t getIOBytesRead();
 
 /**
  * Get the number of bytes that were written by this process.
@@ -69,12 +69,12 @@ size_t getIOBytesRead();
  * @see Documentation/filesystems/proc.txt
  * @see http://msdn.microsoft.com/en-us/library/ms683218(VS.85).aspx
  */
-size_t getIOBytesWritten();
+UTILAPI size_t getIOBytesWritten();
 
 /**
  * Output IO usage information to standard output.
  */
-void outputProcessIO();
+UTILAPI void outputProcessIO();
 
 /**
  * Put the thread to sleep for the specified number of milliseconds.
@@ -83,7 +83,7 @@ void outputProcessIO();
  * @see CLOCK_NANOSLEEP(2)
  * @see http://msdn.microsoft.com/en-us/library/ms686298(VS.85).aspx
  */
-void sleep(unsigned long int ms);
+UTILAPI void sleep(unsigned long int ms);
 
 /**
  * Return the identifier of the calling process.
@@ -91,7 +91,7 @@ void sleep(unsigned long int ms);
  * @return Process identifier specific to the running operating system
  * or -1 if the function is not implemented for the running operating system.
  */
-int32_t getProcessId();
+UTILAPI int32_t getProcessId();
 
 /**
  * Return the path of the currently running executable.
@@ -99,7 +99,7 @@ int32_t getProcessId();
  * @return Absolute path of the executable or an empty string, if the path
  * could not be retrieved.
  */
-std::string getExecutablePath();
+UTILAPI std::string getExecutablePath();
 
 /**
  * Return the overall CPU usage of the system.
@@ -109,7 +109,7 @@ std::string getExecutablePath();
  * -1.0 if the function is not implemented for the running operating system.
  * @note The function might block for at least @p timespan milliseconds.
  */
-double getCPUUsage(unsigned long int timespan);
+UTILAPI double getCPUUsage(unsigned long int timespan);
 
 /**
  * Get a backtrace for the calling function.
@@ -120,7 +120,7 @@ double getCPUUsage(unsigned long int timespan);
  * @note If the needed functionality is not available on your system, a warning
  * message will be emitted and an empty array will be returned.
  */
-std::vector<std::string> getBacktrace();
+UTILAPI std::vector<std::string> getBacktrace();
 
 /**
  * Return a string containing a time stamp. It contains the current date, the
@@ -129,7 +129,7 @@ std::vector<std::string> getBacktrace();
  * 
  * @return String containing a time stamp
  */
-std::string createTimeStamp();
+UTILAPI std::string createTimeStamp();
 
 }
 
@@ -152,8 +152,8 @@ class DebugOutput{
 
 extern DebugOutput info;
 
-void enableInfo();
-void disableInfo();
+UTILAPI void enableInfo();
+UTILAPI void disableInfo();
 
 
 template<typename T>
@@ -161,9 +161,9 @@ static inline T align(T offset, T alignment) {
   return alignment > 1 ? (offset + (alignment - offset % alignment) % alignment) : offset;
 }
 
-uint32_t calcHash(const uint8_t * ptr,size_t size);
+UTILAPI uint32_t calcHash(const uint8_t * ptr,size_t size);
 
-std::string md5(const std::string& str);
+UTILAPI std::string md5(const std::string& str);
 
 template <class T>
 inline void hash_combine(std::size_t& seed, const T& v) {

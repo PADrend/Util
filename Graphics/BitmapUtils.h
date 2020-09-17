@@ -48,18 +48,18 @@ typedef std::function<Color4f (const BitmapAlteringContext &)> BitmapAlteringFun
  * @param bitmap Bitmap that is to be changed
  * @param op Operation that is called for every pixel of the bitmap
  */
-void alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op);
+UTILAPI void alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op);
 
 
 //! Blend all given images into one having the given format.
-Reference<Bitmap> blendTogether(const PixelFormat & targetFormat, 
+UTILAPI Reference<Bitmap> blendTogether(const PixelFormat & targetFormat, 
 									   const std::vector<Reference<Bitmap> > & sources);
 
 /**
  * Combines all given images into one having the given format.
  * \note first pixel of first bitmap, first pixel of second bitmap, etc...
  */
-Reference<Bitmap> combineInterleaved(const PixelFormat & targetFormat, 
+UTILAPI Reference<Bitmap> combineInterleaved(const PixelFormat & targetFormat, 
 											const std::vector<Reference<Bitmap> > & sources);
 
 /**
@@ -70,7 +70,7 @@ Reference<Bitmap> combineInterleaved(const PixelFormat & targetFormat,
  * @param newFormat the Pixelformat into which the bitmap schould be converted
  * @return a new bitmap of the specified format with the content of the given bitmap
  */
-Reference<Bitmap> convertBitmap(const Bitmap & source, 
+UTILAPI Reference<Bitmap> convertBitmap(const Bitmap & source, 
 									   const PixelFormat & newFormat);
 
 /**
@@ -78,20 +78,20 @@ Reference<Bitmap> convertBitmap(const Bitmap & source,
  * bitmask given as raw data. This is used for storing bitmap-font-data
  * directly in a source file.
  */
-Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
+UTILAPI Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
 												 const uint32_t height,
 												 const PixelFormat & format,
 												 const size_t dataSize,
 												 const uint8_t * data);
 
 //! Normalizes each pixel to the range [0,1]
-void normalizeBitmap(Bitmap & bitmap);
+UTILAPI void normalizeBitmap(Bitmap & bitmap);
 
 #ifdef UTIL_HAVE_LIB_SDL2
 //! Conversion between Bitmap and SDL_Surface
-Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface);
+UTILAPI Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface);
 //! Conversion between SDL_Surface and Bitmap
-SDL_Surface * createSDLSurfaceFromBitmap(const Bitmap & bitmap);
+UTILAPI SDL_Surface * createSDLSurfaceFromBitmap(const Bitmap & bitmap);
 #endif /* UTIL_HAVE_LIB_SDL2 */
 
 }

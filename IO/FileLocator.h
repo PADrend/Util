@@ -38,7 +38,7 @@ class FileLocator{
 
 		/*! If the file can be found in one of the the searchPaths, <true, searchPath/relFile> is returned;
 			Otherwise, <false,relFile> is returned.	*/
-		std::pair<bool,FileName> locateFile(const FileName& relFile) const; // -> <found?, fullPathName>
+		UTILAPI std::pair<bool,FileName> locateFile(const FileName& relFile) const; // -> <found?, fullPathName>
 };
 
 }

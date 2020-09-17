@@ -27,28 +27,28 @@ namespace Util {
 */
 class FSProvider : public AbstractFSProvider {
 	public:
-		static bool init();
+		UTILAPI static bool init();
 
-		FSProvider();
-		virtual ~FSProvider();
+		UTILAPI FSProvider();
+		UTILAPI virtual ~FSProvider();
 
 		// ---|> AbstractFSProvider
-		status_t readFile(const FileName & file, std::vector<uint8_t> & data) override;
-		status_t writeFile(const FileName &, const std::vector<uint8_t> & data, bool overwrite) override;
+		UTILAPI status_t readFile(const FileName & file, std::vector<uint8_t> & data) override;
+		UTILAPI status_t writeFile(const FileName &, const std::vector<uint8_t> & data, bool overwrite) override;
 
-		std::unique_ptr<std::iostream> open(const FileName & filename) override;
-		std::unique_ptr<std::istream> openForReading(const FileName & filename) override;
-		std::unique_ptr<std::ostream> openForWriting(const FileName & filename) override;
-		std::unique_ptr<std::ostream> openForAppending(const FileName & filename) override;
+		UTILAPI std::unique_ptr<std::iostream> open(const FileName & filename) override;
+		UTILAPI std::unique_ptr<std::istream> openForReading(const FileName & filename) override;
+		UTILAPI std::unique_ptr<std::ostream> openForWriting(const FileName & filename) override;
+		UTILAPI std::unique_ptr<std::ostream> openForAppending(const FileName & filename) override;
 
-		status_t makeDir(const FileName &) override;
-		status_t makeDirRecursive(const FileName &) override;
-		status_t remove(const FileName &) override;
+		UTILAPI status_t makeDir(const FileName &) override;
+		UTILAPI status_t makeDirRecursive(const FileName &) override;
+		UTILAPI status_t remove(const FileName &) override;
 
-		status_t dir(const FileName &path, std::list<FileName> &result, uint8_t flags) override;
-		bool isFile(const FileName &) override;
-		bool isDir(const FileName &) override;
-		size_t fileSize(const FileName & filename) override;
+		UTILAPI status_t dir(const FileName &path, std::list<FileName> &result, uint8_t flags) override;
+		UTILAPI bool isFile(const FileName &) override;
+		UTILAPI bool isDir(const FileName &) override;
+		UTILAPI size_t fileSize(const FileName & filename) override;
 };
 }
 #endif	/* _FS_PROVIDER_H */

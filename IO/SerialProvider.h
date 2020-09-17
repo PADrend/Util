@@ -33,20 +33,20 @@ namespace Util {
 */
 class SerialProvider : public AbstractFSProvider {
 	public:
-		static bool init();
+		UTILAPI static bool init();
 
 		
 		SerialProvider() : AbstractFSProvider() {}
 		virtual ~SerialProvider(){}
 
-		std::unique_ptr<std::iostream> open(const FileName & ) override;
-		std::unique_ptr<std::istream> openForReading(const FileName & )override;
-		std::unique_ptr<std::ostream> openForWriting(const FileName & )override;
+		UTILAPI std::unique_ptr<std::iostream> open(const FileName & ) override;
+		UTILAPI std::unique_ptr<std::istream> openForReading(const FileName & )override;
+		UTILAPI std::unique_ptr<std::ostream> openForWriting(const FileName & )override;
 		
-		bool isFile(const FileName &)override;
+		UTILAPI bool isFile(const FileName &)override;
 
 //		status_t readFile(const FileName & file, std::vector<uint8_t> & data) override;
-		status_t writeFile(const FileName &, const std::vector<uint8_t> & /*data*/, bool /*overwrite*/) override;
+		UTILAPI status_t writeFile(const FileName &, const std::vector<uint8_t> & /*data*/, bool /*overwrite*/) override;
 
 //		/*! Returns a list of available com ports if @p flags contains DIR_FILES.
 //			The @p path is ignored.	*/

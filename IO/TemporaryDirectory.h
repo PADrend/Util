@@ -32,7 +32,7 @@ class TemporaryDirectory : public ReferenceCounter<TemporaryDirectory>{
 		const FileName path;
 
 		//! Counter that is increased for every instance of this class.
-		static uint32_t counter;
+		UTILAPI static uint32_t counter;
 
 		TemporaryDirectory(const TemporaryDirectory &) = delete;
 		TemporaryDirectory(TemporaryDirectory &&) = delete;
@@ -46,10 +46,10 @@ class TemporaryDirectory : public ReferenceCounter<TemporaryDirectory>{
 		 * @param fragment String that will be used as part of the path.
 		 * This must not contain characters that are invalid in file names.
 		 */
-		TemporaryDirectory(const std::string & fragment);
+		UTILAPI TemporaryDirectory(const std::string & fragment);
 
 		//! Delete the directory and all its contents.
-		~TemporaryDirectory();
+		UTILAPI ~TemporaryDirectory();
 
 		/**
 		 * Retrieve the path to the directory.

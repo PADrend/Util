@@ -33,7 +33,7 @@ class PixelAccessor : public ReferenceCounter<PixelAccessor> {
 		Reference<Bitmap> myBitmap;
 	protected:
 		bool checkRange(uint32_t x,uint32_t y) const { return x<myBitmap->getWidth() && y<myBitmap->getHeight(); }
-		bool crop(uint32_t & x,uint32_t & y,uint32_t & width,uint32_t & height) const;
+		UTILAPI bool crop(uint32_t & x,uint32_t & y,uint32_t & width,uint32_t & height) const;
 
 		PixelAccessor(Reference<Bitmap> bitmap) :
 			ReferenceCounter_t(),
@@ -43,7 +43,7 @@ class PixelAccessor : public ReferenceCounter<PixelAccessor> {
 		/*! Create a PixelAccessor for the given bitmap. According to the format of the Bitmap,
 			an appropriate Accesor-type is chosen. If no accessor is available due to an unsupported
 			format, nullptr is returned.	*/
-		static Reference<PixelAccessor> create(Reference<Bitmap> bitmap);
+		UTILAPI static Reference<PixelAccessor> create(Reference<Bitmap> bitmap);
 
 		virtual ~PixelAccessor() { }
 
@@ -73,7 +73,7 @@ class PixelAccessor : public ReferenceCounter<PixelAccessor> {
 		/*! copies all pixels from source to dest
 		 *  if source and dest have incompatible dimensions only those pixels are copied which are valid in both
 		 */
-		static void copy(PixelAccessor * source, PixelAccessor * dest);
+		UTILAPI static void copy(PixelAccessor * source, PixelAccessor * dest);
 
 		/*! Direct access to the pixel data.
 			\note Be careful: No boundary checks are performed! */

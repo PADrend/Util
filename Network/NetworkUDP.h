@@ -23,7 +23,7 @@ struct InternalUDPSocketData_t;
 
 class UDPNetworkSocket;
 
-UDPNetworkSocket * createUDPNetworkSocket(uint16_t port, int maxPktSize);
+UTILAPI UDPNetworkSocket * createUDPNetworkSocket(uint16_t port, int maxPktSize);
 
 /**
  * [UDPNetworkSocket]
@@ -32,12 +32,12 @@ class UDPNetworkSocket {
 	public:
 		static const int defaultMaxPktSize = 1024;
 
-		explicit UDPNetworkSocket(uint16_t port = 0, int maxPktSize = defaultMaxPktSize);
-		virtual ~UDPNetworkSocket();
+		UTILAPI explicit UDPNetworkSocket(uint16_t port = 0, int maxPktSize = defaultMaxPktSize);
+		UTILAPI virtual ~UDPNetworkSocket();
 
-		bool open();
-		bool isOpen() const;
-		void close();
+		UTILAPI bool open();
+		UTILAPI bool isOpen() const;
+		UTILAPI void close();
 
 		struct Packet {
 			IPv4Address source;
@@ -61,17 +61,17 @@ class UDPNetworkSocket {
 		 *         nullptr otherwise
 		 * \note The caller is responsible for deleting the received packet.
 		 */
-		Packet * receive();
-		int sendData(const uint8_t * data, size_t dataSize);
+		UTILAPI Packet * receive();
+		UTILAPI int sendData(const uint8_t * data, size_t dataSize);
 
-		bool sendData(const uint8_t * data, size_t dataSize, const IPv4Address & ip);
+		UTILAPI bool sendData(const uint8_t * data, size_t dataSize, const IPv4Address & ip);
 
-		int sendString(const std::string & data);
+		UTILAPI int sendString(const std::string & data);
 
-		void addTarget(const IPv4Address & address);
-		void removeTarget(const IPv4Address & address);
+		UTILAPI void addTarget(const IPv4Address & address);
+		UTILAPI void removeTarget(const IPv4Address & address);
 
-		uint16_t getPort() const;
+		UTILAPI uint16_t getPort() const;
 	private:
 		std::unique_ptr<InternalUDPSocketData_t> data;
 };

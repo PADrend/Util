@@ -35,7 +35,7 @@ public:
 	/**
 	* Creates a new attribute accessor for the given data using the specified resource format.
 	*/
-	static Reference<AttributeAccessor> create(uint8_t* ptr, size_t size, const ResourceFormat::Attribute& attr, size_t stride);
+	UTILAPI static Reference<AttributeAccessor> create(uint8_t* ptr, size_t size, const ResourceFormat::Attribute& attr, size_t stride);
 	static Reference<AttributeAccessor> create(uint8_t* ptr, size_t size, const ResourceFormat& format, const StringIdentifier& name) {
 		return format.hasAttribute(name) ? create(ptr, size, format.getAttribute(name), format.getSize()) : nullptr;
 	}
@@ -116,7 +116,7 @@ public:
 	template<typename number_t>
 	number_t * _ptr(size_t index) const { return reinterpret_cast<number_t*>(dataPtr+index*stride); }	
 private:
-	void throwRangeError(uint32_t index) const;
+	UTILAPI void throwRangeError(uint32_t index) const;
 
 	uint8_t* const dataPtr;
 	const size_t dataSize;

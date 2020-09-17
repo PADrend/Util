@@ -58,25 +58,25 @@ class Timer {
 		static Timer processTimer;
 	public:
 		//! Returns the seconds elapsed since program start.
-		static double now();
+		UTILAPI static double now();
 		// -----
 
-		Timer();
+		UTILAPI Timer();
 		/**
 		 * Reset the timer to the current time.
 		 * The timer will be running after the call.
 		 */
-		void reset();
+		UTILAPI void reset();
 		/**
 		 * Stop the timer.
 		 * The current time will be stored to be able to resume later on.
 		 */
-		void stop();
+		UTILAPI void stop();
 		/**
 		 * Start the timer again.
 		 * This will resume the duration from the point that @a stop() was called last.
 		 */
-		void resume();
+		UTILAPI void resume();
 
 		/**
 		 * @return @c true iff the timer is currently running
@@ -115,7 +115,7 @@ class Timer {
 		 *
 		 * @return Time in nanoseconds (1 s = 1e9 ns)
 		 */
-		uint64_t getNanoseconds() const;
+		UTILAPI uint64_t getNanoseconds() const;
 
 		bool operator==(const Timer & other) const {
 			return (&other == this) || (other.running == running && other.getNanoseconds() == getNanoseconds());

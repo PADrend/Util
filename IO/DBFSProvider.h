@@ -34,11 +34,11 @@ namespace Util {
 */
 class DBFSProvider : public AbstractFSProvider {
 	public:
-		static bool init();
+		UTILAPI static bool init();
 
 		// ----
 		// static Helper
-		static sqlite3_stmt * createStatement(sqlite3 * db,const char * sql);
+		UTILAPI static sqlite3_stmt * createStatement(sqlite3 * db,const char * sql);
 
 		static const int NO_ENTRY = -1;
 //		static const int TYPE_FILE = 1;
@@ -60,53 +60,53 @@ class DBFSProvider : public AbstractFSProvider {
 
 			std::mutex mutex;
 		public:
-			explicit DBHandle(sqlite3 *_db);
-			~DBHandle();
+			UTILAPI explicit DBHandle(sqlite3 *_db);
+			UTILAPI ~DBHandle();
 			inline sqlite3 * getDB()const{	return db;	}
 
 		public:
-			bool saveFile(const std::string & folder,const std::string & file,const std::vector<uint8_t> & data,bool overwrite=true);
-			std::vector<uint8_t> readFile(const std::string & folder,const std::string & file);
-			size_t getSize(const std::string & folder,const std::string & file);
-			bool dir(const std::string & folder, const std::string & prefix, std::list<FileName> &result, uint8_t flags);
-			int getFolderId(const std::string & folder);
-			bool isFile(const std::string & folder,const std::string & file);
-			bool makeDir(const std::string & folder);
+			UTILAPI bool saveFile(const std::string & folder,const std::string & file,const std::vector<uint8_t> & data,bool overwrite=true);
+			UTILAPI std::vector<uint8_t> readFile(const std::string & folder,const std::string & file);
+			UTILAPI size_t getSize(const std::string & folder,const std::string & file);
+			UTILAPI bool dir(const std::string & folder, const std::string & prefix, std::list<FileName> &result, uint8_t flags);
+			UTILAPI int getFolderId(const std::string & folder);
+			UTILAPI bool isFile(const std::string & folder,const std::string & file);
+			UTILAPI bool makeDir(const std::string & folder);
 
-			void flush();
+			UTILAPI void flush();
 		protected:
-			bool createFile(int folderId,const std::string & file);
-			bool updateData(int fileId,const std::vector<uint8_t> & data);
-			std::vector<uint8_t> getData(int fileId);
+			UTILAPI bool createFile(int folderId,const std::string & file);
+			UTILAPI bool updateData(int fileId,const std::vector<uint8_t> & data);
+			UTILAPI std::vector<uint8_t> getData(int fileId);
 
-			void storeStatement(int folderId,const std::string & file,sqlite3_stmt * stmt);
-			bool isPendingFile(int intFolderId,const std::string & file);
+			UTILAPI void storeStatement(int folderId,const std::string & file,sqlite3_stmt * stmt);
+			UTILAPI bool isPendingFile(int intFolderId,const std::string & file);
 
 		};
 
-		DBFSProvider();
-		virtual ~DBFSProvider();
+		UTILAPI DBFSProvider();
+		UTILAPI virtual ~DBFSProvider();
 
-		status_t makeDir(const FileName & path) override;
-		status_t makeDirRecursive(const FileName &) override;
+		UTILAPI status_t makeDir(const FileName & path) override;
+		UTILAPI status_t makeDirRecursive(const FileName &) override;
 
-		status_t readFile(const FileName & file, std::vector<uint8_t> & data) override;
-		status_t writeFile(const FileName &, const std::vector<uint8_t> & data, bool overwrite) override;
+		UTILAPI status_t readFile(const FileName & file, std::vector<uint8_t> & data) override;
+		UTILAPI status_t writeFile(const FileName &, const std::vector<uint8_t> & data, bool overwrite) override;
 
-		bool isFile(const FileName &) override;
-		bool isDir(const FileName &) override;
-		size_t fileSize(const FileName & filename) override;
-		status_t dir(const FileName &path, std::list<FileName> &result, uint8_t flags) override;
+		UTILAPI bool isFile(const FileName &) override;
+		UTILAPI bool isDir(const FileName &) override;
+		UTILAPI size_t fileSize(const FileName & filename) override;
+		UTILAPI status_t dir(const FileName &path, std::list<FileName> &result, uint8_t flags) override;
 
-		void flush() override;
+		UTILAPI void flush() override;
 
 		// -----------------------------------------
 	private:
 		std::map<std::string, DBHandle*> openHandles;
 
-		DBHandle * createDB(const std::string & dbFilename);
-		DBHandle * getDBHandle(const std::string & dbFilename, bool createFile = false);
-		void extractFileName(const FileName & filename,std::string & dbFilename,std::string & folder,std::string & file);
+		UTILAPI DBHandle * createDB(const std::string & dbFilename);
+		UTILAPI DBHandle * getDBHandle(const std::string & dbFilename, bool createFile = false);
+		UTILAPI void extractFileName(const FileName & filename,std::string & dbFilename,std::string & folder,std::string & file);
 };
 }
 #endif	/* _DBFS_PROVIDER_H */
