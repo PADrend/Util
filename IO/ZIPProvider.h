@@ -32,24 +32,24 @@ namespace Util {
  */
 class ZIPProvider : public AbstractFSProvider {
 	public:
-		static bool init();
+		UTILAPI static bool init();
 
-		ZIPProvider();
-		virtual ~ZIPProvider();
+		UTILAPI ZIPProvider();
+		UTILAPI virtual ~ZIPProvider();
 
-		status_t readFile(const FileName & url, std::vector<uint8_t> & data) override;
-		status_t writeFile(const FileName & url, const std::vector<uint8_t> & data, bool overwrite) override;
+		UTILAPI status_t readFile(const FileName & url, std::vector<uint8_t> & data) override;
+		UTILAPI status_t writeFile(const FileName & url, const std::vector<uint8_t> & data, bool overwrite) override;
 
-		status_t dir(const FileName & url, std::list<FileName> & result, uint8_t flags) override;
-		bool isFile(const FileName & url) override;
-		bool isDir(const FileName & url) override;
-		size_t fileSize(const FileName & url) override;
+		UTILAPI status_t dir(const FileName & url, std::list<FileName> & result, uint8_t flags) override;
+		UTILAPI bool isFile(const FileName & url) override;
+		UTILAPI bool isDir(const FileName & url) override;
+		UTILAPI size_t fileSize(const FileName & url) override;
 
-		status_t makeDir(const FileName & url) override;
-		status_t makeDirRecursive(const FileName & url) override;
-		status_t remove(const FileName & url) override;
+		UTILAPI status_t makeDir(const FileName & url) override;
+		UTILAPI status_t makeDirRecursive(const FileName & url) override;
+		UTILAPI status_t remove(const FileName & url) override;
 
-		void flush() override;
+		UTILAPI void flush() override;
 
 	private:
 		ZIPProvider(const ZIPProvider &) = delete;
@@ -60,20 +60,20 @@ class ZIPProvider : public AbstractFSProvider {
 		/*! Internal representation of an opened ZIP archive. */
 		class ZIPHandle {
 			public:
-				explicit ZIPHandle(FileName _archiveRoot, zip * archive);
-				~ZIPHandle();
+				UTILAPI explicit ZIPHandle(FileName _archiveRoot, zip * archive);
+				UTILAPI ~ZIPHandle();
 
 			public:
-				status_t readFile(const FileName & file, std::vector<uint8_t> & data);
-				status_t writeFile(const FileName & file, const std::vector<uint8_t> & data, bool overwrite);
+				UTILAPI status_t readFile(const FileName & file, std::vector<uint8_t> & data);
+				UTILAPI status_t writeFile(const FileName & file, const std::vector<uint8_t> & data, bool overwrite);
 
-				status_t dir(const std::string & directory, std::list<FileName> & result, const uint8_t flags);
-				bool isFile(const FileName & file);
-				bool isDir(const FileName & directory);
-				size_t fileSize(const FileName & file);
+				UTILAPI status_t dir(const std::string & directory, std::list<FileName> & result, const uint8_t flags);
+				UTILAPI bool isFile(const FileName & file);
+				UTILAPI bool isDir(const FileName & directory);
+				UTILAPI size_t fileSize(const FileName & file);
 
-				status_t makeDir(const FileName & directory);
-				status_t removeDir(const FileName & directory);
+				UTILAPI status_t makeDir(const FileName & directory);
+				UTILAPI status_t removeDir(const FileName & directory);
 
 				bool isChanged() const {
 					return dataWritten;
@@ -95,8 +95,8 @@ class ZIPProvider : public AbstractFSProvider {
 		std::map<std::string, ZIPHandle *> openHandles;
 		std::mutex handlesMutex;
 
-		ZIPHandle * getZIPHandle(const std::string & archiveFileName, bool createFile = false);
-		void decomposeURL(const FileName & url, std::string & archiveFileName, FileName & localPath);
+		UTILAPI ZIPHandle * getZIPHandle(const std::string & archiveFileName, bool createFile = false);
+		UTILAPI void decomposeURL(const FileName & url, std::string & archiveFileName, FileName & localPath);
 };
 }
 #endif	/* ZIP_PROVIDER_H_ */

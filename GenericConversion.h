@@ -29,7 +29,7 @@ namespace GenericConversion {
  * @param in Stream containing JSON data
  * @return Generic representation of the JSON data
  */
-Generic fromJSON(std::istream & in);
+UTILAPI Generic fromJSON(std::istream & in);
 
 /**
  * Convert the given data to JavaScript Object Notation (JSON) and write it to
@@ -38,7 +38,7 @@ Generic fromJSON(std::istream & in);
  * @param data Generic representation of the data
  * @param out Stream to which the JSON data will be written
  */
-void toJSON(const Generic & data, std::ostream & out);
+UTILAPI void toJSON(const Generic & data, std::ostream & out);
 
 }
 }

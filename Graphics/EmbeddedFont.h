@@ -34,7 +34,7 @@ namespace EmbeddedFont {
  * @see Util::FontRenderer::createGlyphBitmap for a description of the return
  * value
  */
-std::pair<Reference<Bitmap>, FontInfo> getFont();
+UTILAPI std::pair<Reference<Bitmap>, FontInfo> getFont();
 
 }
 }

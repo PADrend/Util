@@ -72,10 +72,10 @@ class EventQueue {
 		std::deque<event_handler_t> handlers;
 
 		//! Internal function that calls all generators
-		void generate();
+		UTILAPI void generate();
 
 		//! Internal function that calls all handler
-		void handle();
+		UTILAPI void handle();
 	public:
 		/**
 		 * Return the number of unprocessed events that are waiting in the
@@ -83,14 +83,14 @@ class EventQueue {
 		 * 
 		 * @return Number of events waiting for processing
 		 */
-		std::size_t getNumEventsAvailable() const;
+		UTILAPI std::size_t getNumEventsAvailable() const;
 
 		/**
 		 * Add a new event to the event queue.
 		 *
 		 * @param newEvent Event that will be inserted
 		 */
-		void pushEvent(const Event & newEvent);
+		UTILAPI void pushEvent(const Event & newEvent);
 
 		/**
 		 * Read the first element from the event queue without removing it.
@@ -98,7 +98,7 @@ class EventQueue {
 		 * @return Read-only reference to the first event
 		 * @throw std::logic_error if there are no events available
 		 */
-		const Event & peekEvent() const;
+		UTILAPI const Event & peekEvent() const;
 
 		/**
 		 * Remove the first element from the event queue and return it.
@@ -106,21 +106,21 @@ class EventQueue {
 		 * @return Element that has been the first element of the event queue
 		 * @throw std::logic_error if there are no events available
 		 */
-		Event popEvent();
+		UTILAPI Event popEvent();
 
 		/**
 		 * Register the given function as an event generator.
 		 *
 		 * @param generator Event generator that creates an array of events
 		 */
-		void registerEventGenerator(const event_generator_t & generator);
+		UTILAPI void registerEventGenerator(const event_generator_t & generator);
 
 		/**
 		 * Register the given function as an event handler.
 		 *
 		 * @param handler Event handler that takes a single event
 		 */
-		void registerEventHandler(const event_handler_t & handler);
+		UTILAPI void registerEventHandler(const event_handler_t & handler);
 
 		// FIXME: Add filter possibility
 
@@ -130,7 +130,7 @@ class EventQueue {
 		 * @note This function has to be called regularly to ensure the processing
 		 * of events.
 		 */
-		void process();
+		UTILAPI void process();
 };
 
 }

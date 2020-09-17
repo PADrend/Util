@@ -51,14 +51,14 @@ class DataConnection : public ReferenceCounter<DataConnection>{
 		typedef std::function<void (channelId_t,const dataPacket_t &)> valueTypeHandler_t;
 		typedef std::function<void (channelId_t,const StringIdentifier &,const dataPacket_t &)> keyValueTypeHandler_t;
 
-		static const channelId_t FALLBACK_HANDLER;
+		UTILAPI static const channelId_t FALLBACK_HANDLER;
 
 		//! (ctor)
-		DataConnection(TCPConnection * connection);
-		~DataConnection();
+		UTILAPI DataConnection(TCPConnection * connection);
+		UTILAPI ~DataConnection();
 
-		bool isOpen() const;
-		void close();
+		UTILAPI bool isOpen() const;
+		UTILAPI void close();
 
 		/*!	Send the given key,data - pair to the connected endpoint.
 			\note it is not guaranteed that this specific data is transferred for
@@ -128,7 +128,7 @@ class DataConnection : public ReferenceCounter<DataConnection>{
 		/*! Use the registered handler to handle the incoming data.
 			\note \todo (all data of unknown type is send to handler 0xFFFF or ignored).
 			\param if a time is given,after the given amount of ms, the handling is stopped.	*/
-		void handleIncomingData(float ms=-1.0f);
+		UTILAPI void handleIncomingData(float ms=-1.0f);
 	private:
 		Reference<TCPConnection> connection;
 
@@ -155,7 +155,7 @@ class DataConnection : public ReferenceCounter<DataConnection>{
 
 		std::thread thread;
 
-		void run();
+		UTILAPI void run();
 		bool isRunning() const {
 			std::lock_guard<std::mutex> lock(runningMutex);
 			return running;
@@ -165,7 +165,7 @@ class DataConnection : public ReferenceCounter<DataConnection>{
 			running = false;
 		}
 
-		void dataError();
+		UTILAPI void dataError();
 };
 
 }

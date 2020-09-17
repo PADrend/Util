@@ -36,7 +36,7 @@ class GenericAttribute;
 class JSON_Parser {
 	public:
 		//! Try to convert a JSON formatted string into a GenericAttribute.
-		static GenericAttribute * parse(const std::string & str);
+		UTILAPI static GenericAttribute * parse(const std::string & str);
 };
 
 }

@@ -42,12 +42,12 @@ class TCPConnection : public ReferenceCounter<TCPConnection> {
 
 		/*! Tries to open a connection to a TCP-Server at given address.
 		 \return TCPConnection if successful, throws a runtime_error on failure */
-		static Reference<TCPConnection> connect(const IPv4Address & remote);
+		UTILAPI static Reference<TCPConnection> connect(const IPv4Address & remote);
 
-		virtual ~TCPConnection();
+		UTILAPI virtual ~TCPConnection();
 
 		float getLastActiveTime() const		{	return lastActiveTime;	}
-		IPv4Address getRemoteIp() const;
+		UTILAPI IPv4Address getRemoteIp() const;
 
 		/*! @name State */
 		// @{
@@ -59,7 +59,7 @@ class TCPConnection : public ReferenceCounter<TCPConnection> {
 	public:
 		bool isOpen() const					{	return state == OPEN;	}
 		bool isClosed() const				{	return state == CLOSED;	}
-		void close();
+		UTILAPI void close();
 		// @}
 
 		/*! @name Data handling */
@@ -72,25 +72,25 @@ class TCPConnection : public ReferenceCounter<TCPConnection> {
 		mutable std::mutex outQueueMutex;
 		std::thread thread;
 
-		void run();
-		std::vector<uint8_t> extractDataFromInQueue(size_t numBytes);
+		UTILAPI void run();
+		UTILAPI std::vector<uint8_t> extractDataFromInQueue(size_t numBytes);
 
 	public:
-		bool sendData(const std::vector<uint8_t> & data);
+		UTILAPI bool sendData(const std::vector<uint8_t> & data);
 
 		/*! \note The string should end with a termination symbol, e.g. 0 Otherwise it can't be extracted properly.   */
-		bool sendString(const std::string & s);
+		UTILAPI bool sendString(const std::string & s);
 
 		/*! Returns all received data as a std::vector<uint8_t> Object
 		 or nullptr if nothing was received. */
-		std::vector<uint8_t> receiveData();
+		UTILAPI std::vector<uint8_t> receiveData();
 
 		/*! Returns numBytes many bytes of received data as std::vector<uint8_t> Object
 		 or an empty array if less data was received. */
-		std::vector<uint8_t> receiveData(size_t numBytes);
+		UTILAPI std::vector<uint8_t> receiveData(size_t numBytes);
 
 		/*! Returns a string ending with @p delimiter or "" if no delimiter is found. */
-		std::string receiveString(char delimiter = '\0');
+		UTILAPI std::string receiveString(char delimiter = '\0');
 
 		/*! Returns the number of bytes in the input buffer */
 		size_t getAvailableDataSize() const {
@@ -112,8 +112,8 @@ class TCPServer {
 		std::mutex queueMutex;
 		std::thread thread;
 
-		TCPServer(Implementation* implementation);
-		void run();
+		UTILAPI TCPServer(Implementation* implementation);
+		UTILAPI void run();
 
 		void setState(state_t newState)	{	state = newState;	}
 		state_t getState() const		{	return state;	}
@@ -121,20 +121,20 @@ class TCPServer {
 	public:
 		/*! (Factory) Try to create a TCPServer listening on the given port.
 		 Throws an exception, if the port can not be opened. */
-		static TCPServer * create(uint16_t port);
+		UTILAPI static TCPServer * create(uint16_t port);
 
-		virtual ~TCPServer();
+		UTILAPI virtual ~TCPServer();
 
 		bool isOpen() const				{	return state == OPEN;	}
 		bool isClosed() const			{	return state == CLOSED;	}
 
 		/*! Stops the server. New incoming connections are closed, old
 		 connections persist. */
-		void close();
+		UTILAPI void close();
 
 		/*! Returns a new Connection or nullptr if there is none.  Each incoming
 		 connection is only reported once.   */
-		Reference<TCPConnection> getIncomingConnection();
+		UTILAPI Reference<TCPConnection> getIncomingConnection();
 		// @}
 };
 
