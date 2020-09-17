@@ -135,7 +135,7 @@ class Window : public Util::ReferenceCounter<Window> {
 		}
 
 		//! Allow access to members from factory.
-		friend Util::Reference<Window> createWindow(const Properties & properties);
+		UTILAPI friend Util::Reference<Window> createWindow(const Properties & properties);
 
 	private:
 

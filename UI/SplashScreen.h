@@ -47,7 +47,7 @@ class SplashScreen {
 		SplashScreen() = default;
 
 		//! Allow access to members from factory.
-		friend std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
+		UTILAPI friend std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
 
 	private:
 		SplashScreen(const SplashScreen &) = delete;
