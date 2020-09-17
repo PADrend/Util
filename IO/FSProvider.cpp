@@ -18,7 +18,11 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
+#if defined(_MSC_VER)
+#include "../extern/dirent.h"
+#else
 #include <dirent.h>
+#endif
 #include <fstream>
 #include <vector>
 #if defined(__linux__) || defined(__unix__) || defined (__APPLE__)
@@ -195,7 +199,11 @@ AbstractFSProvider::status_t FSProvider::remove(const FileName & name){
 	if(isFile(name)) {
 		success = (std::remove(name.getPath().c_str()) == 0);
 	} else if(isDir(name)) {
+#if defined(_MSC_VER)
+		success = RemoveDirectoryA(name.getPath().c_str());
+#else
 		success = (rmdir(name.getPath().c_str()) == 0);
+#endif
 	}
 	if(!success) {
 		const int error = errno;
@@ -213,6 +221,11 @@ AbstractFSProvider::status_t FSProvider::makeDir(const FileName & name){
 		return FAILURE;
 #if defined(__linux__) || defined(__unix__) || defined (__APPLE__)
 	if(mkdir(name.getPath().c_str(), 0770) == 0)
+		return OK;
+	else
+		return FAILURE;
+#elif (defined(_WIN32) || defined(_WIN64)) && defined(_MSC_VER)
+	if(CreateDirectoryA(name.getPath().c_str(), 0))
 		return OK;
 	else
 		return FAILURE;

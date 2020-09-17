@@ -17,7 +17,11 @@
 #include "../Macros.h"
 
 #include <sys/stat.h>
+#if defined(_MSC_VER)
+#include "../extern/dirent.h"
+#else
 #include <dirent.h>
+#endif
 #include <cerrno>
 #include <cstdint>
 #include <memory>

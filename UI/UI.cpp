@@ -34,7 +34,11 @@ std::unique_ptr<Cursor> createCursor(const Reference<Bitmap> & image, unsigned i
 	return std::unique_ptr<Cursor>(new Cursor(image, hotSpotX, hotSpotY));
 }
 
+#if defined(_WIN32)
+std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage) {
+#else
 std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle __attribute__((unused)), const Reference<Bitmap> & splashImage __attribute__((unused))) {
+#endif
 	std::unique_ptr<SplashScreen> splash;
 #if defined(_WIN32)
 	splash.reset(new SplashScreenWin(splashTitle, splashImage));
