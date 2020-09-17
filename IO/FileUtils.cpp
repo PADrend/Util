@@ -356,7 +356,7 @@ FileName FileUtils::generateNewRandFilename(const FileName & dir,const std::stri
 	FileName fileName = dir;
 	int i = 0;
 	static std::default_random_engine engine;
-	std::uniform_int_distribution<char> distribution(97, 122);
+	std::uniform_int_distribution<uint16_t> distribution(97, 122);
 	do {
 		if(i++ > 100){
 			++randomSize;
@@ -366,7 +366,7 @@ FileName FileUtils::generateNewRandFilename(const FileName & dir,const std::stri
 		std::string name(prefix);
 		for (unsigned char j = 0; j < randomSize; ++j) {
 			// Characters from [a-z].
-			const char random = distribution(engine);
+			const char random = (char) distribution(engine);
 			name += random;
 		}
 		name += postfix;

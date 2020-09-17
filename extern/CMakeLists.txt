@@ -339,6 +339,9 @@ if(UTIL_BUILD_LIBARCHIVE)
     add_subdirectory(${libarchive_SOURCE_DIR} ${libarchive_BINARY_DIR} EXCLUDE_FROM_ALL)
   endif()
   target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ARCHIVE)
+  if(NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(UtilExtern INTERFACE LIBARCHIVE_STATIC)
+  endif()
   target_link_libraries(UtilExtern INTERFACE archive_static)
   target_include_directories(UtilExtern INTERFACE ${libarchive_SOURCE_DIR}/libarchive)
   set_target_properties(archive_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -352,7 +355,7 @@ if(UTIL_BUILD_LIBZIP)
   FetchContent_Declare(
     libzip
     GIT_REPOSITORY https://github.com/nih-at/libzip.git
-    GIT_TAG        rel-1-5-2
+    GIT_TAG        rel-1-6-0
   )
   FetchContent_GetProperties(libzip)
   if(NOT libzip_POPULATED)
