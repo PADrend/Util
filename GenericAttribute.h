@@ -520,7 +520,7 @@ class GenericAttributeMap : public GenericAttribute	{
 		GenericAttributeMap & operator=(GenericAttributeMap &&) = default;
 
 		void clear()		{	m.clear();	}
-		void setValue(const StringIdentifier & key,GenericAttribute * attr);
+		UTILAPI void setValue(const StringIdentifier & key,GenericAttribute * attr);
 		UTILAPI bool unsetValue(const StringIdentifier & key);
 		UTILAPI bool contains(const StringIdentifier & key)const;
 		UTILAPI GenericAttribute * getValue(const StringIdentifier & stringId)const;

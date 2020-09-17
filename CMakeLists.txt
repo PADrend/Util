@@ -115,7 +115,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	target_link_libraries(Util PRIVATE rt)
 endif()
 
-if(MSVC AND BUILD_SHARED_LIBS)
+if(MSVC)
 	target_compile_definitions(Util PRIVATE "UTILAPI=__declspec(dllexport)")
 	target_compile_definitions(Util INTERFACE "UTILAPI=__declspec(dllimport)")
 else()
