@@ -494,11 +494,11 @@ AbstractFSProvider::status_t ZIPProvider::ZIPHandle::dir(
 			if (!(flags & FileUtils::DIR_RECURSIVE) && entryFileName.getDir() != localDirectory) {
 				continue;
 			}
-		}
 
-		// Check for hidden files beginning with '.' (files only).
-		if (entryFileName.getFile().front() == '.' && !(flags & FileUtils::DIR_HIDDEN_FILES)) {
-			continue;
+			// Check for hidden files beginning with '.' (files only).
+			if (entryFileName.getFile().front() == '.' && !(flags & FileUtils::DIR_HIDDEN_FILES)) {
+				continue;
+			}
 		}
 
 		FileName f;
