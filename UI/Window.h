@@ -131,7 +131,7 @@ class Window {
 		}
 
 		//! Allow access to members from factory.
-		friend std::unique_ptr<Window> createWindow(const Properties & properties);
+		UTILAPI friend std::unique_ptr<Window> createWindow(const Properties & properties);
 
 	private:
 

@@ -56,7 +56,7 @@ TEST_CASE("NetworkTest_testTCP", "[NetworkTest]") {
 	REQUIRE(tcpServerClientConnection.get() != nullptr);
 
 	std::default_random_engine engine;
-	std::uniform_int_distribution<uint8_t> distribution(0, 255);
+	std::uniform_int_distribution<uint16_t> distribution(0, 255);
 
 	const size_t sizes[6] = { 128, 256, 512, 1024, 2048, 4096 };
 	for (uint_fast8_t s = 0; s < 6; ++s) {
@@ -93,7 +93,7 @@ TEST_CASE("NetworkTest_testUDP", "[NetworkTest]") {
 	const IPv4Address toAddress = IPv4Address::resolveHost("127.0.0.1", 45000);
 
 	std::default_random_engine engine;
-	std::uniform_int_distribution<uint8_t> distribution(0, 255);
+	std::uniform_int_distribution<uint16_t> distribution(0, 255);
 
 	const size_t sizes[7] = { 128, 256, 512, 1024, 2048, 4096, 8192 };
 	for (uint_fast8_t s = 0; s < 7; ++s) {
@@ -123,7 +123,7 @@ TEST_CASE("NetworkTest_testUDPgetPort", "[NetworkTest]") {
 	const IPv4Address toAddress = IPv4Address::resolveHost("127.0.0.1", udpSocketServer.getPort());
 
 	std::default_random_engine engine;
-	std::uniform_int_distribution<uint8_t> distribution(0, 255);
+	std::uniform_int_distribution<uint16_t> distribution(0, 255);
 
 	const size_t sizes[7] = { 128, 256, 512, 1024, 2048, 4096, 8192 };
 	for (uint_fast8_t s = 0; s < 7; ++s) {
@@ -182,7 +182,7 @@ TEST_CASE("NetworkTest_testDataConnection", "[NetworkTest]") {
 	REQUIRE(serverDataConnection.isOpen());
 
 	std::default_random_engine engine;
-	std::uniform_int_distribution<uint8_t> dataDistribution(0, 255);
+	std::uniform_int_distribution<uint16_t> dataDistribution(0, 255);
 	std::uniform_int_distribution<uint16_t> keyDistribution;
 
 	const size_t sizes[7] = { 128, 256, 512, 1024, 2048, 4096, 8192 };
@@ -425,7 +425,7 @@ TEST_CASE("NetworkTest_testTCPClientExit", "[NetworkTest]") {
 	REQUIRE(tcpServerClientConnection.get() != nullptr);
 
 	std::default_random_engine engine;
-	std::uniform_int_distribution<uint8_t> distribution(0, 255);
+	std::uniform_int_distribution<uint16_t> distribution(0, 255);
 
 	const size_t size = 8192;
 	std::vector<uint8_t> original(size);

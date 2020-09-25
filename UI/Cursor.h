@@ -32,10 +32,10 @@ class Cursor {
 		unsigned int _hotSpotY;
 
 		//! Store the data of a new cursor.
-		Cursor(Reference<Bitmap> image, unsigned int hotSpotX, unsigned int hotSpotY);
+		UTILAPI Cursor(Reference<Bitmap> image, unsigned int hotSpotX, unsigned int hotSpotY);
 
 		//! Allow access to members from factory.
-		friend std::unique_ptr<Cursor> createCursor(const Reference<Bitmap> & image, unsigned int hotSpotX, unsigned int hotSpotY);
+		UTILAPI friend std::unique_ptr<Cursor> createCursor(const Reference<Bitmap> & image, unsigned int hotSpotX, unsigned int hotSpotY);
 	public:
 		Cursor(const Cursor &) = delete;
 		Cursor(Cursor &&) = delete;
@@ -43,7 +43,7 @@ class Cursor {
 		Cursor & operator=(Cursor &&) = delete;
 
 		//! Free the associated data.
-		~Cursor();
+		UTILAPI ~Cursor();
 
 		const Reference<Bitmap> & getBitmap() const {
 			return _image;

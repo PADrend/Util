@@ -43,12 +43,12 @@ class GenericAttributeSerialization {
 		typedef WrapperFactory<serializer_parameter_t,
 							   serializer_type_t,
 							   std::type_index> serializer_factory_t;
-		static serializer_factory_t & getSerializerFactory();
+		UTILAPI static serializer_factory_t & getSerializerFactory();
 
 		typedef WrapperFactory<unserializer_parameter_t,
 							   unserializer_type_t,
 							   std::string> unserializer_factory_t;
-		static unserializer_factory_t & getUnserializerFactory();
+		UTILAPI static unserializer_factory_t & getUnserializerFactory();
 
 	public:
 		/**
@@ -59,7 +59,7 @@ class GenericAttributeSerialization {
 		 * @retval true if the initialization was successful
 		 * @retval false if an error occurred
 		 */
-		static bool init();
+		UTILAPI static bool init();
 
 		/**
 		 * Convert the given generic attribute to a string.
@@ -75,7 +75,7 @@ class GenericAttributeSerialization {
 		 * @param attribute Generic attribute that is to be converted
 		 * @return String representation
 		 */
-		static std::string serialize(const GenericAttribute * attribute);
+		UTILAPI static std::string serialize(const GenericAttribute * attribute);
 
 		/**
 		 * Convert the given generic attribute to a string.
@@ -86,7 +86,7 @@ class GenericAttributeSerialization {
 		 * during unserialization
 		 * @return String representation
 		 */
-		static std::string serialize(const GenericAttribute * attribute, 
+		UTILAPI static std::string serialize(const GenericAttribute * attribute, 
 									 const GenericAttributeMap * context);
 
 		/**
@@ -97,7 +97,7 @@ class GenericAttributeSerialization {
 		 * @return Newly constructed, generic attribute
 		 * @note The caller has to free the memory for the generic attribute.
 		 */
-		static GenericAttribute * unserialize(const std::string & representation);
+		UTILAPI static GenericAttribute * unserialize(const std::string & representation);
 
 		/**
 		 * Convert the given string representation to a generic attribute.
@@ -110,7 +110,7 @@ class GenericAttributeSerialization {
 		 * @return Newly constructed, generic attribute
 		 * @note The caller has to free the memory for the generic attribute.
 		 */
-		static GenericAttribute * unserialize(const std::string & representation, 
+		UTILAPI static GenericAttribute * unserialize(const std::string & representation, 
 											  const GenericAttributeMap * context);
 
 		/**

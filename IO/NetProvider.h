@@ -29,14 +29,14 @@ namespace Util {
  */
 class NetProvider : public AbstractFSProvider {
 	public:
-		static bool init();
+		UTILAPI static bool init();
 
-		NetProvider();
-		virtual ~NetProvider();
+		UTILAPI NetProvider();
+		UTILAPI virtual ~NetProvider();
 
-		status_t readFile(const FileName & url, std::vector<uint8_t> & data) override;
+		UTILAPI status_t readFile(const FileName & url, std::vector<uint8_t> & data) override;
 
-		bool isFile(const FileName & url) override;
+		UTILAPI bool isFile(const FileName & url) override;
 
 	private:
 		//! Handle from libcurl that is re-used.

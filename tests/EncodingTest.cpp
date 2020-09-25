@@ -20,7 +20,7 @@
 
 TEST_CASE("EncodingTest", "[EncodingTest]") {
 	std::default_random_engine engine;
-	std::uniform_int_distribution<uint8_t> distribution(0, 255);
+	std::uniform_int_distribution<uint16_t> distribution(0, 255);
 	// Test all three cases of padding.
 	const size_t sizes[6] = { 1, 2, 3, 1023, 1024, 1025 };
 	for (uint_fast8_t s = 0; s < 6; ++s) {

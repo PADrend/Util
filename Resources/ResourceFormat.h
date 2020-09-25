@@ -29,13 +29,13 @@ public:
 	//static const uint8_t TYPE_R11G11B10Float = 100; //! Special type
 	//static const uint8_t TYPE_RGBA8UnormSrgb = 101; //! Special type
 				
-	ResourceAttribute();
+	UTILAPI ResourceAttribute();
 	//FormatAttribute(const StringIdentifier& _nameId, uint8_t _dataType, uint16_t _dataSize, uint16_t _offset=0);
-	ResourceAttribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint8_t _numValues, bool _normalized, uint16_t _offset=0);
+	UTILAPI ResourceAttribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint8_t _numValues, bool _normalized, uint16_t _offset=0);
 	
-	bool operator==(const ResourceAttribute& other) const;
-	bool operator<(const ResourceAttribute& other) const;
-	std::string toString() const;
+	UTILAPI bool operator==(const ResourceAttribute& other) const;
+	UTILAPI bool operator<(const ResourceAttribute& other) const;
+	UTILAPI std::string toString() const;
 
 	uint16_t getOffset() const { return offset; }
 	uint16_t getDataSize() const { return dataSize; }
@@ -47,7 +47,7 @@ public:
 	bool empty() const { return numValues == 0; }
 private:
 	friend class ResourceFormat;
-	ResourceAttribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint8_t _numValues, bool _normalized, uint16_t _offset);
+	UTILAPI ResourceAttribute(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint8_t _numValues, bool _normalized, uint16_t _offset);
 	
 	StringIdentifier nameId;
 	TypeConstant dataType;
@@ -65,7 +65,7 @@ public:
 	using Attribute = ResourceAttribute;	
 	using AttributeContainer_t = std::deque<Attribute>;
 	
-	static const ResourceFormat BYTE_FORMAT;
+	UTILAPI static const ResourceFormat BYTE_FORMAT;
 	
 	ResourceFormat(size_t _attributeAlignment=0) : attributeAlignment(_attributeAlignment) {}
 	virtual ~ResourceFormat() = default;
@@ -75,7 +75,7 @@ public:
 		\note the owner of the attribute is the ResourceFormat
 		\note Before using this function, check a default method can be used instead (e.g. append appendVec3) */
 	//const Attribute& appendAttribute(const StringIdentifier& nameId, uint8_t type, uint16_t dataSize);
-	const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint8_t numValues, bool normalized=false);
+	UTILAPI const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint8_t numValues, bool normalized=false);
 		
 	//! Add an attribute with the given name and the given number of float values.
 	const Attribute & appendFloat(const Util::StringIdentifier& nameId, uint8_t numValues, bool normalized=false) {
@@ -97,17 +97,17 @@ public:
 				If the attribute is not present in the vertex description, it is empty.
 		\note The owner of the attribute is the ResourceFormat, so be careful if the
 				ResourceFormat is deleted or reassigned.*/
-	const Attribute& getAttribute(const StringIdentifier& nameId) const;
+	UTILAPI const Attribute& getAttribute(const StringIdentifier& nameId) const;
 	const Attribute& getAttribute(const std::string& name) const {
 		return getAttribute(StringIdentifier(name));
 	}
 
-	bool hasAttribute(const StringIdentifier& nameId) const;
+	UTILAPI bool hasAttribute(const StringIdentifier& nameId) const;
 	bool hasAttribute(const std::string& name) const {
 		return hasAttribute(StringIdentifier(name));
 	}
 	
-	const uint16_t getAttributeLocation(const StringIdentifier& nameId) const;
+	UTILAPI const uint16_t getAttributeLocation(const StringIdentifier& nameId) const;
 	const uint16_t getAttributeLocation(const std::string& name) const {
 		return getAttributeLocation(StringIdentifier(name));
 	}
@@ -118,16 +118,16 @@ public:
 	 * @param attr Attribute that contains the new data.
 	 * @note The offsets of all attributes may be recalculated and therefore old values may become invalid.
 	 */
-	void updateAttribute(const Attribute& attr);
+	UTILAPI void updateAttribute(const Attribute& attr);
 
 	size_t getSize() const { return size; }
 	size_t getNumAttributes() const { return attributes.size(); }
 	const AttributeContainer_t& getAttributes() const { return attributes; }
-	bool operator==(const ResourceFormat& other) const;
-	bool operator!=(const ResourceFormat& other) const;
-	bool operator<(const ResourceFormat& other) const;
+	UTILAPI bool operator==(const ResourceFormat& other) const;
+	UTILAPI bool operator!=(const ResourceFormat& other) const;
+	UTILAPI bool operator<(const ResourceFormat& other) const;
 
-	std::string toString() const;
+	UTILAPI std::string toString() const;
 private:
 	AttributeContainer_t attributes;
 	size_t size = 0;

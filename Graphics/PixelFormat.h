@@ -35,7 +35,7 @@ private:
 public:
 	
 	static const uint8_t NONE = 0xff;
-	static const StringIdentifier COLOR;
+	UTILAPI static const StringIdentifier COLOR;
 
 	PixelFormat(TypeConstant valueType, uint8_t _byteOffset_r, uint8_t _byteOffset_g, uint8_t _byteOffset_b, uint8_t _byteOffset_a=NONE) : ResourceFormat(), 
 		byteOffset_r(_byteOffset_r), byteOffset_g(_byteOffset_g), byteOffset_b(_byteOffset_b), byteOffset_a(_byteOffset_a) {
@@ -54,17 +54,17 @@ public:
 
 	// ---------------------------------
 	// default pixel formats (assuming little endianess)
-	static const PixelFormat RGB;			// 0x00B_G_R_
-	static const PixelFormat RGB_FLOAT;		// 0xR_______G_______B_______
-	static const PixelFormat BGR;			// 0x00R_G_B_
-	static const PixelFormat BGR_FLOAT;		// 0xB_______G_______R_______
-	static const PixelFormat RGBA;			// 0xA_B_G_R_
-	static const PixelFormat RGBA_FLOAT;	// 0xR_______G_______B_______A_______
-	static const PixelFormat BGRA;			// 0xA_R_G_B_
-	static const PixelFormat BGRA_FLOAT;	// 0xB_______G_______R_______A_______
-	static const PixelFormat MONO;			// 0xR_
-	static const PixelFormat MONO_FLOAT;	// 0xR_______
-	static const PixelFormat UNKNOWN;		// numComponents is 0. No direct pixel access is possible.
+	UTILAPI static const PixelFormat RGB;			// 0x00B_G_R_
+	UTILAPI static const PixelFormat RGB_FLOAT;		// 0xR_______G_______B_______
+	UTILAPI static const PixelFormat BGR;			// 0x00R_G_B_
+	UTILAPI static const PixelFormat BGR_FLOAT;		// 0xB_______G_______R_______
+	UTILAPI static const PixelFormat RGBA;			// 0xA_B_G_R_
+	UTILAPI static const PixelFormat RGBA_FLOAT;	// 0xR_______G_______B_______A_______
+	UTILAPI static const PixelFormat BGRA;			// 0xA_R_G_B_
+	UTILAPI static const PixelFormat BGRA_FLOAT;	// 0xB_______G_______R_______A_______
+	UTILAPI static const PixelFormat MONO;			// 0xR_
+	UTILAPI static const PixelFormat MONO_FLOAT;	// 0xR_______
+	UTILAPI static const PixelFormat UNKNOWN;		// numComponents is 0. No direct pixel access is possible.
 };
 
 }

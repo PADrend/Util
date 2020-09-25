@@ -89,7 +89,7 @@ class GenericAttribute{
 		 * @param a Arbitrary generic attribute
 		 * @return String representation of the generic attribute
 		 */
-		static StringAttribute * createString(GenericAttribute * a);
+		UTILAPI static StringAttribute * createString(GenericAttribute * a);
 		/**
 		 * Encapsulate a standard number into a generic attribute.
 		 *
@@ -106,7 +106,7 @@ class GenericAttribute{
 		 * @param f Standard bool
 		 * @return Number encapsulated into a generic bool attribute
 		 */
-		static BoolAttribute * createBool(bool b);
+		UTILAPI static BoolAttribute * createBool(bool b);
 		/**
 		 * Encapsulate a Util::Reference to an object into a generic attribute.
 		 *
@@ -511,19 +511,19 @@ class GenericAttributeMap : public GenericAttribute	{
 		typedef std::unordered_map<StringIdentifier, std::unique_ptr<GenericAttribute>>::const_iterator const_iterator;
 		typedef std::unordered_map<StringIdentifier, std::unique_ptr<GenericAttribute>>::iterator iterator;
 
-		GenericAttributeMap();
+		UTILAPI GenericAttributeMap();
 		GenericAttributeMap(const GenericAttributeMap &) = delete;
 		GenericAttributeMap(GenericAttributeMap &&) = default;
-		virtual ~GenericAttributeMap();
+		UTILAPI virtual ~GenericAttributeMap();
 
 		GenericAttributeMap & operator=(const GenericAttributeMap &) = delete;
 		GenericAttributeMap & operator=(GenericAttributeMap &&) = default;
 
 		void clear()		{	m.clear();	}
-		void setValue(const StringIdentifier & key,GenericAttribute * attr);
-		bool unsetValue(const StringIdentifier & key);
-		bool contains(const StringIdentifier & key)const;
-		GenericAttribute * getValue(const StringIdentifier & stringId)const;
+		UTILAPI void setValue(const StringIdentifier & key,GenericAttribute * attr);
+		UTILAPI bool unsetValue(const StringIdentifier & key);
+		UTILAPI bool contains(const StringIdentifier & key)const;
+		UTILAPI GenericAttribute * getValue(const StringIdentifier & stringId)const;
 		template<typename T>T * getValue(const StringIdentifier & key)const			{	return dynamic_cast<T*>(getValue(key));	}
 		bool getBool(const StringIdentifier & key,const bool defaultValue=false)const	{
 			const GenericAttribute * v = getValue(key);
@@ -546,18 +546,18 @@ class GenericAttributeMap : public GenericAttribute	{
 			return v==nullptr ? defaultValue : v->toUnsignedInt();
 		}
 
-		std::string getString(const StringIdentifier & key,const std::string & defaultValue="")const;
-		void setString(const StringIdentifier & key,const std::string & value);
+		UTILAPI std::string getString(const StringIdentifier & key,const std::string & defaultValue="")const;
+		UTILAPI void setString(const StringIdentifier & key,const std::string & value);
 
 		const_iterator begin()const				{	return m.begin();	}
 		const_iterator end()const				{	return m.end();	 }
 		size_t size()const						{	return m.size();	}
 		bool empty() const						{	return m.empty();	}
 
-		GenericAttributeMap * clone() const override;
-		std::string toJSON() const override;
-		std::string toString() const override;
-		bool operator==(const GenericAttribute &) const override;
+		UTILAPI GenericAttributeMap * clone() const override;
+		UTILAPI std::string toJSON() const override;
+		UTILAPI std::string toString() const override;
+		UTILAPI bool operator==(const GenericAttribute &) const override;
 };
 
 /**
@@ -574,10 +574,10 @@ class GenericAttributeList : public GenericAttribute	{
 		typedef std::deque<std::unique_ptr<GenericAttribute>>::const_iterator const_iterator;
 		typedef std::deque<std::unique_ptr<GenericAttribute>>::iterator iterator;
 
-		GenericAttributeList();
+		UTILAPI GenericAttributeList();
 		GenericAttributeList(const GenericAttributeList &) = delete;
 		GenericAttributeList(GenericAttributeList &&) = default;
-		virtual ~GenericAttributeList();
+		UTILAPI virtual ~GenericAttributeList();
 
 		GenericAttributeList & operator=(const GenericAttributeList &) = delete;
 		GenericAttributeList & operator=(GenericAttributeList &&) = default;
@@ -600,17 +600,17 @@ class GenericAttributeList : public GenericAttribute	{
 		iterator erase(iterator position)		{	return l.erase(position);	}
 		iterator erase(iterator first,iterator last)		{	return l.erase(first,last);	}
 
-		std::string implode(const std::string & separator)const;
+		UTILAPI std::string implode(const std::string & separator)const;
 
 		/**
 		 * Returns the element with given index (or nullptr if none exists).
 		 */
-		GenericAttribute * at(int index)const;
+		UTILAPI GenericAttribute * at(int index)const;
 
-		GenericAttributeList * clone() const override;
-		std::string toJSON() const override;
-		std::string toString() const override;
-		bool operator==(const GenericAttribute &) const override;
+		UTILAPI GenericAttributeList * clone() const override;
+		UTILAPI std::string toJSON() const override;
+		UTILAPI std::string toString() const override;
+		UTILAPI bool operator==(const GenericAttribute &) const override;
 };
 
 //! @}

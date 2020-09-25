@@ -46,7 +46,7 @@ void FileName::parse(const string & s) {
 	if(index == string::npos){
 		setDir("");
 		setFile(s2);
-	}    else{
+	} else {
 		setDir(s2.substr(0,index+1));
 		setFile(s2.substr(index+1));
 	}

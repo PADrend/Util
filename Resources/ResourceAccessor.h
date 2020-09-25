@@ -26,23 +26,23 @@ namespace Util {
 */
 class ResourceAccessor : public ReferenceCounter<ResourceAccessor> {
 protected:
-	void assertRangeLocation(uint32_t index, uint16_t location) const;
-	void assertAttribute(const StringIdentifier& id) const;
+	UTILAPI void assertRangeLocation(uint32_t index, uint16_t location) const;
+	UTILAPI void assertAttribute(const StringIdentifier& id) const;
 public:
-	ResourceAccessor(uint8_t* ptr, size_t size, ResourceFormat format);
-	virtual ~ResourceAccessor();
+	UTILAPI ResourceAccessor(uint8_t* ptr, size_t size, ResourceFormat format);
+	UTILAPI virtual ~ResourceAccessor();
 	
 	/** Reads one or more elements without any conversion
 		Reads count many elements from the resource at the given index
 		@node targetPtr needs to be large enough to hold count many elements of the resources format size
 	*/
-	void readRaw(size_t index, uint8_t* targetPtr, size_t count=1);
+	UTILAPI void readRaw(size_t index, uint8_t* targetPtr, size_t count=1);
 	
 	/** Writes one or more elements without any conversion
 		Writes count many elements to the resource at the given index
 		@node ptr needs to be large enough to hold count many elements of the resources format size
 	*/
-	void writeRaw(size_t index, const uint8_t* sourcePtr, size_t count=1);
+	UTILAPI void writeRaw(size_t index, const uint8_t* sourcePtr, size_t count=1);
 	
 	template<typename T>
 	void readValues(size_t index, uint16_t location, T* values, size_t count) const {

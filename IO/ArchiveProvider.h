@@ -33,24 +33,24 @@ class Archive;
  */
 class ArchiveProvider : public AbstractFSProvider {
 	public:
-		static bool init();
+		UTILAPI static bool init();
 
-		ArchiveProvider();
-		virtual ~ArchiveProvider();
+		UTILAPI ArchiveProvider();
+		UTILAPI virtual ~ArchiveProvider();
 
-		status_t readFile(const FileName & url, std::vector<uint8_t> & data) override;
-		status_t writeFile(const FileName & url, const std::vector<uint8_t> & data, bool overwrite) override;
+		UTILAPI status_t readFile(const FileName & url, std::vector<uint8_t> & data) override;
+		UTILAPI status_t writeFile(const FileName & url, const std::vector<uint8_t> & data, bool overwrite) override;
 
-		status_t dir(const FileName & url, std::list<FileName> & result, uint8_t flags) override;
-		bool isFile(const FileName & url) override;
-		bool isDir(const FileName & url) override;
-		size_t fileSize(const FileName & url) override;
+		UTILAPI status_t dir(const FileName & url, std::list<FileName> & result, uint8_t flags) override;
+		UTILAPI bool isFile(const FileName & url) override;
+		UTILAPI bool isDir(const FileName & url) override;
+		UTILAPI size_t fileSize(const FileName & url) override;
 
-		status_t makeDir(const FileName & url) override;
-		status_t makeDirRecursive(const FileName & url) override;
-		status_t remove(const FileName & url) override;
+		UTILAPI status_t makeDir(const FileName & url) override;
+		UTILAPI status_t makeDirRecursive(const FileName & url) override;
+		UTILAPI status_t remove(const FileName & url) override;
 
-		void flush() override;
+		UTILAPI void flush() override;
 
 	private:
 		ArchiveProvider(const ArchiveProvider &) = delete;
@@ -61,8 +61,8 @@ class ArchiveProvider : public AbstractFSProvider {
 		std::mutex archiveMutex;
 		std::unordered_map<std::string, std::unique_ptr<Archive>> openArchives;
 
-		Archive * getHandle(const std::string & archiveFileName);
-		void decomposeURL(const FileName & url, std::string & archiveFileName, FileName & localPath);
+		UTILAPI Archive * getHandle(const std::string & archiveFileName);
+		UTILAPI void decomposeURL(const FileName & url, std::string & archiveFileName, FileName & localPath);
 };
 }
 #endif	/* UTIL_IO_ARCHIVEPROVIDER_H */

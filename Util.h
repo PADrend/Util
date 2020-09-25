@@ -22,7 +22,7 @@ namespace Util {
  * @retval @c true if the initialization was successful
  * @retval @c false if an error occurred
  */
-bool init();
+UTILAPI bool init();
 
 }
 

@@ -56,8 +56,8 @@ NoiseGenerator::NoiseGenerator(uint32_t seed) {
 	}
 	std::default_random_engine engine(seed);
 	for(uint_fast8_t i = 0; i < 255; ++i) {
-		std::uniform_int_distribution<uint_fast8_t> distribution(0, 255 - i);
-		const uint_fast8_t offset = distribution(engine);
+		std::uniform_int_distribution<uint_fast16_t> distribution(0, 255 - i);
+		const uint_fast8_t offset = (uint_fast8_t) distribution(engine);
 		using std::swap;
 		swap(p[i], p[i + offset]);
 	}

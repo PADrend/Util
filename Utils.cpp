@@ -349,7 +349,7 @@ static std::pair<uint32_t, uint32_t> getCPUWorkAndOverall() {
 }
 #endif
 
-double getCPUUsage(unsigned long int timespan __attribute__((unused))) {
+double getCPUUsage(unsigned long int timespan) {
 #if defined(__linux__) || defined(__unix__)
 	const auto pairBefore = getCPUWorkAndOverall();
 	sleep(timespan);

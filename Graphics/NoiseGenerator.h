@@ -23,7 +23,7 @@ namespace Util {
 */
 class NoiseGenerator{
 	public:
-		NoiseGenerator(uint32_t seed);
+		UTILAPI NoiseGenerator(uint32_t seed);
 		~NoiseGenerator() {
 		}
 
@@ -36,7 +36,7 @@ class NoiseGenerator{
 		 * @param z Input coordinate for the third dimension.
 		 * @return Noise value from [-1.0f, 1.0f].
 		 */
-		float get(const float x, const float y, const float z) const;
+		UTILAPI float get(const float x, const float y, const float z) const;
 	private:
 		uint8_t p[256];
 };

@@ -35,10 +35,10 @@ class EventContext {
 		std::unordered_set<Key> pressedKeys;
 
 		//! Handler maintaining the @a pressedKeys set
-		bool handleKeyEvent(const Event & event);
+		UTILAPI bool handleKeyEvent(const Event & event);
 	public:
 		//! Create a new event context and associate it with the event queue
-		EventContext();
+		UTILAPI EventContext();
 
 		//! Access to the associated event queue
 		EventQueue & getEventQueue() {
@@ -46,7 +46,7 @@ class EventContext {
 		}
 
 		//! Return @c true if the given @p key is currently pressed
-		bool isKeyPressed(Key key) const;
+		UTILAPI bool isKeyPressed(Key key) const;
 
 		//! Return @c true if the right or left alt key is pressed
 		bool isAltPressed() const {
