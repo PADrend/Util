@@ -15,6 +15,7 @@
 #include <sstream>
 #include <cstring>
 #include <unordered_map>
+#include <algorithm>
 
 namespace Util {
 
