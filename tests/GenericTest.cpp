@@ -44,6 +44,8 @@ TEST_CASE("GenericTest_testBasic", "[GenericTest]") {
 	const std::vector<uint32_t> vecValue{7, 9, 17, 25};
 	Util::Generic vecAttr(vecValue);
 
+	Util::Generic genericAttr(intAttr);
+
 	REQUIRE(true == boolAttr.valid());
 	REQUIRE(true == intAttr.valid());
 	REQUIRE(true == floatAttr.valid());
@@ -51,6 +53,7 @@ TEST_CASE("GenericTest_testBasic", "[GenericTest]") {
 	REQUIRE(true == stringAttr.valid());
 	REQUIRE(true == vecAttr.valid());
 	REQUIRE(false == emptyAttr.valid());
+	REQUIRE(true == genericAttr.valid());
 
 	REQUIRE(boolValue == *boolAttr.get<bool>());
 	REQUIRE(intValue == *intAttr.get<int32_t>());
@@ -60,6 +63,7 @@ TEST_CASE("GenericTest_testBasic", "[GenericTest]") {
 	auto vecPtr = vecAttr.get<std::vector<uint32_t>>();
 	REQUIRE(vecPtr != nullptr);
 	REQUIRE(std::equal(vecValue.cbegin(), vecValue.cend(), vecPtr->cbegin()));
+	REQUIRE(intValue == *genericAttr.get<int32_t>());
 
 	testContains({{true, false, false, false, false, false, false}}, boolAttr);
 	testContains({{false, true, false, false, false, false, false}}, intAttr);
