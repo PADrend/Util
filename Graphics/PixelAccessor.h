@@ -107,7 +107,7 @@ class PixelAccessor : public ReferenceCounter<PixelAccessor> {
 		virtual void doWriteSingleValueFloat(uint32_t x, uint32_t y, float value) = 0;
 
 		//! ---o
-		virtual void doFill(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const Color4f & c);
+		UTILAPI virtual void doFill(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const Color4f & c);
 };
 
 // -----------------------------------------
