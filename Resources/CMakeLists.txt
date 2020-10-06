@@ -14,16 +14,10 @@ target_sources(Util PRIVATE
 )
 # Install the header files
 install(FILES
-	DataStrategy.h
-	Resource.h
-	ResourceAllocator.h
+	AttributeAccessor.h
+	ResourceAccessor.h
 	ResourceFormat.h
+	StructuredAccessor.h
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Resources
-	COMPONENT headers
-)
-install(FILES
-	Accessors/AttributeAccessor.h
-	Accessors/ResourceAccessor.h
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Resources/Accessors
 	COMPONENT headers
 )
