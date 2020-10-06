@@ -69,7 +69,7 @@ class FileName{
 		std::string getPath()const				{   return dir + file;  }
 		std::string toString()const				{   return empty() ? "" : fsName + "://" + dir + file;  }
 		std::string toShortString()const		{   return empty() ? "" : (fsName=="file" ? dir+file : fsName + "://" + dir + file);  }
-		std::string getEnding()const;
+		UTILAPI std::string getEnding()const;
 		//@}
 
 		/**

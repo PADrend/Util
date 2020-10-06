@@ -150,7 +150,7 @@ class DebugOutput{
 
 };
 
-extern DebugOutput info;
+UTILAPI extern DebugOutput info;
 
 UTILAPI void enableInfo();
 UTILAPI void disableInfo();
