@@ -19,7 +19,7 @@
 namespace Util {
 namespace Network {
 
-bool init();
+UTILAPI bool init();
 
 // --------------------------------------
 
