@@ -16,7 +16,6 @@ target_sources(Util PRIVATE
 # Install the header files
 install(FILES
 	AttributeAccessor.h
-	AttributeFormat.h
 	ResourceAccessor.h
 	ResourceFormat.h
 	StructuredAccessor.h
