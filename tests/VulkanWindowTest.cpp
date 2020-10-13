@@ -44,7 +44,7 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	properties.clientAreaHeight = 480;
 	properties.title = "Window Test";
 	properties.compatibilityProfile = false;
-	std::unique_ptr<Window> window;
+	Util::Reference<Window> window;
 	REQUIRE_NOTHROW(window = Util::UI::createWindow(properties));
 	
 	// Create Instance
