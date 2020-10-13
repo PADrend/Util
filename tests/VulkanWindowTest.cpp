@@ -107,6 +107,7 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	
 	std::vector<const char*> layerNames = {"VK_LAYER_LUNARG_standard_validation"};
 	std::vector<const char*> requiredExtensions = window->getAPIExtensions();
+	requiredExtensions.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	requiredExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 	auto instance = vk::createInstanceUnique({{},
 		&appInfo,
@@ -115,9 +116,21 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 		static_cast<uint32_t>(requiredExtensions.size()),
 		requiredExtensions.data()
 	});
+
+	auto extProp = vk::enumerateInstanceExtensionProperties();
+	std::cout << "Requested Extensions:" << std::endl;
+	for(auto& ext : requiredExtensions) {
+		bool available = false;
+		for(auto& e : extProp) {
+			if(std::strcmp(ext, e.extensionName) == 0)
+				available = true;
+		}
+		REQUIRE(available);
+		std::cout << " " << ext << ": " << (available ? "found" : "not found") << std::endl;
+	}
 	
 	// setup debug callback
-	vk::DispatchLoaderDynamic dldy;
+	vk::DispatchLoaderDynamic dldy(vkGetInstanceProcAddr);
 	dldy.init(*instance);
 	
 	auto debugMessenger = instance->createDebugUtilsMessengerEXTUnique({ {},
@@ -132,7 +145,8 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	}, nullptr, dldy);
 	
 	// create surface
-	vk::UniqueSurfaceKHR surface(window->createSurface(*instance), *instance);
+	vk::SurfaceKHR tmpSurface(window->createSurface(*instance));
+	vk::UniqueSurfaceKHR surface(tmpSurface, {*instance, nullptr, VULKAN_HPP_DEFAULT_DISPATCHER});	
 	
 	// create physical device
 	auto physicalDevices = instance->enumeratePhysicalDevices();
@@ -180,10 +194,10 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	auto capabilities = physicalDevice.getSurfaceCapabilitiesKHR(*surface);
 	auto formats = physicalDevice.getSurfaceFormatsKHR(*surface);
 	auto presentModes = physicalDevice.getSurfacePresentModesKHR(*surface);
-	vk::SurfaceFormatKHR surfaceFormat = {
-		vk::Format::eB8G8R8A8Unorm,
-		vk::ColorSpaceKHR::eSrgbNonlinear
-	};
+	vk::SurfaceFormatKHR surfaceFormat;
+	surfaceFormat.format = vk::Format::eB8G8R8A8Unorm;
+	surfaceFormat.colorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
+
 	vk::PresentModeKHR presentMode = vk::PresentModeKHR::eFifo;
 	REQUIRE((!formats.empty() && !presentModes.empty()));
 	REQUIRE(std::find(formats.begin(), formats.end(), surfaceFormat) != formats.end());

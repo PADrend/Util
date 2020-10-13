@@ -79,6 +79,23 @@ if(UTIL_BUILD_TESTS)
 	endif()
 	target_link_libraries(UtilTest PRIVATE Catch2::Catch2)
 			
+	# ------------------------------------------------------------------------------
+	# Vulkan-Headers
+
+	FetchContent_Declare(
+		vulkan-headers
+		GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
+		GIT_TAG        v1.1.130
+	)
+
+	FetchContent_GetProperties(vulkan-headers)
+	if(NOT vulkan-headers_POPULATED)
+		message(STATUS "Fetching vulkan-headers...")
+		FetchContent_Populate(vulkan-headers)
+	endif()
+	set(Vulkan_INCLUDE_DIR ${vulkan-headers_SOURCE_DIR}/include CACHE STRING "" FORCE)
+
+	# ------------------------------------------------------------------------------
 	# Dependency to Vulkan
 	find_package(Vulkan)
 	if(Vulkan_FOUND)

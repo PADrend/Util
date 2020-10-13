@@ -17,26 +17,28 @@
 find_path(SHADERC_INCLUDE_DIR
 	shaderc/shaderc.h
 	PATHS
-	$ENV{VULKAN_SDK}/include
 	${CMAKE_CURRENT_SOURCE_DIR}/../include
+	${FETCHCONTENT_BASE_DIR}/shaderc-src/libshaderc/include
 	/upb/groups/fg-madh/public/share/padrend/include
+	$ENV{VULKAN_SDK}/include
 )
 
 # Find shaderc
-if(TARGET shaderc)
+if(TARGET shaderc_combined)
 	# The library is included as a build target
-	message("Found target shaderc")
-	set(SHADERC_LIBRARY shaderc)
+	message("Found target shaderc_combined")
+	set(SHADERC_LIBRARY shaderc_combined)
 else()
 	find_library(SHADERC_LIBRARY
 		shaderc_combined
 		PATHS
-		$ENV{VULKAN_SDK}/Lib
+		${FETCHCONTENT_BASE_DIR}/shaderc-build/libshaderc
 		${CMAKE_CURRENT_SOURCE_DIR}/../bin
 		${CMAKE_CURRENT_SOURCE_DIR}/../lib
 		${CMAKE_CURRENT_SOURCE_DIR}/../build
 		${CMAKE_CURRENT_SOURCE_DIR}/../../build
 		/upb/groups/fg-madh/public/share/padrend/linux/lib
+		$ENV{VULKAN_SDK}/Lib
 	)
 endif()
 
