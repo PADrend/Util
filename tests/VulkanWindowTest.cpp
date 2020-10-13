@@ -8,15 +8,15 @@
 */
 #ifdef UTIL_HAVE_LIB_VULKAN
 
-#include "VulkanWindowTest.h"
+#include <catch2/catch.hpp>
+
 #include "../Timer.h"
 #include "../Utils.h"
 #include "../UI/UI.h"
 
 #include <vulkan/vulkan.hpp>
 #include <shaderc/shaderc.hpp>
-
-CPPUNIT_TEST_SUITE_REGISTRATION(VulkanWindowTest);
+#include <iostream>
 
 using namespace Util;
 using namespace Util::UI;
@@ -85,7 +85,7 @@ vk::UniqueShaderModule createShaderModule(vk::Device& device, const std::string&
 	return device.createShaderModuleUnique({ {}, shaderCode.size() * sizeof(uint32_t), shaderCode.data() });
 }
 
-void VulkanWindowTest::test() {
+TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	std::cout << std::endl;
 
 	// create window
@@ -96,7 +96,7 @@ void VulkanWindowTest::test() {
 	properties.title = "Window Test";
 	properties.compatibilityProfile = false;
 	std::unique_ptr<Window> window;
-	CPPUNIT_ASSERT_NO_THROW(window = Util::UI::createWindow(properties));
+	REQUIRE_NOTHROW(window = Util::UI::createWindow(properties));
 	
 	// Create Instance
 	vk::ApplicationInfo appInfo(
@@ -136,7 +136,7 @@ void VulkanWindowTest::test() {
 	
 	// create physical device
 	auto physicalDevices = instance->enumeratePhysicalDevices();
-	CPPUNIT_ASSERT(physicalDevices.size() > 0);
+	REQUIRE(physicalDevices.size() > 0);
 	auto physicalDevice = physicalDevices.front(); // use first available device
 	
 	// get queue families
@@ -147,7 +147,7 @@ void VulkanWindowTest::test() {
 		})
 	))};
 	
-	CPPUNIT_ASSERT(queueFamilyProperties[familyIndices.front()].queueFlags & vk::QueueFlagBits::eGraphics);	
+	REQUIRE((queueFamilyProperties[familyIndices.front()].queueFlags & vk::QueueFlagBits::eGraphics));
 	if(!physicalDevice.getSurfaceSupportKHR(familyIndices.front(), surface.get())) {
 		for (uint32_t i = 0; i < queueFamilyProperties.size(); i++) {
 			if (physicalDevice.getSurfaceSupportKHR(i, surface.get())) {
@@ -185,9 +185,9 @@ void VulkanWindowTest::test() {
 		vk::ColorSpaceKHR::eSrgbNonlinear
 	};
 	vk::PresentModeKHR presentMode = vk::PresentModeKHR::eFifo;
-	CPPUNIT_ASSERT(!formats.empty() && !presentModes.empty());
-	CPPUNIT_ASSERT(std::find(formats.begin(), formats.end(), surfaceFormat) != formats.end());
-	CPPUNIT_ASSERT(std::find(presentModes.begin(), presentModes.end(), presentMode) != presentModes.end());
+	REQUIRE((!formats.empty() && !presentModes.empty()));
+	REQUIRE(std::find(formats.begin(), formats.end(), surfaceFormat) != formats.end());
+	REQUIRE(std::find(presentModes.begin(), presentModes.end(), presentMode) != presentModes.end());
 	
 	vk::Extent2D swapChainExtent = { 
 		std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, properties.clientAreaWidth)),

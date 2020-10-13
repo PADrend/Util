@@ -449,8 +449,8 @@ WindowGLFW::WindowGLFW(const Window::Properties & properties) :
 		glfwSetWindowPos(data->window, properties.posX, properties.posY);
 	}
 	
-	glfwMakeContextCurrent(data->window);
-	glfwSwapInterval(0); // disable vsync
+	//glfwMakeContextCurrent(data->window);
+	//glfwSwapInterval(0); // disable vsync
 	
 	glfwSetCursorPosCallback(data->window, handleMousePosition);
 	glfwSetMouseButtonCallback(data->window, handleMouseButton);
@@ -484,7 +484,7 @@ WindowGLFW::~WindowGLFW() {
 //------------
 
 void WindowGLFW::swapBuffers() {
-	glfwSwapBuffers(data->window);
+	//glfwSwapBuffers(data->window);
 }
 
 //------------
@@ -497,7 +497,7 @@ int32_t WindowGLFW::getSwapInterval() const {
 
 Surface WindowGLFW::createSurface(APIHandle apiHandle) {
 	Surface surface;
-	if(!glfwCreateWindowSurface(apiHandle, data->window, NULL, &surface)) {
+	if(glfwCreateWindowSurface(apiHandle, data->window, NULL, &surface)) {
 		throw std::runtime_error("WindowGLFW::createSurface failed.");
 	}
 	return surface;
@@ -663,7 +663,7 @@ void WindowGLFW::setClipboardText(const std::string & text) {
 //------------
 
 void WindowGLFW::makeCurrent() {
-	glfwMakeContextCurrent(data->window);
+	//glfwMakeContextCurrent(data->window);
 }
 
 //------------

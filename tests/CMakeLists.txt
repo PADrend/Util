@@ -37,7 +37,9 @@ if(UTIL_BUILD_TESTS)
 	set_target_properties(UtilTest PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 	target_link_libraries(UtilTest PRIVATE UtilExtern)
-
+	
+	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
+		
 	# Dependency to pthread
 	set(CMAKE_THREAD_PREFER_PTHREAD ON)
 	find_package(Threads)
@@ -83,10 +85,29 @@ if(UTIL_BUILD_TESTS)
 		target_compile_definitions(UtilTest PRIVATE UTIL_HAVE_LIB_VULKAN)
 		target_include_directories(UtilTest PRIVATE ${Vulkan_INCLUDE_DIRS})
 		target_link_libraries(UtilTest LINK_PRIVATE ${Vulkan_LIBRARIES})
+
+		# ------------------------------------------------------------------------------
+		# shaderc (glsl compiler required by vulkan)
+		find_package(shaderc)
+		target_include_directories(UtilTest PRIVATE ${SHADERC_INCLUDE_DIRS})
+		target_link_libraries(UtilTest LINK_PRIVATE ${SHADERC_LIBRARIES})
 		
-		find_package(shaderc REQUIRED)
-		target_include_directories(UtilTest PRIVATE ${SHADERC_INCLUDE_DIR})
-		target_link_libraries(UtilTest LINK_PRIVATE ${SHADERC_LIBRARY})
+		#FetchContent_Declare(
+			#	shaderc
+			#	GIT_REPOSITORY https://github.com/google/shaderc.git
+			#	GIT_TAG        v2019.0
+		#)
+
+		#FetchContent_GetProperties(shaderc)
+		#if(NOT shaderc_POPULATED)
+		#	message(STATUS "Fetching shaderc...")
+		#	FetchContent_Populate(shaderc)
+		#	set(SHADERC_SKIP_INSTALL ON CACHE INTERNAL "" FORCE)
+		#	set(SHADERC_SKIP_TESTS ON CACHE INTERNAL "" FORCE)
+		#	add_subdirectory(${shaderc_SOURCE_DIR} ${shaderc_BINARY_DIR} EXCLUDE_FROM_ALL)
+	#endif()
+		#target_link_libraries(UtilTest INTERFACE shaderc)
+		#set_target_properties(shaderc PROPERTIES POSITION_INDEPENDENT_CODE ON)
 	endif()
 
 	install(TARGETS UtilTest
