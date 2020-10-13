@@ -20,6 +20,7 @@
 #include "../Graphics/BitmapUtils.h"
 #include "../Graphics/PixelAccessor.h"
 
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #include <memory>
@@ -400,25 +401,27 @@ WindowGLFW::WindowGLFW(const Window::Properties & properties) :
 	if(!glfwInit()) {
 		throw std::runtime_error(std::string("glfw Init failed: "));
 	}
+	if(!glfwVulkanSupported())
+		throw std::runtime_error(std::string("WindowGLFW: Vulkan not supported."));
 	
 	// window
 	glfwWindowHint(GLFW_RESIZABLE, properties.resizable ? GLFW_TRUE : GLFW_FALSE);
 	glfwWindowHint(GLFW_DECORATED, properties.borderless ? GLFW_FALSE : GLFW_TRUE);
 	
 	// GL
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-	glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	//glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 	
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, properties.contextVersionMajor);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, properties.contextVersionMinor);
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, properties.contextVersionMajor);
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, properties.contextVersionMinor);
 	
-	if(properties.compatibilityProfile) {
+	/*if(properties.compatibilityProfile) {
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 	} else {
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	}
+	}*/
 
 	if (properties.multisampled) {
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(properties.multisamples));
@@ -488,6 +491,25 @@ void WindowGLFW::swapBuffers() {
 
 int32_t WindowGLFW::getSwapInterval() const {
 	return 0;
+}
+
+//------------
+
+Surface WindowGLFW::createSurface(APIHandle apiHandle) {
+	Surface surface;
+	if(!glfwCreateWindowSurface(apiHandle, data->window, NULL, &surface)) {
+		throw std::runtime_error("WindowGLFW::createSurface failed.");
+	}
+	return surface;
+}
+
+//------------
+
+std::vector<const char*> WindowGLFW::getAPIExtensions() {
+	uint32_t extensionCount;	
+	const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
+	std::vector<const char*> extensionNames(extensions, extensions + extensionCount);
+	return extensionNames;
 }
 
 //------------

@@ -58,6 +58,12 @@ class WindowGLFW : public Window {
 		
 		//! Enables rendering to this window.
 		virtual void makeCurrent() override;
+		
+		//! ---|> Window
+		virtual Surface createSurface(APIHandle apiHandle) override;
+		
+		//! ---|> Window
+		virtual std::vector<const char*> getAPIExtensions() override;
 	private:
 		//! Create a new window.
 		WindowGLFW(const Properties & properties);
