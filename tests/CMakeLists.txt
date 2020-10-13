@@ -102,29 +102,6 @@ if(UTIL_BUILD_TESTS)
 		target_compile_definitions(UtilTest PRIVATE UTIL_HAVE_LIB_VULKAN)
 		target_include_directories(UtilTest PRIVATE ${Vulkan_INCLUDE_DIRS})
 		target_link_libraries(UtilTest LINK_PRIVATE ${Vulkan_LIBRARIES})
-
-		# ------------------------------------------------------------------------------
-		# shaderc (glsl compiler required by vulkan)
-		find_package(shaderc)
-		target_include_directories(UtilTest PRIVATE ${SHADERC_INCLUDE_DIRS})
-		target_link_libraries(UtilTest LINK_PRIVATE ${SHADERC_LIBRARIES})
-		
-		#FetchContent_Declare(
-			#	shaderc
-			#	GIT_REPOSITORY https://github.com/google/shaderc.git
-			#	GIT_TAG        v2019.0
-		#)
-
-		#FetchContent_GetProperties(shaderc)
-		#if(NOT shaderc_POPULATED)
-		#	message(STATUS "Fetching shaderc...")
-		#	FetchContent_Populate(shaderc)
-		#	set(SHADERC_SKIP_INSTALL ON CACHE INTERNAL "" FORCE)
-		#	set(SHADERC_SKIP_TESTS ON CACHE INTERNAL "" FORCE)
-		#	add_subdirectory(${shaderc_SOURCE_DIR} ${shaderc_BINARY_DIR} EXCLUDE_FROM_ALL)
-	#endif()
-		#target_link_libraries(UtilTest INTERFACE shaderc)
-		#set_target_properties(shaderc PROPERTIES POSITION_INDEPENDENT_CODE ON)
 	endif()
 
 	install(TARGETS UtilTest
@@ -132,8 +109,12 @@ if(UTIL_BUILD_TESTS)
 		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT tests
 		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT tests
 	)
+
+	install(DIRECTORY shaders/ DESTINATION ${CMAKE_INSTALL_DATADIR}/Util COMPONENT data)
 	
 	configure_file(${CMAKE_CURRENT_LIST_DIR}/CTestCustom.cmake ${CMAKE_BINARY_DIR})
+	configure_file(${CMAKE_CURRENT_LIST_DIR}/shaders/test-vert.spv ${CMAKE_BINARY_DIR} COPYONLY)
+	configure_file(${CMAKE_CURRENT_LIST_DIR}/shaders/test-frag.spv ${CMAKE_BINARY_DIR} COPYONLY)
 	
 	enable_testing()
 	add_test(NAME BidirectionalMapTest COMMAND UtilTest [BidirectionalMapTest])

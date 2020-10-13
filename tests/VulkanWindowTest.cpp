@@ -13,54 +13,15 @@
 #include "../Timer.h"
 #include "../Utils.h"
 #include "../UI/UI.h"
+#include "../IO/FileLocator.h"
+#include "../IO/FileUtils.h"
+#include "../IO/FileName.h"
 
 #include <vulkan/vulkan.hpp>
-#include <shaderc/shaderc.hpp>
 #include <iostream>
 
 using namespace Util;
 using namespace Util::UI;
-
-const std::string vertexShader = R"vs(
-	#version 450
-	#extension GL_ARB_separate_shader_objects : enable
-
-	out gl_PerVertex {
-			vec4 gl_Position;
-	};
-
-	layout(location = 0) out vec3 fragColor;
-
-	vec2 positions[3] = vec2[](
-		vec2(0.0, -0.5),
-		vec2(0.5, 0.5),
-		vec2(-0.5, 0.5)
-	);
-
-	vec3 colors[3] = vec3[](
-		vec3(1.0, 0.0, 0.0),
-		vec3(0.0, 1.0, 0.0),
-		vec3(0.0, 0.0, 1.0)
-	);
-
-	void main() {
-		gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
-		fragColor = colors[gl_VertexIndex];
-	}
-)vs";
-
-const std::string fragmentShader = R"fs(
-	#version 450
-	#extension GL_ARB_separate_shader_objects : enable
-
-	layout(location = 0) in vec3 fragColor;
-
-	layout(location = 0) out vec4 outColor;
-
-	void main() {
-		outColor = vec4(fragColor, 1.0);
-	}
-)fs";
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -71,18 +32,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 	std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 
 	return VK_FALSE;
-}
-
-vk::UniqueShaderModule createShaderModule(vk::Device& device, const std::string& code, const std::string& name, shaderc_shader_kind kind) {
-	static shaderc::Compiler compiler;
-	shaderc::CompileOptions options;
-	options.SetOptimizationLevel(shaderc_optimization_level_performance);
-	shaderc::SpvCompilationResult shaderModule = compiler.CompileGlslToSpv(code, kind, name.c_str(), options);
-	if (shaderModule.GetCompilationStatus() != shaderc_compilation_status_success) {
-		std::cerr << shaderModule.GetErrorMessage();
-	}
-	std::vector<uint32_t> shaderCode = std::vector<uint32_t>{ shaderModule.cbegin(), shaderModule.cend() };
-	return device.createShaderModuleUnique({ {}, shaderCode.size() * sizeof(uint32_t), shaderCode.data() });
 }
 
 TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
@@ -236,11 +185,25 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	}
 	
 	// --------------------------------------------
-	// create graphics pipeline
-	
+	// create graphics pipeline	
+
+	// Find shader files
+	Util::FileLocator locator;
+	locator.addSearchPath("../shared/Util/");
+	locator.addSearchPath("./shared/Util/");
+	locator.addSearchPath("./build/");
+	auto vertFileName = locator.locateFile(Util::FileName{"test-vert.spv"});
+	auto fragFileName = locator.locateFile(Util::FileName{"test-frag.spv"});
+	REQUIRE(vertFileName.first);
+	REQUIRE(fragFileName.first);
+
+	auto vertCode = Util::FileUtils::loadFile(vertFileName.second);
+	auto fragCode = Util::FileUtils::loadFile(fragFileName.second);
+
+	auto vertexShaderModule = device->createShaderModuleUnique({ {}, vertCode.size(), reinterpret_cast<const uint32_t*>(vertCode.data()) });
+	auto fragmentShaderModule = device->createShaderModuleUnique({ {}, fragCode.size(), reinterpret_cast<const uint32_t*>(fragCode.data()) });
+
 	// compile shaders
-	auto vertexShaderModule = createShaderModule(*device, vertexShader, "vertex shader", shaderc_glsl_vertex_shader);
-	auto fragmentShaderModule = createShaderModule(*device, fragmentShader, "fragment shader", shaderc_glsl_fragment_shader);	
 	std::vector<vk::PipelineShaderStageCreateInfo> pipelineShaderStages = { 
 		{ {}, vk::ShaderStageFlagBits::eVertex, *vertexShaderModule, "main" },
 		{ {}, vk::ShaderStageFlagBits::eFragment, *fragmentShaderModule, "main" }

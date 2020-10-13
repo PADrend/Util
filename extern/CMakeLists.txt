@@ -62,6 +62,23 @@ set(ZLIB_LIBRARY_RELEASE zlibstatic CACHE INTERNAL "" FORCE)
 set(ZLIB_VERSION_STRING "1.2.11" CACHE INTERNAL "" FORCE)
 
 # ------------------------------------------------------------------------------
+# Vulkan-Headers
+
+FetchContent_Declare(
+  vulkan-headers
+  GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
+  GIT_TAG        v1.1.130
+)
+
+FetchContent_GetProperties(vulkan-headers)
+if(NOT vulkan-headers_POPULATED)
+  message(STATUS "Fetching vulkan-headers...")
+  FetchContent_Populate(vulkan-headers)
+endif()
+set(Vulkan_INCLUDE_DIR ${vulkan-headers_SOURCE_DIR}/include CACHE STRING "" FORCE)
+target_include_directories(UtilExtern INTERFACE ${Vulkan_INCLUDE_DIR})
+
+# ------------------------------------------------------------------------------
 # GLFW (or SDL if prefered)
 
 option(UTIL_PREFER_SDL_CONTEXT "Defines wether SDL is used for window & GL context creation." OFF)
