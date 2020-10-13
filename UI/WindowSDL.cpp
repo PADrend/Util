@@ -21,6 +21,9 @@
 COMPILER_WARN_PUSH
 COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL.h>
+#include <SDL_vulkan.h>
+//#include <vulkan/vulkan.hpp>
+
 // this is needed for setting the windows icon to the applications default icon ("IDI_MAIN_ICON").
 #if defined(_WIN32)
 #include <windows.h>
@@ -34,6 +37,7 @@ COMPILER_WARN_POP
 #include <string>
 #include <unordered_map>
 
+#include <iostream>
 #include <sstream>
 #include "../LibRegistry.h"
 
@@ -252,7 +256,7 @@ static SDL_Cursor * convertBitmapToSDLCursor(const Reference<Bitmap> & image, un
 }
 
 WindowSDL::WindowSDL(const Window::Properties & properties) :
-		Window(properties), sdlWindow(nullptr), sdlGlContext(nullptr), sdlCursor(nullptr) {
+		Window(properties), sdlWindow(nullptr), sdlCursor(nullptr) {
 
 			
 
@@ -289,7 +293,7 @@ WindowSDL::WindowSDL(const Window::Properties & properties) :
 		}
 	}
 
-	uint32_t sdlFlags = SDL_WINDOW_OPENGL;
+	uint32_t sdlFlags = SDL_WINDOW_VULKAN;
 	if (properties.resizable) {
 		sdlFlags |= SDL_WINDOW_RESIZABLE;
 	}
@@ -298,21 +302,6 @@ WindowSDL::WindowSDL(const Window::Properties & properties) :
 	}
 	if (properties.fullscreen) {
 		sdlFlags |= SDL_WINDOW_FULLSCREEN;
-	}
-
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	
-	if(properties.compatibilityProfile) {
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-	} else {
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	}
-
-	if (properties.multisampled) {
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, static_cast<int>(properties.multisamples));
-	} else {
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
 	}
 
 	auto windowPosX = properties.posX;
@@ -347,19 +336,7 @@ WindowSDL::WindowSDL(const Window::Properties & properties) :
 		}
 	}
 	#endif
-	
-	if(properties.shareContext) {
-		sdlGlContext = SDL_GL_GetCurrentContext();	
-	}
-	
-	if (sdlGlContext == nullptr) {
-		sdlGlContext = SDL_GL_CreateContext(sdlWindow);
-	}
-	if (sdlGlContext == nullptr) {
-		throw std::runtime_error(std::string("SDL_GL_CreateContext failed: ") + SDL_GetError());
-	}
-	SDL_GL_MakeCurrent(sdlWindow, sdlGlContext);
-
+		
 	// Initialize joystick/-pad input
 	if (SDL_WasInit(SDL_INIT_JOYSTICK) == 0) {
 		if (SDL_Init(SDL_INIT_JOYSTICK) != 0) {
@@ -378,9 +355,6 @@ WindowSDL::WindowSDL(const Window::Properties & properties) :
 }
 
 WindowSDL::~WindowSDL() {
-	if(sdlGlContext != nullptr && !shareContext) {
-		SDL_GL_DeleteContext(sdlGlContext);
-	}
 	if(sdlCursor != nullptr) {
 		SDL_FreeCursor(sdlCursor);
 	}
@@ -388,11 +362,27 @@ WindowSDL::~WindowSDL() {
 }
 
 void WindowSDL::swapBuffers() {
-	SDL_GL_SwapWindow(sdlWindow);
+	// unused
 }
 
 int32_t WindowSDL::getSwapInterval() const {
 	return SDL_GL_GetSwapInterval();
+}
+
+Surface WindowSDL::createSurface(APIHandle apiHandle) {
+	Surface surface;
+	if(!SDL_Vulkan_CreateSurface(sdlWindow, apiHandle, &surface)) {
+		throw std::runtime_error(std::string("SDL_CreateWindow failed: ") + SDL_GetError());
+	}
+	return surface;
+}
+
+std::vector<const char*> WindowSDL::getAPIExtensions() {
+	uint32_t extensionCount;
+	SDL_Vulkan_GetInstanceExtensions(sdlWindow, &extensionCount, nullptr);
+	std::vector<const char*> extensionNames(extensionCount);
+	SDL_Vulkan_GetInstanceExtensions(sdlWindow, &extensionCount, extensionNames.data());
+	return extensionNames;
 }
 
 //! ---|> Window
@@ -612,8 +602,7 @@ void WindowSDL::setClipboardText(const std::string & text) {
 }
 
 void WindowSDL::makeCurrent() {
-	if(SDL_GL_MakeCurrent(sdlWindow, sdlGlContext) != 0)
-		throw std::runtime_error(std::string("Failed to attach OpenGL context to window. ") + SDL_GetError());
+	// unused
 }
 
 }

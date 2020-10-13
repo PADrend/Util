@@ -27,6 +27,7 @@ if(UTIL_BUILD_TESTS)
 		TimerTest.cpp
 		TriStateTest.cpp
 		UpdatableHeapTest.cpp
+		VulkanWindowTest.cpp
 		WrapperFactoryTest.cpp
 		ZIPTest.cpp
 		UtilTestMain.cpp
@@ -75,6 +76,18 @@ if(UTIL_BUILD_TESTS)
 		add_subdirectory(${catch2_SOURCE_DIR} ${catch2_BINARY_DIR} EXCLUDE_FROM_ALL)
 	endif()
 	target_link_libraries(UtilTest PRIVATE Catch2::Catch2)
+			
+	# Dependency to Vulkan
+	find_package(Vulkan)
+	if(Vulkan_FOUND)
+		target_compile_definitions(UtilTest PRIVATE UTIL_HAVE_LIB_VULKAN)
+		target_include_directories(UtilTest PRIVATE ${Vulkan_INCLUDE_DIRS})
+		target_link_libraries(UtilTest LINK_PRIVATE ${Vulkan_LIBRARIES})
+		
+		find_package(shaderc REQUIRED)
+		target_include_directories(UtilTest PRIVATE ${SHADERC_INCLUDE_DIR})
+		target_link_libraries(UtilTest LINK_PRIVATE ${SHADERC_LIBRARY})
+	endif()
 
 	install(TARGETS UtilTest
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT tests

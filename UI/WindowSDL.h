@@ -18,7 +18,9 @@
 
 struct SDL_Cursor;
 struct SDL_Window;
-typedef void * SDL_GLContext;
+
+typedef struct VkInstance_T* VkInstance;
+typedef struct VkSurfaceKHR_T* VkSurfaceKHR;
 
 namespace Util {
 namespace UI {
@@ -63,6 +65,12 @@ class WindowSDL : public Window {
 		
 		//! Enables rendering to this window.
 		virtual void makeCurrent() override;
+		
+		//! ---|> Window
+		virtual Surface createSurface(APIHandle apiHandle) override;
+		
+		//! ---|> Window
+		virtual std::vector<const char*> getAPIExtensions() override;
 	private:
 		//! Create a new window.
 		WindowSDL(const Properties & properties);
@@ -77,9 +85,6 @@ class WindowSDL : public Window {
 
 		//! Internal handle to the window.
 		SDL_Window * sdlWindow;
-
-		//! Internal handle to the GL context.
-		SDL_GLContext sdlGlContext;
 
 		//! Internal handle to the current cursor.
 		SDL_Cursor * sdlCursor;

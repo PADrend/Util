@@ -16,6 +16,10 @@
 #include <deque>
 #include <memory>
 #include <string>
+#include <vector>
+
+typedef struct VkInstance_T* APIHandle;
+typedef struct VkSurfaceKHR_T* Surface;
 
 namespace Util {
 class Bitmap;
@@ -51,12 +55,13 @@ class Window : public Util::ReferenceCounter<Window> {
 				GL_ES_1, //!< OpenGL ES 1
 				GL_ES_2, //!< OpenGL ES 2
 				GL_ES_3, //!< OpenGL ES 3
-				GL //!< OpenGL (all versions)
+				GL, //!< OpenGL (all versions)
+				VULKAN //!< Vulkan
 			} renderingAPI;
-			Properties() : borderless(false),debug(false),compatibilityProfile(true),
+			Properties() : borderless(false),debug(false),compatibilityProfile(false),
 					fullscreen(false),multisampled(false),positioned(false),resizable(false),
 					clientAreaWidth(0),clientAreaHeight(0),posX(0),posY(0),multisamples(4),
-					contextVersionMajor(1), contextVersionMinor(0), renderingAPI(GL){}
+					contextVersionMajor(1), contextVersionMinor(0), renderingAPI(VULKAN){}
 		};
 		
 		//! Destroy the window and free the allocated resources.
@@ -121,6 +126,21 @@ class Window : public Util::ReferenceCounter<Window> {
 		
 		//! Returns the properties, the window was created with.
 		const Properties& getProperties() const { return properties; }
+
+		/**
+		 * creates a Surface handle to render to.
+		 * 
+		 * @param apiHandle the API handle (e.g., VkInstance for Vulkan)
+		 * @return The Surface handle
+		 */
+		virtual Surface createSurface(APIHandle apiHandle) = 0;
+		
+		/**
+		 * Returns the extensions needed to create a surface from an API handle.
+		 * 
+		 * @return A list of extension names.
+		 */
+		virtual std::vector<const char*> getAPIExtensions() = 0;
 	protected:
 		//! Stores the size of the window's client area.
 		uint32_t width,height;
