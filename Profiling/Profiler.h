@@ -31,14 +31,14 @@
 #define INIT_PROFILING_PLAIN_TEXT(out) INIT_PROFILING(LoggerPlainText, out)
 #define INIT_PROFILING_TIME(out) INIT_PROFILING(LoggerTime, out)
 
-#define SCOPED_PROFILING(descr) Util::Profiling::ScopedAction _action(&_profiler, #descr)
-#define SCOPED_PROFILING_COND(descr, condition) Util::Profiling::ScopedAction _action((condition) ? &_profiler : nullptr, #descr)
+#define SCOPED_PROFILING(descr) Util::Profiling::ScopedAction _action(&_profiler, descr)
+#define SCOPED_PROFILING_COND(descr, condition) Util::Profiling::ScopedAction _action((condition) ? &_profiler : nullptr, descr)
 
-#define BEGIN_PROFILING(descr) _actions[#descr] = _profiler.beginTimeMemoryAction(#descr)
-#define END_PROFILING(descr) _profiler.endTimeMemoryAction(_actions[#descr])
+#define BEGIN_PROFILING(descr) _actions[descr] = _profiler.beginTimeMemoryAction(descr)
+#define END_PROFILING(descr) _profiler.endTimeMemoryAction(_actions[descr])
 
-#define BEGIN_PROFILING_COND(descr, condition) if(condition) _actions[#descr] = _profiler.beginTimeMemoryAction(#descr)
-#define END_PROFILING_COND(descr, condition) if(condition) _profiler.endTimeMemoryAction(_actions[#descr])
+#define BEGIN_PROFILING_COND(descr, condition) if(condition) _actions[descr] = _profiler.beginTimeMemoryAction(descr)
+#define END_PROFILING_COND(descr, condition) if(condition) _profiler.endTimeMemoryAction(_actions[descr])
 
 #else
 
