@@ -26,8 +26,8 @@ class Logger {
 	protected:
 		std::ostream & output;
 	public:
-		Logger(std::ostream & outputStream);
-		virtual ~Logger();
+		UTILAPI Logger(std::ostream & outputStream);
+		UTILAPI virtual ~Logger();
 
 		//! Create formatted output for the given action
 		virtual void log(const Action & action) = 0;
@@ -36,19 +36,19 @@ class Logger {
 //! Logger for JSON formatted data
 class LoggerJSON : public Logger {
 	public:
-		LoggerJSON(std::ostream & outputStream);
-		virtual ~LoggerJSON();
+		UTILAPI LoggerJSON(std::ostream & outputStream);
+		UTILAPI virtual ~LoggerJSON();
 
-		void log(const Action & action) override;
+		UTILAPI void log(const Action & action) override;
 };
 
 //! Logger for human-readable plain text data
 class LoggerPlainText : public Logger {
 	public:
-		LoggerPlainText(std::ostream & outputStream);
-		virtual ~LoggerPlainText();
+		UTILAPI LoggerPlainText(std::ostream & outputStream);
+		UTILAPI virtual ~LoggerPlainText();
 
-		void log(const Action & action) override;
+		UTILAPI void log(const Action & action) override;
 };
 
 //! Logger for tab-separated values
@@ -67,8 +67,8 @@ class LoggerTSV : public Logger {
 		 * are ATTR_description, ATTR_memoryBegin ATTR_memoryEnd,
 		 * ATTR_timeBegin, and ATTR_timeEnd.
 		 */
-		LoggerTSV(std::ostream & outputStream);
-		virtual ~LoggerTSV();
+		UTILAPI LoggerTSV(std::ostream & outputStream);
+		UTILAPI virtual ~LoggerTSV();
 
 		/**
 		 * Add a column to the set of columns used for formatting the actions
@@ -76,28 +76,28 @@ class LoggerTSV : public Logger {
 		 * 
 		 * @param columnName String identifier that is used in actions later on
 		 */
-		void addColumn(const Util::StringIdentifier & columnName);
+		UTILAPI void addColumn(const Util::StringIdentifier & columnName);
 
-		void log(const Action & action) override;
+		UTILAPI void log(const Action & action) override;
 };
 
 //! Logger for XML formatted data
 class LoggerXML : public Logger {
 	public:
-		LoggerXML(std::ostream & outputStream);
-		virtual ~LoggerXML();
+		UTILAPI LoggerXML(std::ostream & outputStream);
+		UTILAPI virtual ~LoggerXML();
 
-		void log(const Action & action) override;
+		UTILAPI void log(const Action & action) override;
 };
 
 
 //! Logger for human-readable timings
 class LoggerTime : public Logger {
 	public:
-		LoggerTime(std::ostream & outputStream);
-		virtual ~LoggerTime();
+		UTILAPI LoggerTime(std::ostream & outputStream);
+		UTILAPI virtual ~LoggerTime();
 
-		void log(const Action & action) override;
+		UTILAPI void log(const Action & action) override;
 };
 
 }
