@@ -21,21 +21,21 @@ namespace Util {
 
 class Resource : public Util::ReferenceCounter<Resource> {
 public:
-	explicit Resource(const ResourceFormat& format, ResourceAllocator* allocator=nullptr);
-	virtual ~Resource();
+	UTILAPI explicit Resource(const ResourceFormat& format, ResourceAllocator* allocator=nullptr);
+	UTILAPI virtual ~Resource();
 	Resource(const Resource&) = delete;
 	Resource(Resource&&) = default;
 	Resource& operator=(const Resource& o) = delete;
 	Resource& operator=(Resource&& o) = default;
 
-	virtual void upload(const uint8_t* srcData, size_t size, size_t offset=0);
+	UTILAPI virtual void upload(const uint8_t* srcData, size_t size, size_t offset=0);
 
 	template<typename T>
 	void upload(const std::vector<T>& data, size_t offset = 0) {
 		upload(reinterpret_cast<const uint8_t*>(data.data()), data.size() * sizeof(T), offset);
 	}
 
-	virtual void download(uint8_t* tgtData, size_t size, size_t offset=0);
+	UTILAPI virtual void download(uint8_t* tgtData, size_t size, size_t offset=0);
 
 	template<typename T>
 	std::vector<T> download(size_t numberOfElements, size_t offset=0) {
