@@ -401,28 +401,32 @@ WindowGLFW::WindowGLFW(const Window::Properties & properties) :
 	if(!glfwInit()) {
 		throw std::runtime_error(std::string("glfw Init failed: "));
 	}
-	if(!glfwVulkanSupported())
-		throw std::runtime_error(std::string("WindowGLFW: Vulkan not supported."));
+	
+	// GL
+	if(properties.renderingAPI == Properties::VULKAN) {
+		if(!glfwVulkanSupported())
+			throw std::runtime_error(std::string("WindowGLFW: Vulkan not supported."));
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	} else {
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+		glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
+	
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, properties.contextVersionMajor);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, properties.contextVersionMinor);
+		
+		if(properties.compatibilityProfile) {
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+		} else {
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		}
+	}
 	
 	// window
+	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, properties.resizable ? GLFW_TRUE : GLFW_FALSE);
 	glfwWindowHint(GLFW_DECORATED, properties.borderless ? GLFW_FALSE : GLFW_TRUE);
 	
-	// GL
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	//glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
-	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-	
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, properties.contextVersionMajor);
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, properties.contextVersionMinor);
-	
-	/*if(properties.compatibilityProfile) {
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-	} else {
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	}*/
-
 	if (properties.multisampled) {
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(properties.multisamples));
 	} else {
@@ -449,8 +453,10 @@ WindowGLFW::WindowGLFW(const Window::Properties & properties) :
 		glfwSetWindowPos(data->window, properties.posX, properties.posY);
 	}
 	
-	//glfwMakeContextCurrent(data->window);
-	//glfwSwapInterval(0); // disable vsync
+	if(properties.renderingAPI != Properties::VULKAN) {
+		glfwMakeContextCurrent(data->window);
+		glfwSwapInterval(0); // disable vsync
+	}
 	
 	glfwSetCursorPosCallback(data->window, handleMousePosition);
 	glfwSetMouseButtonCallback(data->window, handleMouseButton);
@@ -483,8 +489,9 @@ WindowGLFW::~WindowGLFW() {
 
 //------------
 
-void WindowGLFW::swapBuffers() {
-	//glfwSwapBuffers(data->window);
+void WindowGLFW::swapBuffers() {	
+	if(properties.renderingAPI != Properties::VULKAN)
+		glfwSwapBuffers(data->window);
 }
 
 //------------
@@ -495,12 +502,17 @@ int32_t WindowGLFW::getSwapInterval() const {
 
 //------------
 
-Surface WindowGLFW::createSurface(APIHandle apiHandle) {
-	Surface surface;
-	if(glfwCreateWindowSurface(apiHandle, data->window, NULL, &surface)) {
-		throw std::runtime_error("WindowGLFW::createSurface failed.");
+Surface WindowGLFW::createSurface(APIHandle apiHandle) {	
+	if(properties.renderingAPI == Properties::VULKAN) {
+		Surface surface;
+		if(glfwCreateWindowSurface(apiHandle, data->window, NULL, &surface)) {
+			throw std::runtime_error("WindowGLFW::createSurface failed.");
+		}
+		return surface;
+	} else {
+		WARN("WindowGLFW::createSurface not available for OpenGL.");
+		return nullptr;
 	}
-	return surface;
 }
 
 //------------
@@ -663,7 +675,8 @@ void WindowGLFW::setClipboardText(const std::string & text) {
 //------------
 
 void WindowGLFW::makeCurrent() {
-	//glfwMakeContextCurrent(data->window);
+	if(properties.renderingAPI != Properties::VULKAN)
+		glfwMakeContextCurrent(data->window);
 }
 
 //------------
