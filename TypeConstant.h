@@ -34,9 +34,9 @@ enum class TypeConstant : uint8_t{
 	BOOL = 11
 };
 
-size_t getNumBytes(TypeConstant t);
+UTILAPI size_t getNumBytes(TypeConstant t);
 
-std::string getTypeString(TypeConstant t);
+UTILAPI std::string getTypeString(TypeConstant t);
 
 //! @}
 	

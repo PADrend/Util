@@ -25,12 +25,12 @@ namespace Util {
  */
 class AttributeFormat {
 public:
-	AttributeFormat();
-	AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint32_t _components=1, bool _normalized=false, uint32_t _internalType=0, size_t _offset=0);
+	UTILAPI AttributeFormat();
+	UTILAPI AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint32_t _components=1, bool _normalized=false, uint32_t _internalType=0, size_t _offset=0);
 
-	bool operator==(const AttributeFormat& other) const;
+	UTILAPI bool operator==(const AttributeFormat& other) const;
 	bool operator!=(const AttributeFormat& other) const { return !(*this==other); };
-	bool operator<(const AttributeFormat& other) const;
+	UTILAPI bool operator<(const AttributeFormat& other) const;
 
 	//! Returns the name of the attribute.
 	std::string getName() const { return nameId.toString(); }
@@ -52,7 +52,7 @@ public:
 	//! Returns @p true, if the attribute has at least one value
 	bool isValid() const { return components != 0; }
 	//! Returns a string representation of this attribute
-	std::string toString() const;
+	UTILAPI std::string toString() const;
 
 	//! deprecated alias
 	[[deprecated]] TypeConstant getValueType() const { return dataType; }
@@ -66,7 +66,7 @@ public:
 	[[deprecated]] bool empty() const { return components == 0; }
 private:
 	friend class ResourceFormat;
-	AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint32_t _components, bool _normalized, uint32_t _internalType, size_t _offset);
+	UTILAPI AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint32_t _components, bool _normalized, uint32_t _internalType, size_t _offset);
 	
 	StringIdentifier nameId;
 	TypeConstant dataType;

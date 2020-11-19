@@ -47,13 +47,13 @@ class SplashScreenWin : public SplashScreen {
 
 	private:
 		//! Check for events.
-		void eventLoop();
+		UTILAPI void eventLoop();
 
 		//! Create a new splash screen.
-		SplashScreenWin(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
+		UTILAPI SplashScreenWin(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
 
 		//! Allow access to constructor from factory.
-		friend std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
+		UTILAPI friend std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle, const Reference<Bitmap> & splashImage);
 
 		
 		Reference<Bitmap> splashImage;

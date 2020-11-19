@@ -42,8 +42,8 @@ public:
 	virtual ~AttributeAccessor() = default;
 		
 	//! Creates a new attribute accessor for the given data using the specified resource format.
-	static Ref create(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride=0);
-	static Ref create(uint8_t* ptr, size_t size, const ResourceFormat& format, const StringIdentifier& name);
+	UTILAPI static Ref create(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride=0);
+	UTILAPI static Ref create(uint8_t* ptr, size_t size, const ResourceFormat& format, const StringIdentifier& name);
 	
 	//! (uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) -> Ref
 	using AccessorFactory_t = std::function<Ref(uint8_t*, size_t, const AttributeFormat&, size_t)>;
@@ -52,7 +52,7 @@ public:
 	static bool registerAccessor(uint32_t internalType, const AccessorFactory_t& factory);
 	static bool hasAccessor(const AttributeFormat& attr);
 	
-	void readRaw(size_t index, uint8_t* data, size_t size) const;
+	UTILAPI void readRaw(size_t index, uint8_t* data, size_t size) const;
 	virtual void readValues(size_t index, int8_t* values, size_t count) const = 0;
 	virtual void readValues(size_t index, int16_t* values, size_t count) const = 0;
 	virtual void readValues(size_t index, int32_t* values, size_t count) const = 0;
@@ -86,7 +86,7 @@ public:
 		return values;
 	}
 	
-	void writeRaw(size_t index, const uint8_t* data, size_t size) const;
+	UTILAPI void writeRaw(size_t index, const uint8_t* data, size_t size) const;
 	virtual void writeValues(size_t index, const int8_t* values, size_t count) const = 0;
 	virtual void writeValues(size_t index, const int16_t* values, size_t count) const = 0;
 	virtual void writeValues(size_t index, const int32_t* values, size_t count) const = 0;

@@ -24,8 +24,8 @@ enum output_priority_t {
 	OUTPUT_WARNING,
 	OUTPUT_ERROR
 };
-void output(output_priority_t priority,const std::string & message);
-std::string composeDebugMessage(const std::string & message,const char * file, int line);
+UTILAPI void output(output_priority_t priority,const std::string & message);
+UTILAPI std::string composeDebugMessage(const std::string & message,const char * file, int line);
 
 //! @}
 }

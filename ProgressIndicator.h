@@ -37,13 +37,13 @@ class ProgressIndicator {
 		 * @param totalSteps Total number of steps during the progress
 		 * @param updateInterval Duration in seconds indicates between output of progress state
 		 */
-		ProgressIndicator(std::string description, uint32_t totalSteps, double updateInterval);
+		UTILAPI ProgressIndicator(std::string description, uint32_t totalSteps, double updateInterval);
 
 		/**
 		 * Increment the number of finished steps by one.
 		 * Print the progress state if the elapsed time since the last update is larger than the defined interval.
 		 */
-		void increment();
+		UTILAPI void increment();
 
 		bool operator==(const ProgressIndicator & other) const {
 			return stepsTotal == other.stepsTotal && stepsFinished == other.stepsFinished && interval == other.interval && textOutput == other.textOutput;

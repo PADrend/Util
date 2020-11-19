@@ -18,6 +18,8 @@ matrix:
       compiler: gcc
       install: choco install ninja
       script: cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUTIL_BUILD_EXAMPLES=ON -DUTIL_BUILD_TESTS=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" .. && ninja && ctest --verbose -D ExperimentalTest
+    - os: windows
+      compiler: cl
 
 before_script: mkdir build && cd build
 script: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUTIL_BUILD_EXAMPLES=ON -DUTIL_BUILD_TESTS=ON -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic" .. && make && ctest --verbose -D ExperimentalTest

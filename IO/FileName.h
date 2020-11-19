@@ -25,7 +25,7 @@ class FileName{
 		 */
 		//@{
 	public:
-		static FileName createDirName(const std::string & dirname);
+		UTILAPI static FileName createDirName(const std::string & dirname);
 		//@}
 
 		/**
@@ -69,7 +69,7 @@ class FileName{
 		std::string getPath()const				{   return dir + file;  }
 		std::string toString()const				{   return empty() ? "" : fsName + "://" + dir + file;  }
 		std::string toShortString()const		{   return empty() ? "" : (fsName=="file" ? dir+file : fsName + "://" + dir + file);  }
-		std::string getEnding()const;
+		UTILAPI std::string getEnding()const;
 		//@}
 
 		/**
@@ -99,14 +99,14 @@ class FileName{
 		 * @note if ending is specified as ".xy.ab", only ".ab" is used
 		 * @note ending
 		 */
-		void setEnding(const std::string & ending);
+		UTILAPI void setEnding(const std::string & ending);
 
 		FileName& operator=(const std::string & s) {
 			parse(s);
 			return *this;
 		}
 	private:
-		void parse(const std::string & s);
+		UTILAPI void parse(const std::string & s);
 		//@}
 
 		/**

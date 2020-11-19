@@ -46,10 +46,10 @@ public:
 		@note When @p internalType is set, the @p type and @p numValues are still used for size calculation, 
 		e.g., if a R10G10B10A2 attribute is packed into a single 32 bit integer, the numValues should be 1.
 	*/
-	const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized=false, uint32_t internalType=0);
+	UTILAPI const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized=false, uint32_t internalType=0);
 
 	//! directly appends the attribute without recalculating offsets
-	const Attribute& _appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized, uint32_t internalType, size_t offset);
+	UTILAPI const Attribute& _appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized, uint32_t internalType, size_t offset);
 		
 	//! Add an attribute with the given name and the given number of float values.
 	const Attribute & appendFloat(const Util::StringIdentifier& nameId, uint32_t numValues, bool normalized=false) {
@@ -71,7 +71,7 @@ public:
 				If the attribute is not present in the vertex description, it is empty.
 		\note The owner of the attribute is the ResourceFormat, so be careful if the
 				ResourceFormat is deleted or reassigned.*/
-	const Attribute& getAttribute(const StringIdentifier& nameId) const;
+	UTILAPI const Attribute& getAttribute(const StringIdentifier& nameId) const;
 	const Attribute& getAttribute(const std::string& name) const {
 		return getAttribute(StringIdentifier(name));
 	}
@@ -79,13 +79,12 @@ public:
 		return attributes.at(location);
 	}
 
-	bool hasAttribute(const StringIdentifier& nameId) const;
+	UTILAPI bool hasAttribute(const StringIdentifier& nameId) const;
 	bool hasAttribute(const std::string& name) const {
 		return hasAttribute(StringIdentifier(name));
 	}
 	
-	//! Returns the location index of the attribute within the the resource format.
-	const uint32_t getAttributeLocation(const StringIdentifier& nameId) const;
+	UTILAPI const uint32_t getAttributeLocation(const StringIdentifier& nameId) const;
 	const uint32_t getAttributeLocation(const std::string& name) const {
 		return getAttributeLocation(StringIdentifier(name));
 	}
@@ -98,7 +97,7 @@ public:
 	 * @warning When manually setting the offsets, make sure that they fit within the sizes and offsets of the other attributes.
 	 * Otherwise, unpredictable side effects can occur.
 	 */
-	void updateAttribute(const Attribute& attr);
+	UTILAPI void updateAttribute(const Attribute& attr);
 
 	//! Merges this resource format with another.
 	void merge(const ResourceFormat& other);
@@ -119,10 +118,10 @@ public:
 
 	size_t getAlignment() const { return attributeAlignment; }
 
-	std::string toString(bool formatted=false) const;
-	bool operator==(const ResourceFormat& other) const;
-	bool operator!=(const ResourceFormat& other) const;
-	bool operator<(const ResourceFormat& other) const;
+	UTILAPI std::string toString(bool formatted=false) const;
+	UTILAPI bool operator==(const ResourceFormat& other) const;
+	UTILAPI bool operator!=(const ResourceFormat& other) const;
+	UTILAPI bool operator<(const ResourceFormat& other) const;
 private:
 	AttributeContainer_t attributes;
 	size_t size = 0;

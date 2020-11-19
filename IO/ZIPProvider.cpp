@@ -17,7 +17,11 @@
 #include "../Macros.h"
 
 #include <sys/stat.h>
+#if defined(_MSC_VER)
+#include "../extern/dirent.h"
+#else
 #include <dirent.h>
+#endif
 #include <cerrno>
 #include <cstdint>
 #include <memory>
@@ -490,11 +494,11 @@ AbstractFSProvider::status_t ZIPProvider::ZIPHandle::dir(
 			if (!(flags & FileUtils::DIR_RECURSIVE) && entryFileName.getDir() != localDirectory) {
 				continue;
 			}
-		}
 
-		// Check for hidden files beginning with '.' (files only).
-		if (entryFileName.getFile().front() == '.' && !(flags & FileUtils::DIR_HIDDEN_FILES)) {
-			continue;
+			// Check for hidden files beginning with '.' (files only).
+			if (entryFileName.getFile().front() == '.' && !(flags & FileUtils::DIR_HIDDEN_FILES)) {
+				continue;
+			}
 		}
 
 		FileName f;

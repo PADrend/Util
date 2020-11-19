@@ -40,17 +40,17 @@ namespace Util {
 class Bitmap : public ReferenceCounter<Bitmap> {
 	public:
 		//! Create a new bitmap.
-		explicit Bitmap(const uint32_t width=0,const uint32_t height=0,AttributeFormat pixelFormat = PixelFormat::RGBA);
+		UTILAPI explicit Bitmap(const uint32_t width=0,const uint32_t height=0,AttributeFormat pixelFormat = PixelFormat::RGBA);
 
 		/*! Create a new bitmap which containing only raw data. A direct pixel access is not possible.
 			\note This can e.g. be used to store compressed textures */
-		Bitmap(const uint32_t width,const uint32_t height,size_t rawDataSize);
+		UTILAPI Bitmap(const uint32_t width,const uint32_t height,size_t rawDataSize);
 
 		//! Create a copy of the bitmap together with its data.
-		explicit Bitmap(const Bitmap & source);
+		UTILAPI explicit Bitmap(const Bitmap & source);
 
 		//! Swap all the data with another bitmap
-		void swap(Bitmap & other);
+		UTILAPI void swap(Bitmap & other);
 
 		uint32_t getWidth() const 					{	return width;	}
 		uint32_t getHeight() const 					{	return height;	}
@@ -72,11 +72,11 @@ class Bitmap : public ReferenceCounter<Bitmap> {
 		 * @param newData Data that will be copied to the internal data storage
 		 * @note The new data must have the same size as the existing data.
 		 */
-		void setData(const std::vector<uint8_t> & newData);
-		void swapData(std::vector<uint8_t> & other);
+		UTILAPI void setData(const std::vector<uint8_t> & newData);
+		UTILAPI void swapData(std::vector<uint8_t> & other);
 
 		//!	Swap the rows, so that the bitmap is turned upside down afterwards.
-		void flipVertically();
+		UTILAPI void flipVertically();
 
 	private:
 		AttributeFormat pixelFormat;

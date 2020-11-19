@@ -107,12 +107,13 @@ else()
     set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "" FORCE)
     set(GLFW_INSTALL OFF CACHE INTERNAL "" FORCE)
     set(GLFW_VULKAN_STATIC OFF CACHE INTERNAL "" FORCE)
+	set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE INTERNAL "" FORCE)
     add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR} EXCLUDE_FROM_ALL)
   endif()
   
 	target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_GLFW)
 	target_link_libraries(UtilExtern INTERFACE glfw)  
-  set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE ON)
+	set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -324,7 +325,7 @@ if(UTIL_BUILD_LIBARCHIVE)
   FetchContent_Declare(
     libarchive
     GIT_REPOSITORY https://github.com/libarchive/libarchive.git
-    GIT_TAG        v3.4.0
+    GIT_TAG        v3.4.3
   )
 
   FetchContent_GetProperties(libarchive)
@@ -362,9 +363,10 @@ if(UTIL_BUILD_LIBARCHIVE)
     add_subdirectory(${libarchive_SOURCE_DIR} ${libarchive_BINARY_DIR} EXCLUDE_FROM_ALL)
   endif()
   target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ARCHIVE)
+  target_compile_definitions(UtilExtern INTERFACE LIBARCHIVE_STATIC)
   target_link_libraries(UtilExtern INTERFACE archive_static)
-  target_include_directories(UtilExtern INTERFACE ${libarchive_SOURCE_DIR}/libarchive)
   set_target_properties(archive_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  target_include_directories(UtilExtern INTERFACE ${libarchive_SOURCE_DIR}/libarchive)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -375,7 +377,7 @@ if(UTIL_BUILD_LIBZIP)
   FetchContent_Declare(
     libzip
     GIT_REPOSITORY https://github.com/nih-at/libzip.git
-    GIT_TAG        rel-1-5-2
+    GIT_TAG        rel-1-6-0
   )
   FetchContent_GetProperties(libzip)
   if(NOT libzip_POPULATED)
@@ -427,7 +429,7 @@ if(UTIL_BUILD_SQLITE)
     set(BUILD_ENABLE_RBU OFF CACHE INTERNAL "" FORCE)
     set(BUILD_ENABLE_RTREE OFF CACHE INTERNAL "" FORCE)
     set(BUILD_RECOMMENDED_OPTS ON CACHE INTERNAL "" FORCE)
-    set(BUILD_STATIC_RUNTIME ON CACHE INTERNAL "" FORCE)
+    set(BUILD_STATIC_RUNTIME OFF CACHE INTERNAL "" FORCE)
     set(BUILD_SHELL OFF CACHE INTERNAL "" FORCE)
     add_subdirectory(${sqlite3_SOURCE_DIR} ${sqlite3_BINARY_DIR} EXCLUDE_FROM_ALL)
   endif()

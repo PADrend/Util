@@ -25,9 +25,9 @@ namespace Util {
 //! @name Hashing
 //! @{
 
-uint32_t calcHash(const uint8_t * ptr,size_t size);
+UTILAPI uint32_t calcHash(const uint8_t * ptr,size_t size);
 
-std::string md5(const std::string& str);
+UTILAPI std::string md5(const std::string& str);
 
 template <class T>
 inline void hash_combine(std::size_t& seed, const T& v) {

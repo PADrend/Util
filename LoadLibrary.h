@@ -26,7 +26,7 @@ namespace Util {
  * @param filename File path to the dynamic library.
  * @return StringIdentifier of the filename on success (used as library handle), or empty StringIdentifier on failure.
  */
-const StringIdentifier loadLibrary(const std::string& filename);
+UTILAPI const StringIdentifier loadLibrary(const std::string& filename);
 
 /**
  * Loads a function of a dynamically loaded library at runtime.
@@ -37,7 +37,7 @@ const StringIdentifier loadLibrary(const std::string& filename);
  * @param name name of the function.
  * @return Function handle or nullptr.
  */
-void* loadFunction(const StringIdentifier& libraryId, const std::string& name);
+UTILAPI void* loadFunction(const StringIdentifier& libraryId, const std::string& name);
 
 /**
  * Function used to unload a dynamically loaded library.
@@ -47,7 +47,7 @@ void* loadFunction(const StringIdentifier& libraryId, const std::string& name);
  *
  * @param libraryId Library handle received from loadLibrary.
  */
-void unloadLibrary(const StringIdentifier& libraryId);
+UTILAPI void unloadLibrary(const StringIdentifier& libraryId);
 	
 	
 //! @}

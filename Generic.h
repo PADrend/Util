@@ -76,10 +76,9 @@ class Generic {
 		}
 
 		//! Construct with a copy of the given object
-		template<typename type_t>
+		template<typename type_t, typename = typename std::enable_if<!std::is_convertible<type_t, Generic>::value>::type>
 		explicit Generic(type_t && object) : 
-			content(new Storage<typename std::decay<type_t>::type>(
-												std::forward<type_t>(object))) {
+			content(new Storage<typename std::decay<type_t>::type>( std::forward<type_t>(object) )) {
 		}
 
 		//! Copy construct from another generic object

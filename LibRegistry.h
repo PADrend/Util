@@ -19,8 +19,8 @@ namespace LibRegistry {
 
 /*! Call once for each used third-party library. 
 	The information is used for version outputs or licensing infos. */
-void registerLibVersionString(std::string libName,  std::string versionString );
-const std::map<std::string,std::string>& getLibVersionStrings();
+UTILAPI void registerLibVersionString(std::string libName,  std::string versionString );
+UTILAPI const std::map<std::string,std::string>& getLibVersionStrings();
 }
 }
 #endif // UTIL_LIBREGISTRY_H_INCLUDED

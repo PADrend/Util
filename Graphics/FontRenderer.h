@@ -60,10 +60,10 @@ class FontRenderer {
 
 	public:
 		//! Load the font given as parameter.
-		FontRenderer(const std::string & fontFile);
+		UTILAPI FontRenderer(const std::string & fontFile);
 
 		//! Release the allocated font resources.
-		~FontRenderer();
+		UTILAPI ~FontRenderer();
 
 		/**
 		 * Render the given text into a bitmap.
@@ -72,7 +72,7 @@ class FontRenderer {
 		 * @param text Text to render
 		 * @return Bitmap containing the rendered text
 		 */
-		Reference<Bitmap> renderText(unsigned int size, const std::u32string & text);
+		UTILAPI Reference<Bitmap> renderText(unsigned int size, const std::u32string & text);
 
 		/**
 		 * Render the given characters into a bitmap. Create a map from the
@@ -84,10 +84,10 @@ class FontRenderer {
 		 * containing metrics of the font together with a mapping from the
 		 * characters to their glyph information.
 		 */
-		std::pair<Reference<Bitmap>, FontInfo> createGlyphBitmap(unsigned int size,
+		UTILAPI std::pair<Reference<Bitmap>, FontInfo> createGlyphBitmap(unsigned int size,
 																 const std::u32string & chars);
 
-		std::map<std::pair<uint32_t,uint32_t>, float> createKerningMap(const std::u32string & chars);
+		UTILAPI std::map<std::pair<uint32_t,uint32_t>, float> createKerningMap(const std::u32string & chars);
 };
 
 }

@@ -98,8 +98,8 @@ class Profiler {
 		std::unique_ptr<Implementation> impl;
 
 	public:
-		Profiler();
-		~Profiler();
+		UTILAPI Profiler();
+		UTILAPI ~Profiler();
 
 		/**
 		 * Create a new action and set its description.
@@ -107,14 +107,14 @@ class Profiler {
 		 * @param description Human-readable description of the action
 		 * @return The created action
 		 */
-		Action createAction(const std::string & description) const;
+		UTILAPI Action createAction(const std::string & description) const;
 
 		/**
 		 * Output an action to the associated loggers.
 		 * 
 		 * @param action Action that will be logged
 		 */
-		void logAction(const Action & action) const;
+		UTILAPI void logAction(const Action & action) const;
 
 		/**
 		 * Measure the current time and store it in an attribute of an action.
@@ -122,8 +122,7 @@ class Profiler {
 		 * @param action Action that will be annotated
 		 * @param attribute Attribute name that will be added to the action
 		 */
-		void annotateTime(Action & action,
-						  const Util::StringIdentifier & attribute) const;
+		UTILAPI void annotateTime(Action & action, const Util::StringIdentifier & attribute) const;
 
 		/**
 		 * Measure the current memory consumption and store it in an attribute
@@ -132,8 +131,7 @@ class Profiler {
 		 * @param action Action that will be annotated
 		 * @param attribute Attribute name that will be added to the action
 		 */
-		void annotateMemory(Action & action,
-							const Util::StringIdentifier & attribute) const;
+		UTILAPI void annotateMemory(Action & action, const Util::StringIdentifier & attribute) const;
 
 		/**
 		 * Create a new action, set its description, and store current time
@@ -142,7 +140,7 @@ class Profiler {
 		 * @param description Human-readable description of the action
 		 * @return The created action containing time and memory
 		 */
-		Action beginTimeMemoryAction(const std::string & description) const;
+		UTILAPI Action beginTimeMemoryAction(const std::string & description) const;
 
 		/**
 		 * Finish an action. The current time and memory consumption will be
@@ -151,7 +149,7 @@ class Profiler {
 		 * 
 		 * @param action Action that will be annotated and logged
 		 */
-		void endTimeMemoryAction(Action & action) const;
+		UTILAPI void endTimeMemoryAction(Action & action) const;
 
 		/**
 		 * Register a logger that will be used to output profiling information.
@@ -161,14 +159,14 @@ class Profiler {
 		 * The given logger has to stay writeable at least until this object
 		 * is destroyed or the logger is removed with @a unregisterLogger().
 		 */
-		void registerLogger(Logger * output);
+		UTILAPI void registerLogger(Logger * output);
 
 		/**
 		 * Remove the registered logger.
 		 * 
 		 * @param output Logger that will be removed
 		 */
-		void unregisterLogger(Logger * output);
+		UTILAPI void unregisterLogger(Logger * output);
 };
 
 //-------------------------------------
