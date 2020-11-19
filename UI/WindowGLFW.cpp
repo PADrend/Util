@@ -426,6 +426,7 @@ WindowGLFW::WindowGLFW(const Window::Properties & properties) :
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, properties.resizable ? GLFW_TRUE : GLFW_FALSE);
 	glfwWindowHint(GLFW_DECORATED, properties.borderless ? GLFW_FALSE : GLFW_TRUE);
+	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 	
 	if (properties.multisampled) {
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(properties.multisamples));
