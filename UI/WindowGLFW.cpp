@@ -404,6 +404,7 @@ WindowGLFW::WindowGLFW(const Window::Properties & properties) :
 	// window
 	glfwWindowHint(GLFW_RESIZABLE, properties.resizable ? GLFW_TRUE : GLFW_FALSE);
 	glfwWindowHint(GLFW_DECORATED, properties.borderless ? GLFW_FALSE : GLFW_TRUE);
+	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 	
 	// GL
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
