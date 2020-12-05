@@ -116,6 +116,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 if(MSVC)
+	target_compile_definitions(Util PRIVATE NOMINMAX)
 	target_compile_definitions(Util PRIVATE "UTILAPI=__declspec(dllexport)")
 	target_compile_definitions(Util INTERFACE "UTILAPI=__declspec(dllimport)")
 else()

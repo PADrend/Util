@@ -73,7 +73,7 @@ std::string implode(const Iterator_T & begin,const Iterator_T & end,const std::s
 //! Move cursor to the next line. Return false if end of subject is reached. 
 UTILAPI bool nextLine(const char * subject,int & cursor);
 
-static const uint32_t INVALID_UNICODE_CODE_POINT = std::numeric_limits<uint32_t>::max();
+static const uint32_t INVALID_UNICODE_CODE_POINT = (std::numeric_limits<uint32_t>::max)();
 
 /*! Reads the next UTF8 code point from the given @p string at the given @p pos.
 	@return [UnicodeCodePoint, numberOfBytes]; 
