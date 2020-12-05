@@ -1,6 +1,7 @@
 /*
 	This file is part of the Util library.
 	Copyright (C) 2014 Claudius Jähn <claudius@uni-paderborn.de>
+	Copyright (C) 2020 Sascha Brandt <sascha@brandt.graphics>
 	
 	This library is subject to the terms of the Mozilla Public License, v. 2.0.
 	You should have received a copy of the MPL along with this library; see the 
@@ -34,9 +35,51 @@ enum class TypeConstant : uint8_t{
 	BOOL = 11
 };
 
+//---------------------
+
 UTILAPI size_t getNumBytes(TypeConstant t);
 
+//---------------------
+
 UTILAPI std::string getTypeString(TypeConstant t);
+
+//---------------------
+
+inline bool isFloatType(Util::TypeConstant type) {
+	switch(type) {
+		case Util::TypeConstant::FLOAT:
+		case Util::TypeConstant::DOUBLE:
+		case Util::TypeConstant::HALF:
+			return true;
+		default: return false;
+	}
+}
+
+//---------------------
+
+inline bool isSignedIntegerType(Util::TypeConstant type) {
+	switch(type) {
+		case Util::TypeConstant::INT8:
+		case Util::TypeConstant::INT16:
+		case Util::TypeConstant::INT32:
+		case Util::TypeConstant::INT64:
+			return true;
+		default: return false;
+	}
+}
+
+//---------------------
+
+inline bool isUnsignedIntegerType(Util::TypeConstant type) {
+	switch(type) {
+		case Util::TypeConstant::UINT8:
+		case Util::TypeConstant::UINT16:
+		case Util::TypeConstant::UINT32:
+		case Util::TypeConstant::UINT64:
+			return true;
+		default: return false;
+	}
+}
 
 //! @}
 	
