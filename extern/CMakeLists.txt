@@ -205,32 +205,32 @@ elseif(WIN32 AND MINGW)
   # Use prebuild binaries for MinGW on Windows
   FetchContent_Declare(
     curl_mingw
-    URL       https://curl.haxx.se/windows/dl-7.65.3/curl-7.65.3-win64-mingw.zip
-    URL_HASH  SHA256=5c07b2d96aa7c7f5d3cff7657f5ebf563f7fb5aa62411300ff52189a7e2460c9
+    URL       https://curl.se/windows/dl-7.73.0_5/curl-7.73.0_5-win64-mingw.zip
+    URL_HASH  SHA256=273dfe09ef9d0aa411b52fe038ce0019649caa9233ef12b59ab1dfe580e732d1
   )
   FetchContent_Declare(
     curl_mingw_ssl
-    URL       https://curl.haxx.se/windows/dl-7.65.3/openssl-1.1.1c-win64-mingw.zip
-    URL_HASH  SHA256=d9da1782e3f1fb4eed8adc1e954ba2899ed8bd6302d6eb788f147b1ded99ee7c
+    URL       https://curl.se/windows/dl-7.73.0_5/openssl-1.1.1h_5-win64-mingw.zip
+    #URL_HASH  SHA256=d9da1782e3f1fb4eed8adc1e954ba2899ed8bd6302d6eb788f147b1ded99ee7c
   )
   FetchContent_Declare(
     curl_mingw_brotli
-    URL       https://curl.haxx.se/windows/dl-7.65.3/brotli-1.0.7-win64-mingw.zip
-    URL_HASH  SHA256=7b536fc118e9c35c4c99006f596eed604d3d6e627b1a363099f1f5ead6054580
+    URL       https://curl.se/windows/dl-7.73.0_5/brotli-1.0.9_5-win64-mingw.zip
+    #URL_HASH  SHA256=7b536fc118e9c35c4c99006f596eed604d3d6e627b1a363099f1f5ead6054580
   )
   FetchContent_Declare(
     curl_mingw_ssh
-    URL       https://curl.haxx.se/windows/dl-7.65.3/libssh2-1.9.0-win64-mingw.zip
-    URL_HASH  SHA256=ee9f3815ff46b0eb677dc3688362487c5847063a653aad923e5b283f77360af0
+    URL       https://curl.se/windows/dl-7.73.0_5/libssh2-1.9.0_5-win64-mingw.zip
+    #URL_HASH  SHA256=ee9f3815ff46b0eb677dc3688362487c5847063a653aad923e5b283f77360af0
   )
   FetchContent_Declare(
     curl_mingw_http
-    URL       https://curl.haxx.se/windows/dl-7.65.3/nghttp2-1.39.1-win64-mingw.zip
-    URL_HASH  SHA256=837927bab6d8565b03d4018bdcbb4c25c7adec8a96d745b33fc10c0ca42b83f4
+    URL       https://curl.se/windows/dl-7.73.0_5/nghttp2-1.42.0_5-win64-mingw.zip
+    #URL_HASH  SHA256=837927bab6d8565b03d4018bdcbb4c25c7adec8a96d745b33fc10c0ca42b83f4
   )
   #FetchContent_Declare(
   #  curl_mingw_zlib
-  #  URL       https://curl.haxx.se/windows/dl-7.65.3/zlib-1.2.11-win64-mingw.zip
+  #  URL       https://curl.se/windows/dl-7.73.0_5/zlib-1.2.11_5-win64-mingw.zip
   #  URL_HASH  SHA256=e7a9238c5ad59cbfd5bc33d47679b945bd41e4de3a4aec78fc8ba759cb52a0cd
 #)
 
