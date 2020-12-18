@@ -233,6 +233,10 @@ elseif(WIN32 AND MINGW)
   #  URL       https://curl.se/windows/dl-7.73.0_5/zlib-1.2.11_5-win64-mingw.zip
   #  URL_HASH  SHA256=e7a9238c5ad59cbfd5bc33d47679b945bd41e4de3a4aec78fc8ba759cb52a0cd
 #)
+  FetchContent_Declare(
+    curl_mingw_zstd
+    URL       https://curl.se/windows/dl-7.74.0_1/zstd-1.4.7_1-win64-mingw.zip
+  )
 
   FetchContent_GetProperties(curl_mingw)
   FetchContent_GetProperties(curl_mingw_ssl)
@@ -240,6 +244,7 @@ elseif(WIN32 AND MINGW)
   FetchContent_GetProperties(curl_mingw_ssh)
   FetchContent_GetProperties(curl_mingw_http)
   #FetchContent_GetProperties(curl_mingw_zlib)
+  FetchContent_GetProperties(curl_mingw_zstd)
   message(STATUS "Fetching prebuild CURL...")
   if(NOT curl_mingw_POPULATED)
     FetchContent_Populate(curl_mingw)
@@ -248,6 +253,7 @@ elseif(WIN32 AND MINGW)
     FetchContent_Populate(curl_mingw_ssh)
     FetchContent_Populate(curl_mingw_http)
     #FetchContent_Populate(curl_mingw_zlib)
+    FetchContent_Populate(curl_mingw_zstd)
   endif()
   target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
   target_compile_definitions(UtilExtern INTERFACE CURL_STATICLIB)
@@ -262,6 +268,7 @@ elseif(WIN32 AND MINGW)
     ${curl_mingw_brotli_SOURCE_DIR}/lib/libbrotlicommon-static.a
     ${curl_mingw_http_SOURCE_DIR}/lib/libnghttp2.a
     #${curl_mingw_zlib_SOURCE_DIR}/libz.a
+    ${curl_mingw_zstd_SOURCE_DIR}/lib/libzstd.a
   )
 else()
   find_package(CURL)
