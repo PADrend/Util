@@ -49,10 +49,10 @@ public:
 	using AccessorFactory_t = std::function<Ref(uint8_t*, size_t, const AttributeFormat&, size_t)>;
 
 	//! Registers an accessor for an internal type.
-	static bool registerAccessor(uint32_t internalType, const AccessorFactory_t& factory);
-	static bool hasAccessor(const AttributeFormat& attr);
+	UTILAPI static bool registerAccessor(uint32_t internalType, const AccessorFactory_t& factory);
+	UTILAPI static bool hasAccessor(const AttributeFormat& attr);
 	
-	void readRaw(size_t index, uint8_t* data, size_t size) const;
+	UTILAPI void readRaw(size_t index, uint8_t* data, size_t size) const;
 	virtual void readValues(size_t index, int8_t* values, size_t count) const = 0;
 	virtual void readValues(size_t index, int16_t* values, size_t count) const = 0;
 	virtual void readValues(size_t index, int32_t* values, size_t count) const = 0;
