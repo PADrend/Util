@@ -67,7 +67,7 @@ class DBFSProvider : public AbstractFSProvider {
 		public:
 			UTILAPI bool saveFile(const std::string & folder,const std::string & file,const std::vector<uint8_t> & data,bool overwrite=true);
 			UTILAPI std::vector<uint8_t> readFile(const std::string & folder,const std::string & file);
-			UTILAPI size_t getSize(const std::string & folder,const std::string & file);
+			UTILAPI uint64_t getSize(const std::string & folder,const std::string & file);
 			UTILAPI bool dir(const std::string & folder, const std::string & prefix, std::list<FileName> &result, uint8_t flags);
 			UTILAPI int getFolderId(const std::string & folder);
 			UTILAPI bool isFile(const std::string & folder,const std::string & file);
@@ -95,7 +95,7 @@ class DBFSProvider : public AbstractFSProvider {
 
 		UTILAPI bool isFile(const FileName &) override;
 		UTILAPI bool isDir(const FileName &) override;
-		UTILAPI size_t fileSize(const FileName & filename) override;
+		UTILAPI uint64_t fileSize(const FileName & filename) override;
 		UTILAPI status_t dir(const FileName &path, std::list<FileName> &result, uint8_t flags) override;
 
 		UTILAPI void flush() override;

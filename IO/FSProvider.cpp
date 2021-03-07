@@ -152,7 +152,7 @@ AbstractFSProvider::status_t FSProvider::readFile(const FileName & filename, std
 		return FAILURE;
 
 	inputFile.seekg( 0, std::ios::end );
-	size_t size = inputFile.tellg();
+	uint64_t size = inputFile.tellg();
 	inputFile.seekg( 0, std::ios::beg );
 
 	data.resize(size);
@@ -248,7 +248,7 @@ AbstractFSProvider::status_t FSProvider::makeDirRecursive(const FileName & name)
 		return FAILURE;
 
 	std::string s = name.getPath();
-	size_t pos = std::string::npos;
+	uint64_t pos = std::string::npos;
 	if(s.back() == '/') {
 		pos = s.rfind('/')-1;
 	}
@@ -257,13 +257,13 @@ AbstractFSProvider::status_t FSProvider::makeDirRecursive(const FileName & name)
 }
 
 //! ---|> AbstractFSProvider
-size_t FSProvider::fileSize(const FileName & filename){
+uint64_t FSProvider::fileSize(const FileName & filename){
 	std::ifstream inputFile(filename.getPath().c_str(), std::ios::in | std::ios::binary);
 	if ( inputFile.fail())
 		return 0;
 
 	inputFile.seekg( 0, std::ios::end);
-	size_t size = inputFile.tellg();
+	uint64_t size = inputFile.tellg();
 	inputFile.close();
 	return size;
 }

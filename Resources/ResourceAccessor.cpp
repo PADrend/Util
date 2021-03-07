@@ -14,7 +14,7 @@ namespace Util {
 
 //-------------------
 
-ResourceAccessor::ResourceAccessor(uint8_t* ptr, size_t size, ResourceFormat format) : resource(nullptr), format(format), dataPtr(ptr), dataSize(size), elementCount(size / format.getSize()) {
+ResourceAccessor::ResourceAccessor(uint8_t* ptr, uint64_t size, ResourceFormat format) : resource(nullptr), format(format), dataPtr(ptr), dataSize(size), elementCount(size / format.getSize()) {
 	const auto& attributes = format.getAttributes();
 	accessors.resize(attributes.size());
 	for(uint32_t i=0; i<attributes.size(); ++i) {
@@ -40,7 +40,7 @@ ResourceAccessor::~ResourceAccessor() {
 
 //-------------------
 
-void ResourceAccessor::readRaw(size_t index, uint8_t* targetPtr, size_t count) {
+void ResourceAccessor::readRaw(uint64_t index, uint8_t* targetPtr, uint64_t count) {
 	assertRangeLocation(index+count-1, 0);
 	const uint8_t* ptr = dataPtr + index*format.getSize();
 	std::copy(ptr, ptr + count*format.getSize(), targetPtr);
@@ -48,7 +48,7 @@ void ResourceAccessor::readRaw(size_t index, uint8_t* targetPtr, size_t count) {
 
 //-------------------
 
-void ResourceAccessor::writeRaw(size_t index, const uint8_t* sourcePtr, size_t count) {
+void ResourceAccessor::writeRaw(uint64_t index, const uint8_t* sourcePtr, uint64_t count) {
 	assertRangeLocation(index+count-1, 0);
 	uint8_t* ptr = dataPtr + index*format.getSize();
 	std::copy(sourcePtr, sourcePtr + count*format.getSize(), ptr);

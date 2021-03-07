@@ -154,7 +154,7 @@ Reference<Bitmap> blendTogether(const AttributeFormat & targetFormat,
 
 	Reference<Bitmap> target(new Bitmap(width,height,targetFormat));
 	{
-		const float scale = 1.0 / sources.size();
+		const float scale = 1.0f / static_cast<float>(sources.size());
 		Reference<PixelAccessor> writer( PixelAccessor::create(target.get()));
 		auto pixel = buffer.begin();
 		for(uint32_t y = 0;y<height;++y )
@@ -171,7 +171,7 @@ Reference<Bitmap> combineInterleaved(const AttributeFormat & targetFormat,
 		throw std::invalid_argument("blendTogether: 'sources' may not be empty.");
 	}
 
-	const uint32_t count = std::sqrt(sourceBitmaps.size());
+	const uint32_t count = static_cast<uint32_t>(std::sqrt(sourceBitmaps.size()));
 	const uint32_t width = sourceBitmaps.front()->getWidth();
 	const uint32_t height = sourceBitmaps.front()->getHeight();
 	

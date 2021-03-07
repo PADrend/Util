@@ -192,7 +192,7 @@ bool ZIPProvider::isDir(const FileName & url) {
 	return handle->isDir(file);
 }
 
-size_t ZIPProvider::fileSize(const FileName & url) {
+uint64_t ZIPProvider::fileSize(const FileName & url) {
 	std::lock_guard<std::mutex> lock(handlesMutex);
 	std::string archiveFileName;
 	FileName file;
@@ -239,7 +239,7 @@ AbstractFSProvider::status_t ZIPProvider::makeDirRecursive(const FileName & url)
 
 	const std::string path = file.getPath();
 	// Split path into directory components
-	size_t pos = 0;
+	uint64_t pos = 0;
 	while(pos != path.size()) {
 		pos = path.find('/', pos);
 		if(pos == std::string::npos) {
@@ -328,7 +328,7 @@ ZIPProvider::ZIPHandle * ZIPProvider::getZIPHandle(
 void ZIPProvider::decomposeURL(const FileName & url,
 								std::string & archiveFileName, FileName & localPath) {
 	const std::string path = url.getPath();
-	const std::size_t splitPos = path.find('$');
+	const std::uint64_t splitPos = path.find('$');
 	if (splitPos == std::string::npos) {
 		archiveFileName = path;
 		localPath = std::string("");
@@ -360,7 +360,7 @@ AbstractFSProvider::status_t ZIPProvider::ZIPHandle::readFile(const FileName & f
 		return FAILURE;
 	}
 
-	const size_t size = fileSize(file);
+	const uint64_t size = fileSize(file);
 	if (size == 0) {
 		return FAILURE;
 	}
@@ -372,13 +372,13 @@ AbstractFSProvider::status_t ZIPProvider::ZIPHandle::readFile(const FileName & f
 	}
 
 	data.resize(size);
-	const int bytesRead = zip_fread(fileHandle, data.data(), data.size());
+	const auto bytesRead = zip_fread(fileHandle, data.data(), data.size());
 	if (bytesRead == -1) {
 		WARN(zip_strerror(handle));
 		zip_fclose(fileHandle);
 		return FAILURE;
 	}
-	if (static_cast<size_t>(bytesRead) != size) {
+	if (static_cast<uint64_t>(bytesRead) != size) {
 		WARN("Sizes differ during read.");
 		zip_fclose(fileHandle);
 		return FAILURE;
@@ -399,7 +399,7 @@ AbstractFSProvider::status_t ZIPProvider::ZIPHandle::writeFile(const FileName & 
 
 	bool replace = false;
 
-	int index = zip_name_locate(handle, file.getPath().c_str(), 0);
+	uint64_t index = zip_name_locate(handle, file.getPath().c_str(), 0);
 	if (index != -1) {
 		// File already exists.
 		if (!overwrite) {
@@ -421,7 +421,7 @@ AbstractFSProvider::status_t ZIPProvider::ZIPHandle::writeFile(const FileName & 
 		return FAILURE;
 	}
 
-	int newIndex;
+	uint64_t newIndex;
 	if (replace) {
 		newIndex = zip_replace(handle, index, source);
 	} else {
@@ -534,18 +534,18 @@ bool ZIPProvider::ZIPHandle::isDir(const FileName & directory) {
 	return (entry.back() == '/' && sb.size == 0);
 }
 
-size_t ZIPProvider::ZIPHandle::fileSize(const FileName & file) {
+uint64_t ZIPProvider::ZIPHandle::fileSize(const FileName & file) {
 	struct zip_stat sb;
 	zip_stat_init(&sb);
 	if (zip_stat(handle, file.getPath().c_str(), 0, &sb) == -1) {
 		WARN(zip_strerror(handle));
 		return 0;
 	}
-	return static_cast<size_t>(sb.size);
+	return static_cast<uint64_t>(sb.size);
 }
 
 AbstractFSProvider::status_t ZIPProvider::ZIPHandle::makeDir(const FileName & directory) {
-	int index = zip_add_dir(handle, directory.getPath().c_str());
+	uint64_t index = zip_add_dir(handle, directory.getPath().c_str());
 	if (index == -1) {
 		WARN(zip_strerror(handle));
 		return FAILURE;
@@ -555,7 +555,7 @@ AbstractFSProvider::status_t ZIPProvider::ZIPHandle::makeDir(const FileName & di
 }
 
 AbstractFSProvider::status_t ZIPProvider::ZIPHandle::removeDir(const FileName & directory) {
-	int index = zip_name_locate(handle, directory.getPath().c_str(), 0);
+	uint64_t index = zip_name_locate(handle, directory.getPath().c_str(), 0);
 	if (index == -1) {
 		WARN(zip_strerror(handle));
 		return FAILURE;

@@ -27,10 +27,10 @@ class ResourceFormat;
 */
 class AttributeAccessor : public ReferenceCounter<AttributeAccessor> {
 protected:
-	AttributeAccessor(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride=0) :
+	AttributeAccessor(uint8_t* ptr, uint64_t size, const AttributeFormat& attr, uint64_t stride=0) :
 		dataPtr(ptr + attr.getOffset()), dataSize(size), attribute(attr), stride(stride == 0 ? attr.getDataSize() : stride) {}
 		
-	inline void assertRange(uint32_t index) const { 
+	inline void assertRange(uint64_t index) const { 
 		if(!checkRange(index)) {
 			std::ostringstream s;
 			s << "Trying to access attribute at index " << index << " of overall " << (dataSize/stride) << " indices.";
@@ -42,34 +42,34 @@ public:
 	virtual ~AttributeAccessor() = default;
 		
 	//! Creates a new attribute accessor for the given data using the specified resource format.
-	UTILAPI static Ref create(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride=0);
-	UTILAPI static Ref create(uint8_t* ptr, size_t size, const ResourceFormat& format, const StringIdentifier& name);
+	UTILAPI static Ref create(uint8_t* ptr, uint64_t size, const AttributeFormat& attr, uint64_t stride=0);
+	UTILAPI static Ref create(uint8_t* ptr, uint64_t size, const ResourceFormat& format, const StringIdentifier& name);
 	
-	//! (uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) -> Ref
-	using AccessorFactory_t = std::function<Ref(uint8_t*, size_t, const AttributeFormat&, size_t)>;
+	//! (uint8_t* ptr, uint64_t size, const AttributeFormat& attr, uint64_t stride) -> Ref
+	using AccessorFactory_t = std::function<Ref(uint8_t*, uint64_t, const AttributeFormat&, uint64_t)>;
 
 	//! Registers an accessor for an internal type.
 	UTILAPI static bool registerAccessor(uint32_t internalType, const AccessorFactory_t& factory);
 	UTILAPI static bool hasAccessor(const AttributeFormat& attr);
 	
-	UTILAPI void readRaw(size_t index, uint8_t* data, size_t size) const;
-	virtual void readValues(size_t index, int8_t* values, size_t count) const = 0;
-	virtual void readValues(size_t index, int16_t* values, size_t count) const = 0;
-	virtual void readValues(size_t index, int32_t* values, size_t count) const = 0;
-	virtual void readValues(size_t index, int64_t* values, size_t count) const = 0;
-	virtual void readValues(size_t index, uint8_t* values, size_t count) const = 0;
-	virtual void readValues(size_t index, uint16_t* values, size_t count) const = 0;
-	virtual void readValues(size_t index, uint32_t* values, size_t count) const = 0;
-	virtual void readValues(size_t index, uint64_t* values, size_t count) const = 0;
-	virtual void readValues(size_t index, float* values, size_t count) const = 0;
-	virtual void readValues(size_t index, double* values, size_t count) const = 0;
+	UTILAPI void readRaw(uint64_t index, uint8_t* data, uint64_t size) const;
+	virtual void readValues(uint64_t index, int8_t* values, uint64_t count) const = 0;
+	virtual void readValues(uint64_t index, int16_t* values, uint64_t count) const = 0;
+	virtual void readValues(uint64_t index, int32_t* values, uint64_t count) const = 0;
+	virtual void readValues(uint64_t index, int64_t* values, uint64_t count) const = 0;
+	virtual void readValues(uint64_t index, uint8_t* values, uint64_t count) const = 0;
+	virtual void readValues(uint64_t index, uint16_t* values, uint64_t count) const = 0;
+	virtual void readValues(uint64_t index, uint32_t* values, uint64_t count) const = 0;
+	virtual void readValues(uint64_t index, uint64_t* values, uint64_t count) const = 0;
+	virtual void readValues(uint64_t index, float* values, uint64_t count) const = 0;
+	virtual void readValues(uint64_t index, double* values, uint64_t count) const = 0;
 	
 	/**
 	* Reads a single value of any primitive type from the resource, starting at the given index.
 	* The value is internally converted to the correct type.
 	*/
 	template<typename T> 
-	T readValue(size_t index) {
+	T readValue(uint64_t index) {
 		T value;
 		readValues(index, &value, 1);
 		return value;
@@ -80,30 +80,30 @@ public:
 	* The values are internally converted to the correct type.
 	*/
 	template<typename T> 
-	std::vector<T> readValues(size_t index) {
+	std::vector<T> readValues(uint64_t index) {
 		std::vector<T> values;
 		readValues(index, values.data(), values.size());
 		return values;
 	}
 	
-	void writeRaw(size_t index, const uint8_t* data, size_t size) const;
-	virtual void writeValues(size_t index, const int8_t* values, size_t count) const = 0;
-	virtual void writeValues(size_t index, const int16_t* values, size_t count) const = 0;
-	virtual void writeValues(size_t index, const int32_t* values, size_t count) const = 0;
-	virtual void writeValues(size_t index, const int64_t* values, size_t count) const = 0;
-	virtual void writeValues(size_t index, const uint8_t* values, size_t count) const = 0;
-	virtual void writeValues(size_t index, const uint16_t* values, size_t count) const = 0;
-	virtual void writeValues(size_t index, const uint32_t* values, size_t count) const = 0;
-	virtual void writeValues(size_t index, const uint64_t* values, size_t count) const = 0;
-	virtual void writeValues(size_t index, const float* values, size_t count) const = 0;
-	virtual void writeValues(size_t index, const double* values, size_t count) const = 0;
+	void writeRaw(uint64_t index, const uint8_t* data, uint64_t size) const;
+	virtual void writeValues(uint64_t index, const int8_t* values, uint64_t count) const = 0;
+	virtual void writeValues(uint64_t index, const int16_t* values, uint64_t count) const = 0;
+	virtual void writeValues(uint64_t index, const int32_t* values, uint64_t count) const = 0;
+	virtual void writeValues(uint64_t index, const int64_t* values, uint64_t count) const = 0;
+	virtual void writeValues(uint64_t index, const uint8_t* values, uint64_t count) const = 0;
+	virtual void writeValues(uint64_t index, const uint16_t* values, uint64_t count) const = 0;
+	virtual void writeValues(uint64_t index, const uint32_t* values, uint64_t count) const = 0;
+	virtual void writeValues(uint64_t index, const uint64_t* values, uint64_t count) const = 0;
+	virtual void writeValues(uint64_t index, const float* values, uint64_t count) const = 0;
+	virtual void writeValues(uint64_t index, const double* values, uint64_t count) const = 0;
 	
 	/**
 	* Writes a single value of any primitive type into the resource, starting at the given index. 
 	* The value is internally converted to the correct type.
 	*/
 	template<typename T> 
-	void writeValue(size_t index, const T& value) {
+	void writeValue(uint64_t index, const T& value) {
 		writeValues(index, &value, 1);
 	}
 	
@@ -112,7 +112,7 @@ public:
 	* The values are internally converted to the correct type.
 	*/
 	template<typename T> 
-	void writeValues(size_t index, const std::vector<T>& values) {
+	void writeValues(uint64_t index, const std::vector<T>& values) {
 		writeValues(index, values.data(), values.size());
 	}
 	
@@ -124,21 +124,21 @@ public:
 	/**
 	* Checks whether the @p index is in range. 
 	*/
-	inline bool checkRange(uint32_t index) const { return index*stride<dataSize; }
+	inline bool checkRange(uint64_t index) const { return index*stride<dataSize; }
 	
 	/**
 	* Returns the raw data pointer to the resource attribute at the given index. 
 	*/
 	template<typename number_t>
-	number_t * _ptr(size_t index) const { return reinterpret_cast<number_t*>(dataPtr+index*stride); }	
+	number_t * _ptr(uint64_t index) const { return reinterpret_cast<number_t*>(dataPtr+index*stride); }	
 
 	//! Get the size in bytes of the accessed data.
-	size_t getDataSize() const { return dataSize; }
+	uint64_t getDataSize() const { return dataSize; }
 private:
 	uint8_t* const dataPtr;
-	const size_t dataSize;
+	const uint64_t dataSize;
 	const AttributeFormat attribute;
-	const size_t stride;
+	const uint64_t stride;
 };
 
 } /* Util */

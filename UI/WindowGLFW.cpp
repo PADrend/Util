@@ -557,7 +557,7 @@ std::deque<Event> WindowGLFW::fetchEvents() {
 		int count;
 		// Joy axes
 		const float* axes = glfwGetJoystickAxes(jid, &count);
-		for(uint_fast32_t i=0; i<count; ++i) {
+		for(int i=0; i<count; ++i) {
 			int16_t value = convert<int16_t>(axes[i]);
 			if(value != joy.axes[i]) {
 				Event event;
@@ -572,7 +572,7 @@ std::deque<Event> WindowGLFW::fetchEvents() {
 		
 		// Joy buttons
 		const uint8_t* buttons = glfwGetJoystickButtons(jid, &count);
-		for(uint_fast32_t i=0; i<count; ++i) {
+		for(int i=0; i<count; ++i) {
 			bool pressed = buttons[i] == GLFW_PRESS;
 			if(pressed != joy.buttons[i]) {
 				Event event;
@@ -587,7 +587,7 @@ std::deque<Event> WindowGLFW::fetchEvents() {
 		
 		// Joy hats
 		const uint8_t* hats = glfwGetJoystickHats(jid, &count);
-		for(uint_fast32_t i=0; i<count; ++i) {
+		for(int i=0; i<count; ++i) {
 			if(hats[i] != joy.hats[i]) {
 				Event event;
 				event.type = EVENT_JOY_HAT;

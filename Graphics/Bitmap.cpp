@@ -58,7 +58,7 @@ void Bitmap::flipVertically() {
 	std::vector<uint8_t> temp(pixelData.size());
 	const uint8_t * src = pixelData.data();
 	uint8_t * dst = temp.data();
-	const uint32_t rowDataSize( width*pixelFormat.getDataSize() );
+	const uint64_t rowDataSize( width*pixelFormat.getDataSize() );
 
 	for(int32_t y = (height - 1); y >= 0; --y) {
 		const uint8_t * rowBegin = src + y * rowDataSize;

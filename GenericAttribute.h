@@ -158,7 +158,7 @@ class GenericAttribute{
 		*
 		* @return Floating-point representation.
 		*/
-		virtual float toFloat()const				{	return toDouble();	}
+		virtual float toFloat()const				{	return static_cast<float>(toDouble());	}
 		/**
 		 * Convert the object to an integer value.
 		 *
@@ -383,8 +383,8 @@ class BoolAttribute:public GenericAttribute{
 		attr_t * clone() const override				{	return new attr_t(*this);	}
 		std::string toString() const override			{	return data?"true":"false";	}
 		std::string toJSON() const override			{	return toString();	}
-		double toDouble() const override				{	return data?1:0;	}
-		float toFloat() const override				{	return data?1:0;	}
+		double toDouble() const override				{	return data?1.0:0.0;	}
+		float toFloat() const override				{	return data?1.0f:0.0f;	}
 		int toInt() const override					{	return data?1:0;	}
 		bool toBool() const override					{	return data;	 }
 		unsigned int toUnsignedInt() const override	{	return data?1:0;	}

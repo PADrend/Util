@@ -286,7 +286,7 @@ bool TCPConnection::sendString(const std::string & s) {
 
 //! ---|> ThreadObject
 void TCPConnection::run() {
-	lastActiveTime = Timer::now();
+	lastActiveTime = static_cast<float>(Timer::now());
 	while(isOpen()) {
 		Utils::sleep(1);
 
@@ -314,7 +314,7 @@ void TCPConnection::run() {
 				std::lock_guard<std::mutex> lock(inQueueMutex);
 				inQueueDataSize += static_cast<size_t>(std::get<0>(receivedDataAndStatus).size());
 				inQueue.emplace_back( std::move( std::get<0>(receivedDataAndStatus)) );
-				lastActiveTime = Timer::now();
+				lastActiveTime = static_cast<float>(Timer::now());
 			}
 		}
 	}

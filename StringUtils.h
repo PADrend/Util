@@ -32,7 +32,7 @@ UTILAPI bool beginsWith(const char * subject,const char * find);
 UTILAPI bool beginsWith(std::istream & is,const std::string & find);
 
 //! Create a random string out of digits, and lower and uppercase letters.
-UTILAPI std::string createRandomString(size_t length);
+UTILAPI std::string createRandomString(uint64_t length);
 
 //!	Escape quotes, newlines and backslashes.
 UTILAPI std::string escape(const std::string & s);
@@ -79,7 +79,7 @@ static const uint32_t INVALID_UNICODE_CODE_POINT = (std::numeric_limits<uint32_t
 	@return [UnicodeCodePoint, numberOfBytes]; 
 		If the code point lies beyond the string, numberOfBytes is 0.
 		If no valid code point could be read (e.g. formatting error), UnicodeCodePoint is INVALID_UNICODE_CODE_POINT. */
-UTILAPI std::pair<uint32_t,uint8_t> readUTF8Codepoint(const std::string & str,const size_t pos);
+UTILAPI std::pair<uint32_t,uint8_t> readUTF8Codepoint(const std::string & str,const uint64_t pos);
 
 /*! Read and return the content of a quoted string "foo bar". The cursor is placed after the string.
 	If no quoted string is found at the beginning of the stream, the cursor is not moved.   */

@@ -56,7 +56,7 @@
 namespace Util {
 namespace Utils {
 
-size_t getResidentSetMemorySize() {
+uint64_t getResidentSetMemorySize() {
 #if defined(_WIN32) || defined(_WIN64)
 	HANDLE hProcess = GetCurrentProcess();
 	PROCESS_MEMORY_COUNTERS pmc;
@@ -64,7 +64,7 @@ size_t getResidentSetMemorySize() {
 	return pmc.WorkingSetSize;
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	try {
-		size_t sizeNumPages, residentNumPages;
+		uint64_t sizeNumPages, residentNumPages;
 		const long pageSize = sysconf(_SC_PAGESIZE);
 		std::ifstream fs("/proc/self/statm");
 		fs >> std::skipws >> sizeNumPages >> residentNumPages;
@@ -77,7 +77,7 @@ size_t getResidentSetMemorySize() {
 #endif
 }
 
-size_t getVirtualMemorySize() {
+uint64_t getVirtualMemorySize() {
 #if defined(_WIN32) || defined(_WIN64)
 	HANDLE hProcess = GetCurrentProcess();
 	PROCESS_MEMORY_COUNTERS pmc;
@@ -85,7 +85,7 @@ size_t getVirtualMemorySize() {
 	return pmc.PagefileUsage;
 #elif defined(__linux__) || defined(__unix__) || defined(ANDROID)
 	try {
-		size_t sizeNumPages;
+		uint64_t sizeNumPages;
 		const long pageSize = sysconf(_SC_PAGESIZE);
 		std::ifstream fs("/proc/self/statm");
 		fs >> std::skipws >> sizeNumPages;
@@ -98,10 +98,10 @@ size_t getVirtualMemorySize() {
 #endif
 }
 
-size_t getAllocatedMemorySize() {
+uint64_t getAllocatedMemorySize() {
 #if defined(UTIL_HAVE_MALLOC_H) && defined(UTIL_HAVE_MALLOC_INFO) && defined(UTIL_HAVE_OPEN_MEMSTREAM)
 	char * ptr;
-	size_t size;
+	uint64_t size;
 	auto memStream = open_memstream(&ptr, &size);
 	if(memStream == nullptr) {
 		WARN("open_memstream failed.");
@@ -112,7 +112,7 @@ size_t getAllocatedMemorySize() {
 	std::istringstream stream(std::string(ptr, size));
 	free(ptr);
 
-	size_t allocatedSize = 0;
+	uint64_t allocatedSize = 0;
 	bool insideHeapTag = false;
 	MicroXML::Reader::traverse(
 		stream,
@@ -145,7 +145,7 @@ size_t getAllocatedMemorySize() {
 						WARN("No attribute size in tag system found in malloc_info.");
 						return false;
 					}
-					allocatedSize = Util::StringUtils::toNumber<size_t>(sizeIt->second);
+					allocatedSize = Util::StringUtils::toNumber<uint64_t>(sizeIt->second);
 					return false;
 				}
 			}
@@ -168,7 +168,7 @@ size_t getAllocatedMemorySize() {
 	return allocatedSize;
 #elif defined(UTIL_HAVE_MALLOC_H) && defined(UTIL_HAVE_MALLINFO)
 	const auto mallocInfo = mallinfo();
-	return static_cast<size_t>(mallocInfo.hblkhd) + static_cast<size_t>(mallocInfo.uordblks);
+	return static_cast<uint64_t>(mallocInfo.hblkhd) + static_cast<uint64_t>(mallocInfo.uordblks);
 #else
 	return 0;
 #endif
@@ -182,7 +182,7 @@ void outputProcessMemory() {
 	std::cout << "Memory:\tAllocated memory size =  \t" << std::setw(8) << getAllocatedMemorySize() / Mebi << " MiBytes" << std::endl;
 }
 
-size_t getIOBytesRead() {
+uint64_t getIOBytesRead() {
 #if defined(_WIN32) || defined(_WIN64)
 	HANDLE hProcess = GetCurrentProcess();
 	IO_COUNTERS pioc;
@@ -195,7 +195,7 @@ size_t getIOBytesRead() {
 		while(fs.good()) {
 			fs.getline(buffer, 256, ':');
 			if(std::string(buffer) == "rchar") {
-				size_t bytesRead;
+				uint64_t bytesRead;
 				fs >> std::skipws >> bytesRead;
 				return bytesRead;
 			}
@@ -210,7 +210,7 @@ size_t getIOBytesRead() {
 #endif
 }
 
-size_t getIOBytesWritten() {
+uint64_t getIOBytesWritten() {
 #if defined(_WIN32) || defined(_WIN64)
 	HANDLE hProcess = GetCurrentProcess();
 	IO_COUNTERS pioc;
@@ -223,7 +223,7 @@ size_t getIOBytesWritten() {
 		while(fs.good()) {
 			fs.getline(buffer, 256, ':');
 			if(std::string(buffer) == "wchar") {
-				size_t bytesRead;
+				uint64_t bytesRead;
 				fs >> std::skipws >> bytesRead;
 				return bytesRead;
 			}
@@ -287,9 +287,7 @@ int32_t getProcessId() {
 std::string getExecutablePath() {
 #if defined(_WIN32) || defined(_WIN64)
 	std::string buffer(MAX_PATH, '\0');
-	const auto numChars = GetModuleFileName(nullptr, 
-											&buffer.front(),
-											buffer.size());
+	const auto numChars = GetModuleFileName(nullptr, &buffer.front(), static_cast<DWORD>(buffer.size()));
 	if(numChars == 0) {
 		WARN("GetModuleFileName failed.");
 		return std::string();
@@ -368,7 +366,7 @@ std::vector<std::string> getBacktrace() {
 #ifdef UTIL_HAVE_EXECINFO_H
 	std::array<void *, 128> buffer;
 	const int num = backtrace(buffer.data(), buffer.size());
-	result.reserve(static_cast<size_t>(num));
+	result.reserve(static_cast<uint64_t>(num));
 	char ** strings = backtrace_symbols(buffer.data(), num);
 	for (int i = 0; i < num; ++i) {
 		result.emplace_back(strings[i]);

@@ -24,7 +24,7 @@
 #include <cstddef>
 #include <fstream>
 
-#if defined(UTIL_HAVE_LIB_STB) and not defined(UTIL_PREFER_SDL_IMAGE)
+#if defined(UTIL_HAVE_LIB_STB) & !defined(UTIL_PREFER_SDL_IMAGE)
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image.h>
@@ -40,7 +40,7 @@ static bool libNameInitailized = [](){
 namespace Util {
 namespace Serialization {
 
-#if defined(UTIL_HAVE_LIB_STB) and not defined(UTIL_PREFER_SDL_IMAGE)
+#if defined(UTIL_HAVE_LIB_STB) && !defined(UTIL_PREFER_SDL_IMAGE)
 
 Reference<Bitmap> StreamerSTB::loadBitmap(std::istream & input) {
 	input.seekg(0, std::ios::end);
@@ -51,7 +51,7 @@ Reference<Bitmap> StreamerSTB::loadBitmap(std::istream & input) {
 	input.read(reinterpret_cast<char *>(data.data()), size);
 	
 	int width,height,components;
-	uint8_t* img = stbi_load_from_memory(data.data(), size, &width, &height, &components, 0);
+	uint8_t* img = stbi_load_from_memory(data.data(), static_cast<int>(size), &width, &height, &components, 0);
 	if(!img) {
 		WARN(std::string("Could not create image. ") + stbi_failure_reason());
 		return nullptr;
@@ -95,7 +95,7 @@ bool StreamerSTB::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 	int components = bitmap.getHeight();
 	const int width = bitmap.getWidth();
 	const int height = bitmap.getHeight();
-	const int stride = pixelFormat.getBytesPerPixel() * width;
+	const int stride = pixelFormat.getDataSize() * width;
 	if(pixelFormat == PixelFormat::RGBA) {
 		components = 4;
 	} else if(pixelFormat == PixelFormat::BGRA) {
@@ -123,7 +123,7 @@ bool StreamerSTB::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 #endif /* defined(UTIL_HAVE_LIB_STB) */
 
 bool StreamerSTB::init() {
-#if defined(UTIL_HAVE_LIB_STB) and not defined(UTIL_PREFER_SDL_IMAGE)
+#if defined(UTIL_HAVE_LIB_STB) && !defined(UTIL_PREFER_SDL_IMAGE)
 	static const std::string fileExtensions[] = { "jpeg", "jpg", "png", "tga", "bmp", "psd", "gif", "hdr", "pic", "pnm" };
 	for(auto & fileExtension : fileExtensions)
 		Serialization::registerBitmapLoader(fileExtension, ObjectCreator<StreamerSTB>());

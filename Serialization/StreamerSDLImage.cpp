@@ -17,7 +17,7 @@
 #include <cstddef>
 #include <istream>
 
-#if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
+#if defined(UTIL_HAVE_LIB_SDL2) && defined(UTIL_HAVE_LIB_SDL2_IMAGE)
 COMPILER_WARN_PUSH
 COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL.h>
@@ -33,12 +33,12 @@ static bool libNameInitailized = [](){
 	Util::LibRegistry::registerLibVersionString("LibSDL2Image",SDL_IMAGE_FULL_VERSION_STRING); 
 	return true;
 }();
-#endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
+#endif /* defined(UTIL_HAVE_LIB_SDL2) && defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
 
 namespace Util {
 namespace Serialization {
 
-#if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
+#if defined(UTIL_HAVE_LIB_SDL2) && defined(UTIL_HAVE_LIB_SDL2_IMAGE)
 
 Reference<Bitmap> StreamerSDLImage::loadBitmap(std::istream & input) {
 	input.seekg(0, std::ios::end);
@@ -61,7 +61,7 @@ Reference<Bitmap> StreamerSDLImage::loadBitmap(std::istream & input) {
 #endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
 
 bool StreamerSDLImage::init() {
-#if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
+#if defined(UTIL_HAVE_LIB_SDL2) && defined(UTIL_HAVE_LIB_SDL2_IMAGE)
 	static const std::string fileExtensions[18] = { "bmp", "gif", "iff", "jpeg", "jpg", "lbm", "pbm", "pcx", "pgm", "png", "pnm", "ppm", "tif", "tiff", "xcf", "xpm", "xv" };
 	for(auto & fileExtension : fileExtensions) {
 		Serialization::registerBitmapLoader(fileExtension, ObjectCreator<StreamerSDLImage>());

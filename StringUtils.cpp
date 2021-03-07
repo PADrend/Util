@@ -29,8 +29,8 @@ using std::ios;
 std::string trim(const std::string & s) {
 	const char * const whiteSpace = " \t\v\f\r\n";
 
-	size_t startPos = s.find_first_not_of(whiteSpace);
-	size_t endPos = s.find_last_not_of(whiteSpace);
+	uint64_t startPos = s.find_first_not_of(whiteSpace);
+	uint64_t endPos = s.find_last_not_of(whiteSpace);
 	if ((startPos == std::string::npos) || (endPos == std::string::npos)) {
 		return std::string();
 	} else {
@@ -41,13 +41,13 @@ std::string trim(const std::string & s) {
 std::string replaceAll(const std::string &subject,const std::string &find,const std::string &replace,int count) {
 	std::ostringstream s;
 
-	size_t cursor=0;
-	size_t len=subject.length();
-	size_t fLen=find.length();
+	uint64_t cursor=0;
+	uint64_t len=subject.length();
+	uint64_t fLen=find.length();
 	//unsigned int pos= std::string::npos;
 	int nr=0;
 	while (cursor<len&& nr!=count) {
-		size_t pos=subject.find(find,cursor);
+		uint64_t pos=subject.find(find,cursor);
 
 		//std::cout << " found "<<search<<" at "<< pos<<"\n";
 		if (pos == std::string::npos) {
@@ -80,11 +80,11 @@ std::string replaceAll(const std::string &subject,const std::string &find,const 
 std::string replaceMultiple(const std::string &subject,int replaceCount,const std::string find[],const std::string replace[],int max) {
 	std::ostringstream s;
 
-	unsigned int cursor=0;
+	uint64_t cursor=0;
 
-	size_t len=subject.length();
-	auto findLen = new size_t[replaceCount];
-	auto pos = new size_t[replaceCount];
+	uint64_t len=subject.length();
+	auto findLen = new uint64_t[replaceCount];
+	auto pos = new uint64_t[replaceCount];
 	for (int i=0;i<replaceCount;i++) {
 		// L�nge des Suchstrings
 		findLen[i]=find[i].length();
@@ -94,7 +94,7 @@ std::string replaceMultiple(const std::string &subject,int replaceCount,const st
 	int nr=0;
 	while (cursor<len&& nr!=max) {
 		// select next match
-		size_t nextPos = std::string::npos;
+		uint64_t nextPos = std::string::npos;
 		int nextIndex=-1;
 
 		// F�r jedes find,replace-Paar:
@@ -141,16 +141,16 @@ std::string replaceMultiple(const std::string &subject,int replaceCount,const st
 std::string replaceMultiple(const std::string &subject,const std::deque<keyValuePair> & findReplace,int max){
 	std::ostringstream s;
 
-	size_t replaceCount=findReplace.size();
+	uint64_t replaceCount=findReplace.size();
 
 
-	size_t cursor=0;
+	uint64_t cursor=0;
 
-	size_t len=subject.length();
-	auto findLen = new size_t[replaceCount];
-	auto pos = new size_t[replaceCount];
+	uint64_t len=subject.length();
+	auto findLen = new uint64_t[replaceCount];
+	auto pos = new uint64_t[replaceCount];
 
-	unsigned int i=0;
+	uint64_t i=0;
 	for(const auto & it : findReplace) {
 		// L�nge des Suchstrings
 		findLen[i]=it.first.length();
@@ -162,8 +162,8 @@ std::string replaceMultiple(const std::string &subject,const std::deque<keyValue
 	int nr=0;
 	while (cursor<len&& nr!=max) {
 		// select next match
-		size_t nextPos= std::string::npos;
-		unsigned int nextReplaceLength=0;
+		uint64_t nextPos= std::string::npos;
+		uint64_t nextReplaceLength=0;
 		auto nextReplace=findReplace.begin();
 
 		// F�r jedes find,replace-Paar:
@@ -459,11 +459,11 @@ std::string escape(const std::string & s) {
 
 //! (static)
 static Timer seedTimer;
-std::string createRandomString(size_t length){
+std::string createRandomString(uint64_t length){
 	static const char * const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 62 chars
-	static const size_t size = 62; // = strlen(chars);
-	static std::default_random_engine engine(static_cast<size_t>(seedTimer.getNanoseconds()));
-	std::uniform_int_distribution<size_t> distribution(0, size - 1);
+	static const uint64_t size = 62; // = strlen(chars);
+	static std::default_random_engine engine(static_cast<uint32_t>(seedTimer.getNanoseconds()));
+	std::uniform_int_distribution<uint64_t> distribution(0, size - 1);
 
 	std::string s(length, '\0');
 	for (uint_fast8_t i = 0; i < length; ++i) {
@@ -474,7 +474,7 @@ std::string createRandomString(size_t length){
 
 
 //! (static)
-std::pair<uint32_t,uint8_t> readUTF8Codepoint(const std::string & str,const size_t pos){
+std::pair<uint32_t,uint8_t> readUTF8Codepoint(const std::string & str,const uint64_t pos){
 	const uint8_t* cursor = reinterpret_cast<const uint8_t*>(str.c_str())+pos;
 	const uint8_t* end = reinterpret_cast<const uint8_t*>(str.c_str())+str.length();
 	
@@ -535,7 +535,7 @@ std::pair<uint32_t,uint8_t> readUTF8Codepoint(const std::string & str,const size
 std::u32string utf8_to_utf32(const std::string & str_u8) {
 	std::u32string utf32String;
 	utf32String.reserve(str_u8.length()); // just a guess.
-	size_t cursor = 0;
+	uint64_t cursor = 0;
 	while(true) {
 		const auto codePoint = readUTF8Codepoint(str_u8, cursor);
 		if(codePoint.second == 0) {

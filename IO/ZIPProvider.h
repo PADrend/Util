@@ -43,7 +43,7 @@ class ZIPProvider : public AbstractFSProvider {
 		UTILAPI status_t dir(const FileName & url, std::list<FileName> & result, uint8_t flags) override;
 		UTILAPI bool isFile(const FileName & url) override;
 		UTILAPI bool isDir(const FileName & url) override;
-		UTILAPI size_t fileSize(const FileName & url) override;
+		UTILAPI uint64_t fileSize(const FileName & url) override;
 
 		UTILAPI status_t makeDir(const FileName & url) override;
 		UTILAPI status_t makeDirRecursive(const FileName & url) override;
@@ -70,7 +70,7 @@ class ZIPProvider : public AbstractFSProvider {
 				UTILAPI status_t dir(const std::string & directory, std::list<FileName> & result, const uint8_t flags);
 				UTILAPI bool isFile(const FileName & file);
 				UTILAPI bool isDir(const FileName & directory);
-				UTILAPI size_t fileSize(const FileName & file);
+				UTILAPI uint64_t fileSize(const FileName & file);
 
 				UTILAPI status_t makeDir(const FileName & directory);
 				UTILAPI status_t removeDir(const FileName & directory);

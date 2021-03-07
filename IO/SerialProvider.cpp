@@ -48,7 +48,7 @@ static std::vector<std::string> split(const std::string& source, char delimiter)
 struct PortInfo{
 	std::string portName,internalPortName;
 	uint32_t baudRate;
-	serial::bytesize_t bytesize;
+	serial::byteuint64_t bytesize;
 	serial::parity_t parity;
 	serial::stopbits_t stopbits;
 	serial::flowcontrol_t flowcontrol;
@@ -136,7 +136,7 @@ bool SerialProvider::isFile(const FileName & filename){
 
 class SerialIOBuffer : public std::streambuf{
 		serial::Serial& port;
-		static const std::size_t PUT_BACK_SIZE = 8;
+		static const std::uint64_t PUT_BACK_SIZE = 8;
         std::vector<char> inBuffer;
         std::vector<char> outBuffer;
         
@@ -168,14 +168,14 @@ class SerialIOBuffer : public std::streambuf{
 			char * cursor = inBuffer.data();
 
 			// move last characters to beginning to support put_back
-			const size_t numOldCharacters = std::min(static_cast<size_t>(egptr()-eback()),PUT_BACK_SIZE ); 
-			for(size_t i=numOldCharacters; i>0; --i){
+			const uint64_t numOldCharacters = std::min(static_cast<uint64_t>(egptr()-eback()),PUT_BACK_SIZE ); 
+			for(uint64_t i=numOldCharacters; i>0; --i){
 				*cursor = *(egptr()-i);
 				++cursor;
 			}
 //			std::cout<< "Moving "<< numOldCharacters<<" characters\n";
 
-			const size_t bytesRead = port.read(reinterpret_cast<uint8_t*>(cursor), std::min(port.available(),inBuffer.size()-numOldCharacters));
+			const uint64_t bytesRead = port.read(reinterpret_cast<uint8_t*>(cursor), std::min(port.available(),inBuffer.size()-numOldCharacters));
 			cursor += bytesRead;
 //						std::cout << " Read "<<bytesRead;
 

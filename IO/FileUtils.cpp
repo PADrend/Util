@@ -222,8 +222,8 @@ std::string FileUtils::getParsedFileContents(const FileName & filename){
 
 	std::ostringstream s;
 
-	size_t lastPos=0;
-	size_t pos=0;
+	uint64_t lastPos=0;
+	uint64_t pos=0;
 
 	static const std::string startMarker="/*{{";
 	static const std::string endMarker="}}*/";
@@ -233,7 +233,7 @@ std::string FileUtils::getParsedFileContents(const FileName & filename){
 	while( (pos=content.find(startMarker,lastPos))!=std::string::npos ){
 		s<<content.substr(lastPos,pos-lastPos);
 
-		size_t endPos=content.find(endMarker,pos);
+		uint64_t endPos=content.find(endMarker,pos);
 		if(endPos==std::string::npos){
 			WARN(std::string("getParsedFileContents: Unclosed meta block /*{{ }}*/ in ")+filename.toString());
 			break;
@@ -274,7 +274,7 @@ bool FileUtils::saveFile(const FileName & filename,const std::vector<uint8_t> & 
 	return false;
 }
 
-size_t FileUtils::fileSize(const FileName & filename){
+uint64_t FileUtils::fileSize(const FileName & filename){
 	return getFSProvider(filename)->fileSize(filename);
 }
 
@@ -294,7 +294,7 @@ bool FileUtils::findFile(const FileName & fileName, const std::vector<std::strin
 	FileName modifiedFileName(fileName);
 	const std::string & fileDir = fileName.getDir();
 	// Check if we are supposed to find a file inside an archive.
-	const size_t dollarPos = fileDir.find('$');
+	const uint64_t dollarPos = fileDir.find('$');
 	if(dollarPos != std::string::npos) {
 		const std::string archiveName(fileDir, 0, dollarPos);
 		// Try to find the archive first.
@@ -313,7 +313,7 @@ bool FileUtils::findFile(const FileName & fileName, const std::vector<std::strin
 	for(auto hint : pathHints) {
 		newName = modifiedFileName;
 
-		const size_t pos = hint.find("://");
+		const uint64_t pos = hint.find("://");
 		if(pos != std::string::npos) {
 			newName.setFSName(hint.substr(0, pos));
 			hint = hint.substr(pos + 3);
@@ -337,7 +337,7 @@ bool FileUtils::makeRelativeIfPossible(const FileName & fixedPath,FileName & pat
 	std::string fixedDir( fixedPath.getDir() );
 
 	// Only the "real"-file system part of an archive should be touched
-	const size_t dollarPos = fixedDir.find('$');
+	const uint64_t dollarPos = fixedDir.find('$');
 	if(dollarPos != std::string::npos) {
 		FileName tmp( fixedDir.substr(0,dollarPos) );
 		fixedDir = tmp.getDir();

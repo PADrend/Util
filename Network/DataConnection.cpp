@@ -49,7 +49,7 @@ void DataConnection::run() {
 						m_size(p_size), m_type(p_type), m_channel(p_channel) {
 					}
 				};
-				const Header header(msgSize, MSG_TYPE_VALUE, channelData.first);
+				const Header header(static_cast<uint32_t>(msgSize), MSG_TYPE_VALUE, channelData.first);
 				const uint8_t * headerPtr = reinterpret_cast<const uint8_t *>(&header);
 				
 				std::vector<uint8_t> msg;
@@ -88,7 +88,7 @@ void DataConnection::run() {
 						m_size(p_size), m_type(p_type), m_channel(p_channel) {
 					}
 				};
-				const Header header(msgSize, MSG_TYPE_KEY_VALUE, channelId);
+				const Header header(static_cast<uint32_t>(msgSize), MSG_TYPE_KEY_VALUE, channelId);
 				const uint8_t * headerPtr = reinterpret_cast<const uint8_t *>(&header);
 				const uint8_t * keyLenPtr = reinterpret_cast<const uint8_t *>(&keyLen);
 				

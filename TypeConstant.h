@@ -37,7 +37,7 @@ enum class TypeConstant : uint8_t{
 
 //---------------------
 
-UTILAPI size_t getNumBytes(TypeConstant t);
+UTILAPI uint64_t getNumBytes(TypeConstant t);
 
 //---------------------
 

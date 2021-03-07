@@ -22,13 +22,13 @@ AttributeFormat::AttributeFormat() : nameId(0), dataType(TypeConstant::UINT8), d
 
 //------------------
 
-AttributeFormat::AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint32_t _components, bool _normalized, uint32_t _internalType, size_t _offset) :
-	nameId(_nameId), dataType(_dataType), dataSize(getNumBytes(_dataType)*_components), 
+AttributeFormat::AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint32_t _components, bool _normalized, uint32_t _internalType, uint64_t _offset) :
+	nameId(_nameId), dataType(_dataType), dataSize(static_cast<uint16_t>(getNumBytes(_dataType)*_components)), 
 	offset(_offset), components(_components), normalized(_normalized), internalType(_internalType) { }
 
 //------------------
 
-AttributeFormat::AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint32_t _components, bool _normalized, uint32_t _internalType, size_t _offset) :
+AttributeFormat::AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint32_t _components, bool _normalized, uint32_t _internalType, uint64_t _offset) :
 	nameId(_nameId), dataType(_dataType), dataSize(_dataSize), 
 	offset(_offset), components(_components), normalized(_normalized), internalType(_internalType) { }
 

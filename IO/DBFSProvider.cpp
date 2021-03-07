@@ -29,7 +29,7 @@ static bool libNameInitailized = [](){
 	return true;
 }();
 
-static const std::size_t MAX_DEFFERED_STATEMENTS = 500;
+static const std::uint64_t MAX_DEFFERED_STATEMENTS = 500;
 static const sqlite3_destructor_type SQLITE_TRANSIENT_CXX = reinterpret_cast<sqlite3_destructor_type> (-1);
 
 namespace Util {
@@ -79,7 +79,7 @@ AbstractFSProvider::status_t DBFSProvider::makeDirRecursive(const FileName & nam
 		return FAILURE;
 
 	std::string s = name.toString();
-	size_t pos = std::string::npos;
+	uint64_t pos = std::string::npos;
 	if(s.back() == '/') {
 		pos = s.rfind('/')-1;
 	}
@@ -129,7 +129,7 @@ AbstractFSProvider::status_t DBFSProvider::writeFile(const FileName & path, cons
 //	std::string dbFilename,folder,file;
 //	extractFileName(filename, dbFilename, folder, file);
 //	DBHandle * dbh=getDBHandle(dbFilename);
-//	size_t size=0;
+//	uint64_t size=0;
 //	if(dbh==nullptr || (!dbh->isFile(folder,file)) || !dbh->isFolder(folder) ) )
 //		return false;
 //	return type!=NO_ENTRY;
@@ -156,7 +156,7 @@ bool DBFSProvider::isDir(const FileName & filename){
 }
 
 /*! ---|> AbstractFSProvider    */
-size_t DBFSProvider::fileSize(const FileName & filename){
+uint64_t DBFSProvider::fileSize(const FileName & filename){
 	std::string dbFilename,folder,file;
 	extractFileName(filename, dbFilename, folder, file);
 	DBHandle * dbh=getDBHandle(dbFilename);
@@ -272,7 +272,7 @@ void DBFSProvider::flush(){
 /*! "dbfs://test.dbfs$folder/test.txt" -> dbFilename:"test.db" folder:"folder/" file:"test.txt"	*/
 void DBFSProvider::extractFileName(const FileName & filename,std::string & dbFilename,std::string & folder,std::string & file){
 	file=filename.getFile();
-	size_t splitPos=filename.getDir().find('$');
+	uint64_t splitPos=filename.getDir().find('$');
 	if(splitPos==std::string::npos){
 		dbFilename=filename.getDir();
 		folder="";
@@ -325,7 +325,7 @@ sqlite3_stmt * DBFSProvider::createStatement(sqlite3 * db,const char * sql){
 void DBFSProvider::DBHandle::storeStatement(int folderId,const std::string & file,sqlite3_stmt * stmt){
 	std::ostringstream s;
 	s<<folderId<<"/"<<file;
-	size_t size = 0;
+	uint64_t size = 0;
 	{
 		std::lock_guard<std::mutex> lock(mutex);
 		deferredFiles.insert(s.str());
@@ -357,9 +357,9 @@ int DBFSProvider::DBHandle::getFolderId(const std::string & folder){
 			return NO_ENTRY;
 	}
 	int id=0; // root
-	size_t from=0;
+	uint64_t from=0;
 	while(true){
-		size_t to=folder.find('/',from);
+		uint64_t to=folder.find('/',from);
 		if(to==std::string::npos)
 			break;
 		std::string f=folder.substr(from,to-from);
@@ -399,7 +399,7 @@ bool DBFSProvider::DBHandle::saveFile(const std::string & folder,const std::stri
 	sqlite3_reset(stmt);
 	sqlite3_bind_int(stmt,1,folderId);
 	sqlite3_bind_text(stmt,2,file.c_str(),-1,SQLITE_TRANSIENT_CXX);
-	sqlite3_bind_blob(stmt,3,data.data(),data.size(),SQLITE_TRANSIENT_CXX);
+	sqlite3_bind_blob(stmt,3,data.data(),static_cast<int>(data.size()),SQLITE_TRANSIENT_CXX);
 
 	storeStatement(folderId,file,stmt);
 	return true;
@@ -431,13 +431,13 @@ std::vector<uint8_t> DBFSProvider::DBHandle::readFile(const std::string & folder
 		return std::vector<uint8_t>();
 	}
 	const uint8_t * dataTmp = reinterpret_cast<const uint8_t *> (sqlite3_column_blob(getFileData_stmt, 0));  // sqlite should free this automatically
-	const size_t size = static_cast<size_t>(sqlite3_column_bytes(getFileData_stmt, 0));
+	const uint64_t size = static_cast<uint64_t>(sqlite3_column_bytes(getFileData_stmt, 0));
 
 	return std::vector<uint8_t>(dataTmp, dataTmp + size);
 }
 
 /*! DBFSProvider::DBHandle */
-size_t DBFSProvider::DBHandle::getSize(const std::string & folder,const std::string & file){
+uint64_t DBFSProvider::DBHandle::getSize(const std::string & folder,const std::string & file){
 	int folderId = getFolderId(folder);
 	if(folderId==NO_ENTRY){
 		WARN("Folder does not exist: "+folder);
@@ -460,7 +460,7 @@ size_t DBFSProvider::DBHandle::getSize(const std::string & folder,const std::str
 	if(rc!=SQLITE_ROW){
 		return false;
 	}
-	size_t size = static_cast<size_t> (sqlite3_column_int(getFileSize_stmt, 0));
+	uint64_t size = static_cast<uint64_t> (sqlite3_column_int(getFileSize_stmt, 0));
 	return size;
 }
 
@@ -511,7 +511,7 @@ bool DBFSProvider::DBHandle::dir(const std::string & folder, const std::string &
 
 		while(sqlite3_step(dirFiles_stmt) == SQLITE_ROW){
 			const char * nameTmp = reinterpret_cast<const char *> (sqlite3_column_text(dirFiles_stmt, 0));  // sqlite should free this automatically
-			size_t size = static_cast<size_t> (sqlite3_column_bytes(dirFiles_stmt, 0));
+			uint64_t size = static_cast<uint64_t> (sqlite3_column_bytes(dirFiles_stmt, 0));
 
 			result.emplace_back(prefix + std::string(nameTmp,size));
 		}
@@ -523,7 +523,7 @@ bool DBFSProvider::DBHandle::dir(const std::string & folder, const std::string &
 				return false;
 			while(sqlite3_step(dirFolders_stmt) == SQLITE_ROW){
 				const char * nameTmp = reinterpret_cast<const char *> (sqlite3_column_text(dirFolders_stmt, 0));  // sqlite should free this automatically
-				size_t size = static_cast<size_t> (sqlite3_column_bytes(dirFolders_stmt, 0));
+				uint64_t size = static_cast<uint64_t> (sqlite3_column_bytes(dirFolders_stmt, 0));
 
 				if((flags&FileUtils::DIR_DIRECTORIES)){
 					result.push_back(FileName::createDirName(prefix+std::string(nameTmp,size)));
@@ -546,7 +546,7 @@ bool DBFSProvider::DBHandle::makeDir(const std::string & folder){
 	if(folderId==NO_ENTRY){
 		int parentId = 0;
 		std::string folderName = folder.substr(0,folder.length()-1);
-		size_t splitPos=folderName.rfind('/');
+		uint64_t splitPos=folderName.rfind('/');
 		if(splitPos!=std::string::npos){
 			parentId = getFolderId(folder.substr(0,splitPos));
 			if(parentId==NO_ENTRY)

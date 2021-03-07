@@ -19,7 +19,7 @@ namespace Util {
 //------------------
 
 const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t components, bool normalized, uint32_t internalType) {
-	size_t offset = align(size, attributeAlignment);
+	uint64_t offset = align(size, attributeAlignment);
 	attributes.emplace_back(std::move(AttributeFormat(nameId, type, components, normalized, internalType, offset)));
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 	return attributes.back();
@@ -28,7 +28,7 @@ const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& n
 //------------------
 
 
-const AttributeFormat& ResourceFormat::_appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t components, bool normalized, uint32_t internalType, size_t offset) {
+const AttributeFormat& ResourceFormat::_appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t components, bool normalized, uint32_t internalType, uint64_t offset) {
 	attributes.emplace_back(std::move(AttributeFormat(nameId, type, components, normalized, internalType, offset)));
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 	return attributes.back();
@@ -66,7 +66,7 @@ const uint32_t ResourceFormat::getAttributeLocation(const StringIdentifier& name
 			return i;
 		}
 	}
-	return attributes.size();
+	return static_cast<uint32_t>(attributes.size());
 }
 
 //------------------
@@ -77,7 +77,7 @@ void ResourceFormat::updateAttribute(const AttributeFormat& attr) {
 		AttributeFormat& currentAttr = *it;
 		if(currentAttr.getNameId() == attr.getNameId()) {
 			currentAttr = AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.components, attr.normalized, attr.internalType, currentAttr.offset);
-			size = static_cast<std::size_t>(currentAttr.getOffset() + currentAttr.getDataSize());
+			size = static_cast<std::uint64_t>(currentAttr.getOffset() + currentAttr.getDataSize());
 
 			// Update the offsets.
 			auto toUpdateIt = it;
@@ -91,7 +91,7 @@ void ResourceFormat::updateAttribute(const AttributeFormat& attr) {
 		}
 	}
 	// AttributeFormat was not found.
-	size_t offset = align(size, attributeAlignment);
+	uint64_t offset = align(size, attributeAlignment);
 	attributes.emplace_back(std::move(AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.components, attr.normalized, attr.internalType, offset)));
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 }
@@ -100,7 +100,7 @@ void ResourceFormat::updateAttribute(const AttributeFormat& attr) {
 
 void ResourceFormat::merge(const ResourceFormat& other) {
 	attributeAlignment = std::max(other.attributeAlignment, other.attributeAlignment); // use maximum of both alignments
-	size_t baseOffset = size;
+	uint64_t baseOffset = size;
 	size += other.size;
 	for(const auto& attr : other.attributes) {
 		attributes.emplace_back(attr);
