@@ -10,6 +10,12 @@
 */
 #include "NetworkTCP.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0501
+#endif
+#endif
+
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 COMPILER_WARN_PUSH
 COMPILER_WARN_OFF_GCC(-Wswitch-default)

@@ -33,8 +33,9 @@ namespace Numeric {
  * Volume II: Seminumerical algorithms. Addison-Wesley, 1969.
  * Page 128, Equation (24).
  */
-inline bool equal(const float u, const float v) {
-	return std::abs(v - u) <= std::numeric_limits<float>::epsilon()
+template<typename T>
+inline bool equal(const T u, const T v) {
+	return std::abs(v - u) <= std::numeric_limits<T>::epsilon()
 			* std::min(std::abs(u), std::abs(v));
 }
 
