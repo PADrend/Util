@@ -81,7 +81,7 @@ public:
 	*/
 	template<typename T> 
 	std::vector<T> readValues(uint64_t index) {
-		std::vector<T> values;
+		std::vector<T> values(attribute.getComponentCount());
 		readValues(index, values.data(), values.size());
 		return values;
 	}

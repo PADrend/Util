@@ -65,6 +65,7 @@ struct WindowGLFWInternal {
 	uint16_t lastCursorY = 0;
 	int32_t width;
 	int32_t height;
+	float contentScale;
 	JoystickState joystickState[GLFW_JOYSTICK_LAST+1];
 };
 
@@ -367,8 +368,46 @@ static void handleWindowSize(GLFWwindow* window, int newWidth, int newHeight) {
 		event.type = EVENT_RESIZE;
 		event.resize.width = newWidth;
 		event.resize.height = newHeight;
+		float yScale;
+		glfwGetWindowContentScale(window, &event.resize.contentScale, &yScale);
 		data->width = newWidth;
 		data->height = newHeight;
+		data->contentScale = event.resize.contentScale;
+		data->eventQueue.emplace_back(event);
+	} 
+}
+
+//------------
+
+static void handleWindowContentScale(GLFWwindow* window, float newXScale, float newYScale) {
+	auto* data = reinterpret_cast<WindowGLFWInternal*>(glfwGetWindowUserPointer(window));
+	if (newXScale != data->contentScale) {
+		Event event;
+		event.type = EVENT_RESIZE;
+		event.resize.contentScale = newXScale;
+		glfwGetWindowSize(window, &data->width, &data->height);
+		event.resize.width = static_cast<uint32_t>(data->width);
+		event.resize.height = static_cast<uint32_t>(data->height);
+		data->contentScale = newXScale;
+		data->eventQueue.emplace_back(event);
+	} 
+}
+
+//------------
+
+static void handleWindowPos(GLFWwindow* window, int xPos, int yPos) {
+	auto* data = reinterpret_cast<WindowGLFWInternal*>(glfwGetWindowUserPointer(window));
+	float xScale, yScale;
+	glfwGetWindowContentScale(window, &xScale, &yScale);
+	// only check whether content scale has changed, e.g., if the window was moved to a different monitor
+	if (xScale != data->contentScale) {
+		Event event;
+		event.type = EVENT_RESIZE;
+		glfwGetWindowSize(window, &data->width, &data->height);
+		event.resize.width = static_cast<uint32_t>(data->width);
+		event.resize.height = static_cast<uint32_t>(data->height);
+		event.resize.contentScale = xScale;
+		data->contentScale = xScale;
 		data->eventQueue.emplace_back(event);
 	} 
 }
@@ -404,7 +443,7 @@ WindowGLFW::WindowGLFW(const Window::Properties & properties) :
 	// window
 	glfwWindowHint(GLFW_RESIZABLE, properties.resizable ? GLFW_TRUE : GLFW_FALSE);
 	glfwWindowHint(GLFW_DECORATED, properties.borderless ? GLFW_FALSE : GLFW_TRUE);
-	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
 	
 	// GL
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
@@ -457,6 +496,7 @@ WindowGLFW::WindowGLFW(const Window::Properties & properties) :
 	glfwSetCharCallback(data->window, handleText);
 	glfwSetWindowSizeCallback(data->window, handleWindowSize);
 	glfwSetWindowCloseCallback(data->window, handleWindowClose);
+	glfwSetWindowPosCallback(data->window, handleWindowPos);
 	glfwSetJoystickCallback(handleJoystickConntection);
 
 	// Initialize joystick/-pad input
@@ -465,6 +505,13 @@ WindowGLFW::WindowGLFW(const Window::Properties & properties) :
 		if(glfwJoystickPresent(jid) == GLFW_TRUE)
 			handleJoystickConntection(jid, GLFW_CONNECTED);
 	}
+	
+	float yScale;
+	glfwGetWindowContentScale(data->window, &data->contentScale, &yScale);
+	glfwGetWindowSize(data->window, &data->width, &data->height);
+	contentScale = data->contentScale;
+	width = data->width;
+	height = data->height;
 }
 
 //------------
@@ -607,6 +654,10 @@ std::deque<Event> WindowGLFW::fetchEvents() {
 			}
 		}
 	}
+
+	width = data->width;
+	height = data->height;
+	contentScale = data->contentScale;
 	
 	return events;
 }
