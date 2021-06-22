@@ -208,6 +208,35 @@ Reference<Bitmap> convertBitmap(const Bitmap & source,
 	return target;
 }
 
+
+Reference<Bitmap> expandChannels(const Bitmap & source, uint32_t desiredChannels) {
+	desiredChannels = clamp(desiredChannels, 1u, 4u);
+	const uint32_t width = source.getWidth();
+	const uint32_t height = source.getHeight();
+	const AttributeFormat& f = source.getPixelFormat();
+	const AttributeFormat newFormat(f.getNameId(), f.getDataType(), desiredChannels, f.isNormalized());
+	const uint32_t channels = f.getComponentCount();
+
+	Reference<Bitmap> target(new Bitmap(width,height,newFormat));
+	{
+		Reference<PixelAccessor> reader( PixelAccessor::create(const_cast<Bitmap *>(&source)));
+		Reference<PixelAccessor> writer( PixelAccessor::create(target.get()));
+		for(uint32_t y = 0;y<height;++y ) {
+			for(uint32_t x = 0;x<width;++x ) {
+				auto color = reader->readColor4f(x,y);
+				if(channels < 4)
+					color.a(1.0);
+				if(channels < 2)
+					color.g(color.r());
+				if(channels < 3)
+					color.b(color.g());
+				writer->writeColor(x,y,color);
+			}
+		}
+	}
+	return target;
+}
+
 void alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op) {
 	const uint32_t width = bitmap.getWidth();
 	const uint32_t height = bitmap.getHeight();
