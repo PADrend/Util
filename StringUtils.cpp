@@ -586,7 +586,32 @@ std::string utf32_to_utf8(const uint32_t u32){
 	}
 }
 
+std::vector<std::string> split(const std::string & subject,const std::string & delimiter, int max) {
+	std::vector<std::string> result;
+	const size_t len = subject.length();
+	if(len>0){
+		const size_t delimiterLen = delimiter.length();
+		if(delimiterLen>len || delimiterLen==0){
+			result.emplace_back(subject);
+		}else{
+			size_t cursor = 0;
+			for( int i = 1 ; i!=max&&cursor<=len-delimiterLen ; ++i){
+				size_t pos = subject.find(delimiter,cursor);
+				if( pos==std::string::npos ) // no delimiter found? -> to the end
+					pos = len;
+				result.push_back( subject.substr(cursor,pos-cursor) );
+				cursor = pos+delimiterLen;
 
+				if(cursor==len){ // ending on delimiter? -> add empty part
+					result.push_back("");
+				}
+			}
+			if(cursor<len)
+				result.push_back( subject.substr(cursor,len-cursor) );
+		}
+	}
+	return result;
+}
 
 }
 }

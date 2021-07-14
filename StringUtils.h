@@ -153,6 +153,9 @@ UTILAPI std::u32string utf8_to_utf32(const std::string & str_u8);
 UTILAPI std::string utf32_to_utf8(const std::u32string & str_u32);
 UTILAPI std::string utf32_to_utf8(const uint32_t u32);
 
+//! Split the subject at the occurrence of delimiter into at most max parts.
+UTILAPI std::vector<std::string> split(const std::string & subject,const std::string & delimiter, int max=-1);
+
 }
 }
 
