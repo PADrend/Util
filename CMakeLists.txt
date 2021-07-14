@@ -8,15 +8,11 @@
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
 cmake_minimum_required(VERSION 3.1.0)
-project(Util VERSION 0.3.0)
+project(Util VERSION 0.4.0)
 
 if(POLICY CMP0076) 
 	cmake_policy(SET CMP0076 OLD)
 endif()
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # options
 option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built." OFF)
@@ -114,6 +110,9 @@ endif()
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	target_link_libraries(Util PRIVATE rt)
 endif()
+
+#set c++ standard to c++17
+target_compile_features(Util PUBLIC cxx_std_17)
 
 if(MSVC)
 	target_compile_definitions(Util PRIVATE NOMINMAX)
