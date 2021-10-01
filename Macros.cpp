@@ -14,6 +14,7 @@
 #if defined(ANDROID)
 #include <android/log.h>
 #endif /* defined(ANDROID) */
+#include <rang.hpp>
 
 namespace Util {
 void output(output_priority_t priority, const std::string & message) {
@@ -32,21 +33,20 @@ void output(output_priority_t priority, const std::string & message) {
 	}
 	__android_log_print(androidPriority, "UtilMobile", "%s", message.c_str());
 #else
-	std::string type;
 	switch(priority) {
 		case OUTPUT_DEBUG:
-			type = "Debug";
+			std::cerr << rang::style::italic << "Debug" << rang::style::reset << rang::style::reset << ": ";
 			break;
 		case OUTPUT_WARNING:
-			type = "Warning";
+			std::cerr << rang::fgB::yellow << "Warning" << rang::style::reset << rang::style::reset << ": ";
 			break;
 		case OUTPUT_ERROR:
-			type = "Error";
+			std::cerr << rang::fgB::red << "Error" << rang::style::reset << rang::style::reset << ": ";
 			break;
 		default:
 			WARN("unexpected case in switch statement");
 	}
-	std::cerr << type << ": "<<message<<std::endl;
+	std::cerr << message <<std::endl;
 #endif
 }
 

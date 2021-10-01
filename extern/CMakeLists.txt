@@ -430,6 +430,23 @@ if(UTIL_BUILD_SQLITE)
 endif()
 
 # ------------------------------------------------------------------------------
+# rang (console/terminal colors)
+
+FetchContent_Declare(
+  rang
+  GIT_REPOSITORY https://github.com/agauniyal/rang.git
+  GIT_TAG        v3.2
+)
+
+FetchContent_GetProperties(rang)
+if(NOT rang_POPULATED)
+  message(STATUS "Fetching rang...")
+  FetchContent_Populate(rang)
+  add_subdirectory(${rang_SOURCE_DIR} ${rang_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+target_link_libraries(UtilExtern INTERFACE rang)
+
+# ------------------------------------------------------------------------------
 
 if(MINGW)
   target_link_libraries(UtilExtern INTERFACE ws2_32 crypt32 wldap32)
