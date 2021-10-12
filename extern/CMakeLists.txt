@@ -182,101 +182,16 @@ endif()
 # ------------------------------------------------------------------------------
 # CURL
 
-option(UTIL_BUILD_CURL "Defines if curl should be build from source (requires further dependencies)." OFF)
-if(UTIL_BUILD_CURL)
-  FetchContent_Declare(
-    curl
-    GIT_REPOSITORY https://github.com/curl/curl.git
-    GIT_TAG        curl-7_65_3
-  )
-
-  FetchContent_GetProperties(curl)
-  if(NOT curl_POPULATED)
-    message(STATUS "Fetching CURL...")
-    FetchContent_Populate(curl)
-    set(BUILD_CURL_EXE OFF CACHE INTERNAL "" FORCE)
-    if(WIN32)
-      set(CMAKE_USE_WINSSL ON CACHE INTERNAL "" FORCE)
-    endif()
-    add_subdirectory(${curl_SOURCE_DIR} ${curl_BINARY_DIR} EXCLUDE_FROM_ALL)
-  endif()
-  target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
-  target_link_libraries(UtilExtern INTERFACE curl)
-elseif(WIN32 AND MINGW)
-  # Use prebuild binaries for MinGW on Windows
-  FetchContent_Declare(
-    curl_mingw
-    URL       https://curl.se/windows/dl-7.73.0_5/curl-7.73.0_5-win64-mingw.zip
-    URL_HASH  SHA256=273dfe09ef9d0aa411b52fe038ce0019649caa9233ef12b59ab1dfe580e732d1
-  )
-  FetchContent_Declare(
-    curl_mingw_ssl
-    URL       https://curl.se/windows/dl-7.73.0_5/openssl-1.1.1h_5-win64-mingw.zip
-    #URL_HASH  SHA256=d9da1782e3f1fb4eed8adc1e954ba2899ed8bd6302d6eb788f147b1ded99ee7c
-  )
-  FetchContent_Declare(
-    curl_mingw_brotli
-    URL       https://curl.se/windows/dl-7.73.0_5/brotli-1.0.9_5-win64-mingw.zip
-    #URL_HASH  SHA256=7b536fc118e9c35c4c99006f596eed604d3d6e627b1a363099f1f5ead6054580
-  )
-  FetchContent_Declare(
-    curl_mingw_ssh
-    URL       https://curl.se/windows/dl-7.73.0_5/libssh2-1.9.0_5-win64-mingw.zip
-    #URL_HASH  SHA256=ee9f3815ff46b0eb677dc3688362487c5847063a653aad923e5b283f77360af0
-  )
-  FetchContent_Declare(
-    curl_mingw_http
-    URL       https://curl.se/windows/dl-7.73.0_5/nghttp2-1.42.0_5-win64-mingw.zip
-    #URL_HASH  SHA256=837927bab6d8565b03d4018bdcbb4c25c7adec8a96d745b33fc10c0ca42b83f4
-  )
-  #FetchContent_Declare(
-  #  curl_mingw_zlib
-  #  URL       https://curl.se/windows/dl-7.73.0_5/zlib-1.2.11_5-win64-mingw.zip
-  #  URL_HASH  SHA256=e7a9238c5ad59cbfd5bc33d47679b945bd41e4de3a4aec78fc8ba759cb52a0cd
-#)
-  FetchContent_Declare(
-    curl_mingw_zstd
-    URL       https://curl.se/windows/dl-7.74.0_1/zstd-1.4.7_1-win64-mingw.zip
-  )
-
-  FetchContent_GetProperties(curl_mingw)
-  FetchContent_GetProperties(curl_mingw_ssl)
-  FetchContent_GetProperties(curl_mingw_brotli)
-  FetchContent_GetProperties(curl_mingw_ssh)
-  FetchContent_GetProperties(curl_mingw_http)
-  #FetchContent_GetProperties(curl_mingw_zlib)
-  FetchContent_GetProperties(curl_mingw_zstd)
-  message(STATUS "Fetching prebuild CURL...")
-  if(NOT curl_mingw_POPULATED)
-    FetchContent_Populate(curl_mingw)
-    FetchContent_Populate(curl_mingw_ssl)
-    FetchContent_Populate(curl_mingw_brotli)
-    FetchContent_Populate(curl_mingw_ssh)
-    FetchContent_Populate(curl_mingw_http)
-    #FetchContent_Populate(curl_mingw_zlib)
-    FetchContent_Populate(curl_mingw_zstd)
-  endif()
-  target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
-  target_compile_definitions(UtilExtern INTERFACE CURL_STATICLIB)
-  target_include_directories(UtilExtern INTERFACE ${curl_mingw_SOURCE_DIR}/include)
-  target_link_libraries(UtilExtern INTERFACE
-    ${curl_mingw_SOURCE_DIR}/lib/libcurl.a
-    ${curl_mingw_ssl_SOURCE_DIR}/lib/libssl.a
-    ${curl_mingw_ssl_SOURCE_DIR}/lib/libcrypto.a
-    ${curl_mingw_ssh_SOURCE_DIR}/lib/libssh2.a
-    ${curl_mingw_brotli_SOURCE_DIR}/lib/libbrotlidec-static.a
-    ${curl_mingw_brotli_SOURCE_DIR}/lib/libbrotlienc-static.a
-    ${curl_mingw_brotli_SOURCE_DIR}/lib/libbrotlicommon-static.a
-    ${curl_mingw_http_SOURCE_DIR}/lib/libnghttp2.a
-    #${curl_mingw_zlib_SOURCE_DIR}/libz.a
-    ${curl_mingw_zstd_SOURCE_DIR}/lib/libzstd.a
-  )
-else()
+option(UTIL_USE_CURL "Use the cURL library (optional; used for http/https/ftp file system support)." ON)
+if(UTIL_USE_CURL)
+  message(STATUS "Checking cURL...")
   find_package(CURL)
   if(CURL_FOUND)
     target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
     target_include_directories(UtilExtern INTERFACE ${CURL_INCLUDE_DIRS})
     target_link_libraries(UtilExtern INTERFACE ${CURL_LIBRARIES})
+  else()
+    message(WARNING "Could not find cURL development libraries. If you want to have http/https/ftp file system support, please make sure it is installed on your system.")
   endif()
 endif()
 
