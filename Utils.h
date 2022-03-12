@@ -206,10 +206,21 @@ inline float unnormalizeSigned(double value) { return static_cast<float>(clamp(v
 template<>
 inline double unnormalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
 
-//    void useStdInfo();
-//    void useInternalInfo();
-//    std::string getInfo();
-//    void clearInfo();
+//-------------
+
+//! creates a bitmask with the given amount of 1s and left-shifted by the given number of bits.
+//!	e.g., bitmask(4, 2) -> 0xb00111100
+template<typename T>
+static constexpr T bitmask(uint32_t count, uint32_t shift) {
+	return ((T(1) << count) - T(1)) << shift;
+}
+
+//---------------------
+
+//! rounds up to the closest multiple of the given integer.
+inline uint32_t roundUp(uint32_t numToRound, uint32_t multiple) {
+	return ((numToRound + multiple - 1) / multiple) * multiple;
+}
 
 //! @}
 }

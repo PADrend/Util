@@ -7,11 +7,11 @@
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
 target_sources(Util PRIVATE
-	Network/ClockSynchronizer.cpp
-	Network/DataConnection.cpp
-	Network/Network.cpp
-	Network/NetworkTCP.cpp
-	Network/NetworkUDP.cpp
+	ClockSynchronizer.cpp
+	DataConnection.cpp
+	Network.cpp
+	NetworkTCP.cpp
+	NetworkUDP.cpp
 )
 # Install the header files
 install(FILES
