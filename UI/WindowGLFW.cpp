@@ -550,10 +550,10 @@ int32_t WindowGLFW::getSwapInterval() const {
 
 //------------
 
-Surface WindowGLFW::createSurface(APIHandle apiHandle) {	
+VkSurfaceKHR WindowGLFW::createSurface(VkInstance instance) {
 	if(properties.renderingAPI == Properties::VULKAN) {
-		Surface surface;
-		if(glfwCreateWindowSurface(apiHandle, data->window, NULL, &surface)) {
+		VkSurfaceKHR surface;
+		if(glfwCreateWindowSurface(instance, data->window, NULL, &surface)) {
 			throw std::runtime_error("WindowGLFW::createSurface failed.");
 		}
 		return surface;
@@ -565,7 +565,7 @@ Surface WindowGLFW::createSurface(APIHandle apiHandle) {
 
 //------------
 
-std::vector<const char*> WindowGLFW::getAPIExtensions() {
+std::vector<const char*> WindowGLFW::getRequiredApiExtensions() {
 	uint32_t extensionCount;	
 	const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
 	std::vector<const char*> extensionNames(extensions, extensions + extensionCount);

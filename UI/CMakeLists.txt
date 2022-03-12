@@ -13,7 +13,6 @@ target_sources(Util PRIVATE
 	SplashScreenWin.cpp
 	UI.cpp
 	WindowGLFW.cpp
-	WindowSDL.cpp
 )
 # Install the header files
 install(FILES
@@ -25,8 +24,6 @@ install(FILES
 	SplashScreenWin.h
 	UI.h
 	Window.h
-	WindowGLFW.h
-	WindowSDL.h
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/UI
 	COMPONENT headers
 )

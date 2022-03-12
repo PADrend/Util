@@ -44,6 +44,9 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	properties.clientAreaHeight = 480;
 	properties.title = "Window Test";
 	properties.compatibilityProfile = false;
+	properties.renderingAPI = Util::UI::Window::Properties::VULKAN;
+	properties.contextVersionMajor = 1;
+	properties.contextVersionMinor = 3;
 	Util::Reference<Window> window;
 	REQUIRE_NOTHROW(window = Util::UI::createWindow(properties));
 	
@@ -51,12 +54,10 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	vk::ApplicationInfo appInfo(
 		properties.title.c_str(), 1,
 		nullptr, 0,
-		VK_API_VERSION_1_1
+		VK_API_VERSION_1_3
 	);
-	
-	std::vector<const char*> layerNames = {"VK_LAYER_LUNARG_standard_validation"};
-	std::vector<const char*> requiredExtensions = window->getAPIExtensions();
-	requiredExtensions.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+	std::vector<const char*> layerNames = {"VK_LAYER_KHRONOS_validation"};
+	std::vector<const char*> requiredExtensions = window->getRequiredApiExtensions();
 	requiredExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 	auto instance = vk::createInstanceUnique({{},
 		&appInfo,
@@ -169,7 +170,7 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	};
 	if(familyIndices.size() > 1) {
 		swapChainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
-		swapChainCreateInfo.queueFamilyIndexCount = familyIndices.size();
+		swapChainCreateInfo.queueFamilyIndexCount = static_cast<uint32_t>(familyIndices.size());
 		swapChainCreateInfo.pQueueFamilyIndices = familyIndices.data();
 	}
 	auto swapChain = device->createSwapchainKHRUnique(swapChainCreateInfo);
@@ -295,7 +296,7 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 			vk::Rect2D{ {0, 0}, swapChainExtent },
 			1, &clearColor
 		}, vk::SubpassContents::eInline);
-		commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline);
+		commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.value);
 		commandBuffers[i]->draw(3, 1, 0, 0);
 		
 		commandBuffers[i]->endRenderPass();
@@ -320,7 +321,7 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 			1, &renderFinishedSemaphore.get() 
 		}}, {});
 
-		presentQueue.presentKHR({
+		auto result = presentQueue.presentKHR({
 			1, &renderFinishedSemaphore.get(),
 			1, &swapChain.get(),
 			&imageIndex.value

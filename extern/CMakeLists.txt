@@ -62,7 +62,7 @@ set(ZLIB_VERSION_STRING "1.2.11" CACHE INTERNAL "" FORCE)
 FetchContent_Declare(
   vulkan-headers
   GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
-  GIT_TAG        v1.1.130
+  GIT_TAG        v1.3.207
 )
 
 FetchContent_GetProperties(vulkan-headers)
@@ -74,42 +74,32 @@ set(Vulkan_INCLUDE_DIR ${vulkan-headers_SOURCE_DIR}/include CACHE STRING "" FORC
 target_include_directories(UtilExtern INTERFACE ${Vulkan_INCLUDE_DIR})
 
 # ------------------------------------------------------------------------------
-# GLFW (or SDL if prefered)
+# GLFW
 
-option(UTIL_PREFER_SDL_CONTEXT "Defines wether SDL is used for window & GL context creation." OFF)
-if(UTIL_PREFER_SDL_CONTEXT)
-  find_package(SDL2)
-  if(SDL2_FOUND)
-    target_compile_definitions(UtilExtern INTERFACE UTIL_PREFER_SDL_CONTEXT)
-    target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_SDL2)
-    target_include_directories(UtilExtern INTERFACE ${SDL2_INCLUDE_DIRS})
-    target_link_libraries(UtilExtern INTERFACE ${SDL2_LIBRARIES})
-  endif()
-else()
-  FetchContent_Declare(
-    glfw
-    GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG        3.3
-  )
+FetchContent_Declare(
+  glfw
+  GIT_REPOSITORY https://github.com/glfw/glfw.git
+  GIT_TAG        3.3.6
+)
 
-  FetchContent_GetProperties(glfw)
-  if(NOT glfw_POPULATED)
-    message(STATUS "Fetching GLFW...")
-    FetchContent_Populate(glfw)
-    # hide options in cmake-gui
-    set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
-    set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
-    set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "" FORCE)
-    set(GLFW_INSTALL OFF CACHE INTERNAL "" FORCE)
-    set(GLFW_VULKAN_STATIC OFF CACHE INTERNAL "" FORCE)
-	set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE INTERNAL "" FORCE)
-    add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR} EXCLUDE_FROM_ALL)
-  endif()
-  
-	target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_GLFW)
-	target_link_libraries(UtilExtern INTERFACE glfw)  
-	set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE ON)
+FetchContent_GetProperties(glfw)
+if(NOT glfw_POPULATED)
+  message(STATUS "Fetching GLFW...")
+  FetchContent_Populate(glfw)
+  # hide options in cmake-gui
+  set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
+  set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
+  set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "" FORCE)
+  set(GLFW_INSTALL OFF CACHE INTERNAL "" FORCE)
+  set(GLFW_VULKAN_STATIC OFF CACHE INTERNAL "" FORCE)
+  set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE INTERNAL "" FORCE)
+  add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
+
+target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_GLFW)
+target_link_libraries(UtilExtern INTERFACE glfw)  
+set_target_properties(glfw PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 
 # ------------------------------------------------------------------------------
 # stb (multi-purpose single-file public domain libraries)
@@ -142,54 +132,22 @@ if(UTIL_PREFER_LIBFREETYPE)
 endif()
 
 # ------------------------------------------------------------------------------
-# SDL_image (optional)
+# Network (asio)
 
-cmake_dependent_option(UTIL_PREFER_SDL_IMAGE "Defines wether SDL_image is used for image loading/storing (requires SDL and libpng)." OFF "UTIL_PREFER_SDL_CONTEXT" OFF)
-if(UTIL_PREFER_SDL_IMAGE)
-  # Dependency to libpng
-  find_package(PNG)
-  if(PNG_FOUND)
-    target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_PNG)
-    target_compile_definitions(UtilExtern INTERFACE "${PNG_DEFINITIONS}")
-    target_include_directories(UtilExtern INTERFACE ${PNG_INCLUDE_DIR})
-    target_link_libraries(UtilExtern INTERFACE ${PNG_LIBRARIES})
-  endif()
+FetchContent_Declare(
+  asio
+  GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+  GIT_TAG        asio-1-13-0
+)
 
-  # Dependency to SDL2_image
-  find_package(SDL2_image 2.0.0)
-  if(SDL2_IMAGE_FOUND)
-    target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_SDL2_IMAGE)
-    target_include_directories(UtilExtern INTERFACE ${SDL2_IMAGE_INCLUDE_DIRS})
-    target_link_libraries(UtilExtern INTERFACE ${SDL2_IMAGE_LIBRARIES})
-  endif()
+FetchContent_GetProperties(asio)
+if(NOT asio_POPULATED)
+  message(STATUS "Fetching ASIO...")
+  FetchContent_Populate(asio)
 endif()
+target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ASIO)
+target_include_directories(UtilExtern INTERFACE ${asio_SOURCE_DIR}/asio/include)
 
-# ------------------------------------------------------------------------------
-# Network (asio or SDL_net)
-
-cmake_dependent_option(UTIL_PREFER_SDL_NET "Defines wether SDL_net is used for networking (requires SDL)." OFF "UTIL_PREFER_SDL_CONTEXT" OFF)
-if(UTIL_PREFER_SDL_NET)
-  find_package(SDL2_net 2.0.0)
-  if(SDL2_NET_FOUND)
-  	target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_SDL2_NET)
-  	target_include_directories(UtilExtern INTERFACE ${SDL2_NET_INCLUDE_DIRS})
-  	target_link_libraries(UtilExtern INTERFACE ${SDL2_NET_LIBRARIES})
-  endif()
-else()
-  FetchContent_Declare(
-    asio
-    GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
-    GIT_TAG        asio-1-13-0
-  )
-
-  FetchContent_GetProperties(asio)
-  if(NOT asio_POPULATED)
-    message(STATUS "Fetching ASIO...")
-    FetchContent_Populate(asio)
-  endif()
-  target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_ASIO)
-  target_include_directories(UtilExtern INTERFACE ${asio_SOURCE_DIR}/asio/include)
-endif()
 
 # ------------------------------------------------------------------------------
 # CURL

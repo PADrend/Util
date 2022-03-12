@@ -26,9 +26,6 @@ namespace Util {
 class Bitmap;
 namespace UI {
 class Cursor;
-
-using APIHandle = VkInstance;
-using Surface = VkSurfaceKHR;
 	
 /**
  * Abstract base class for all windows.
@@ -138,19 +135,19 @@ class Window : public Util::ReferenceCounter<Window> {
 		const Properties& getProperties() const { return properties; }
 
 		/**
-		 * creates a Surface handle to render to.
+		 * creates a Vulkan surface to render to.
 		 * 
-		 * @param apiHandle the API handle (e.g., VkInstance for Vulkan)
-		 * @return The Surface handle
+		 * @param instance the vulkan instance
+		 * @return vulkan surface
 		 */
-		virtual Surface createSurface(APIHandle apiHandle) = 0;
+		virtual VkSurfaceKHR createSurface(VkInstance instance) = 0;
 		
 		/**
 		 * Returns the extensions needed to create a surface from an API handle.
 		 * 
 		 * @return A list of extension names.
 		 */
-		virtual std::vector<const char*> getAPIExtensions() = 0;
+		virtual std::vector<const char*> getRequiredApiExtensions() = 0;
 	protected:
 		//! Stores the size of the window's client area.
 		uint32_t width,height;

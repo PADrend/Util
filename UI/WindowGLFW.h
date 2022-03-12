@@ -60,10 +60,10 @@ class WindowGLFW : public Window {
 		UTILAPI virtual void makeCurrent() override;
 		
 		//! ---|> Window
-		UTILAPI virtual Surface createSurface(APIHandle apiHandle) override;
+		UTILAPI virtual VkSurfaceKHR createSurface(VkInstance instance) override;
 		
 		//! ---|> Window
-		UTILAPI virtual std::vector<const char*> getAPIExtensions() override;
+		UTILAPI virtual std::vector<const char*> getRequiredApiExtensions() override;
 	private:
 		//! Create a new window.
 		UTILAPI WindowGLFW(const Properties & properties);

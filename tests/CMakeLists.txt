@@ -7,7 +7,7 @@
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.13.0)
 project(UtilTest)
 
 if(UTIL_BUILD_TESTS)
@@ -50,16 +50,12 @@ if(UTIL_BUILD_TESTS)
 
 	# ------------------------------------------------------------------------------
 	# Catch2
-	if(${CMAKE_VERSION} VERSION_LESS "3.11.0") 
-		include(FetchContentFallback)
-	else()
-		include(FetchContent)
-	endif()
+	include(FetchContent)
 	
 	FetchContent_Declare(
 		catch2
 		GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-		GIT_TAG        v2.9.1
+		GIT_TAG        v2.13.8
 	)
 
 	FetchContent_GetProperties(catch2)
@@ -85,7 +81,7 @@ if(UTIL_BUILD_TESTS)
 	FetchContent_Declare(
 		vulkan-headers
 		GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
-		GIT_TAG        v1.1.130
+		GIT_TAG        v1.3.207
 	)
 
 	FetchContent_GetProperties(vulkan-headers)
