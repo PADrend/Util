@@ -9,8 +9,8 @@
 #
 
 target_sources(Util PRIVATE
-	Profiling/Logger.cpp
-	Profiling/Profiler.cpp
+	Logger.cpp
+	Profiler.cpp
 )
 
 # Install the header files

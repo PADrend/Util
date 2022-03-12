@@ -7,14 +7,14 @@
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
 target_sources(Util PRIVATE
-	Graphics/Bitmap.cpp
-	Graphics/BitmapUtils.cpp
-	Graphics/ColorLibrary.cpp
-	Graphics/EmbeddedFont.cpp
-	Graphics/FontRenderer.cpp
-	Graphics/NoiseGenerator.cpp
-	Graphics/PixelAccessor.cpp
-	Graphics/PixelFormat.cpp
+	Bitmap.cpp
+	BitmapUtils.cpp
+	ColorLibrary.cpp
+	EmbeddedFont.cpp
+	FontRenderer.cpp
+	NoiseGenerator.cpp
+	PixelAccessor.cpp
+	PixelFormat.cpp
 )
 # Install the header files
 install(FILES

@@ -110,5 +110,11 @@ public:\
 	inline type get##var() const { return _##var; }\
 	inline void set##var(const type& val) { _##var = val; }
 
+//! Macro for defining bit operators for a type (e.g., enum class)
+#define DEFINE_BIT_OPERATORS(Type)\
+inline constexpr Type operator|(Type a, Type b) { return static_cast<Type>(static_cast<uint64_t>(a) | static_cast<uint64_t>(b)); } \
+inline constexpr Type operator&(Type a, Type b) { return static_cast<Type>(static_cast<uint64_t>(a) & static_cast<uint64_t>(b)); } \
+inline bool isAnyFlagSet(Type a, Type b) { return static_cast<uint64_t>(a & b) > 0; } \
+inline bool isFlagSet(Type a, Type b) { return (a & b) == b; }
 
 #endif // MACROS_H_INCLUDED

@@ -1,6 +1,6 @@
 #
 # This file is part of the Util library.
-# Copyright (C) 2018-2019 Sascha Brandt <sascha@brandt.graphics>
+# Copyright (C) 2018-2022 Sascha Brandt <sascha@brandt.graphics>
 #
 # This library is subject to the terms of the Mozilla Public License, v. 2.0.
 # You should have received a copy of the MPL along with this library; see the 
@@ -9,12 +9,7 @@
 
 add_library(UtilExtern INTERFACE)
 
-if(${CMAKE_VERSION} VERSION_LESS "3.11.0") 
-  message("Please consider to switch to CMake 3.11.0")
-  include(FetchContentFallback)
-else()
-  include(FetchContent)
-endif()
+include(FetchContent)
 
 include(CMakeDependentOption)
 

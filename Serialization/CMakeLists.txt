@@ -7,12 +7,12 @@
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
 target_sources(Util PRIVATE
-	Serialization/Serialization.cpp
-	Serialization/StreamerPNG.cpp
-	Serialization/StreamerSDL.cpp
-	Serialization/StreamerSDLImage.cpp
-	Serialization/StreamerSTB.cpp
-	Serialization/StreamerTGA.cpp
+	Serialization.cpp
+	StreamerPNG.cpp
+	StreamerSDL.cpp
+	StreamerSDLImage.cpp
+	StreamerSTB.cpp
+	StreamerTGA.cpp
 )
 # Install the header files
 install(FILES

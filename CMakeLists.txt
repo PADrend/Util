@@ -1,18 +1,14 @@
 #
 # This file is part of the Util library.
 # Copyright (C) 2009-2017 Benjamin Eikel <benjamin@eikel.org>
-# Copyright (C) 2014-2019 Sascha Brandt <sascha@brandt.graphics>
+# Copyright (C) 2014-2022 Sascha Brandt <sascha@brandt.graphics>
 #
 # This library is subject to the terms of the Mozilla Public License, v. 2.0.
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-cmake_minimum_required(VERSION 3.1.0)
-project(Util VERSION 0.4.0)
-
-if(POLICY CMP0076) 
-	cmake_policy(SET CMP0076 OLD)
-endif()
+cmake_minimum_required(VERSION 3.13.0)
+project(Util VERSION 1.2.0)
 
 # options
 option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built." OFF)
@@ -25,7 +21,46 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 add_library(Util SHARED "")
 
+set(HEADERS
+	AttributeProvider.h
+	BidirectionalMap.h
+	CountedObjectWrapper.h
+	DataStream.h
+	Encoding.h
+	FreeList.h
+	GenericAttribute.h
+	GenericAttributeSerialization.h
+	GenericConversion.h
+	Generic.h
+	Handle.h
+	HandleLookupTable.h
+	Hashing.h
+	JSON_Parser.h
+	LibRegistry.h
+	LoadLibrary.h
+	Macros.h
+	MicroXML.h
+	Numeric.h
+	ObjectExtension.h
+	ProgressIndicator.h
+	ReferenceCounter.h
+	References.h
+	Registry.h
+	RegistryHelper.h
+	SmallList.h
+	StringIdentifier.h
+	StringUtils.h
+	Timer.h
+	TriState.h
+	TypeConstant.h
+	TypeNameMacro.h
+	UpdatableHeap.h
+	Util.h
+	Utils.h
+)
+
 target_sources(Util PRIVATE
+	DataStream.cpp
 	Encoding.cpp
 	GenericAttribute.cpp
 	GenericAttributeSerialization.cpp
@@ -43,39 +78,11 @@ target_sources(Util PRIVATE
 	TypeConstant.cpp
 	Util.cpp
 	Utils.cpp
+	${HEADERS}
 )
 # Install the header files
 install(FILES
-	AttributeProvider.h
-	BidirectionalMap.h
-	CountedObjectWrapper.h
-	Encoding.h
-	GenericAttribute.h
-	GenericAttributeSerialization.h
-	GenericConversion.h
-	Generic.h
-	Hashing.h
-	JSON_Parser.h
-	LibRegistry.h
-	LoadLibrary.h
-	Macros.h
-	MicroXML.h
-	Numeric.h
-	ObjectExtension.h
-	ProgressIndicator.h
-	ReferenceCounter.h
-	References.h
-	Registry.h
-	RegistryHelper.h
-	StringIdentifier.h
-	StringUtils.h
-	Timer.h
-	TriState.h
-	TypeConstant.h
-	TypeNameMacro.h
-	UpdatableHeap.h
-	Util.h
-	Utils.h
+	${HEADERS}
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util
 	COMPONENT headers
 )
