@@ -44,7 +44,7 @@ class ArchiveProvider : public AbstractFSProvider {
 		UTILAPI status_t dir(const FileName & url, std::list<FileName> & result, uint8_t flags) override;
 		UTILAPI bool isFile(const FileName & url) override;
 		UTILAPI bool isDir(const FileName & url) override;
-		UTILAPI size_t fileSize(const FileName & url) override;
+		UTILAPI uint64_t fileSize(const FileName & url) override;
 
 		UTILAPI status_t makeDir(const FileName & url) override;
 		UTILAPI status_t makeDirRecursive(const FileName & url) override;

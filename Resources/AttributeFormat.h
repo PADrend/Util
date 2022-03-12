@@ -26,7 +26,7 @@ namespace Util {
 class AttributeFormat {
 public:
 	UTILAPI AttributeFormat();
-	UTILAPI AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint32_t _components=1, bool _normalized=false, uint32_t _internalType=0, size_t _offset=0);
+	UTILAPI AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint32_t _components=1, bool _normalized=false, uint32_t _internalType=0, uint64_t _offset=0);
 
 	UTILAPI bool operator==(const AttributeFormat& other) const;
 	bool operator!=(const AttributeFormat& other) const { return !(*this==other); };
@@ -39,7 +39,7 @@ public:
 	//! Returns the base type of each component.
 	TypeConstant getDataType() const { return dataType; }
 	//! Returns the size (in bytes) of the entire attribute.
-	size_t getDataSize() const { return dataSize; }
+	uint16_t getDataSize() const { return dataSize; }
 	//! Returns the number of components of the attribute.
 	uint32_t getComponentCount() const { return components; }
 	//! Specifies if the underlying type is automatically converted to/from float value in the range [-1.0,1.0] or [0.0,1.0]
@@ -47,7 +47,7 @@ public:
 	//! Returns the user defined internal type id of the attribute (e.g., for compressed data).
 	uint32_t getInternalType() const { return internalType; }
 	//! Returns the byte offset of the attribute within a @p ResourceFormat.
-	size_t getOffset() const { return offset; }
+	uint64_t getOffset() const { return offset; }
 
 	//! Returns @p true, if the attribute has at least one value
 	bool isValid() const { return components != 0; }
@@ -66,12 +66,12 @@ public:
 	[[deprecated]] bool empty() const { return components == 0; }
 private:
 	friend class ResourceFormat;
-	UTILAPI AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint32_t _components, bool _normalized, uint32_t _internalType, size_t _offset);
+	UTILAPI AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint32_t _components, bool _normalized, uint32_t _internalType, uint64_t _offset);
 	
 	StringIdentifier nameId;
 	TypeConstant dataType;
 	uint16_t dataSize;
-	size_t offset;
+	uint64_t offset;
 	uint32_t components;
 	bool normalized;
 	uint32_t internalType;
@@ -80,8 +80,8 @@ private:
 } /* Util */
 
 template <> struct std::hash<Util::AttributeFormat> {
-	std::size_t operator()(const Util::AttributeFormat& format) const {
-		std::size_t result = format.getNameId().getValue();
+	std::uint64_t operator()(const Util::AttributeFormat& format) const {
+		std::uint64_t result = format.getNameId().getValue();
 		Util::hash_combine(result, format.getDataType());
 		Util::hash_combine(result, format.getComponentCount());
 		Util::hash_combine(result, format.isNormalized());

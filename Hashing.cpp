@@ -180,7 +180,7 @@ static void md5_update(MD5_Context& ctx, const uint8_t* data, size_t size) {
 	saved_lo = ctx.lo;
 	if ((ctx.lo = (saved_lo + size) & 0x1fffffffu) < saved_lo)
 		ctx.hi++;
-	ctx.hi += size >> 29;
+	ctx.hi += static_cast<uint32_t>(size >> 29);
  
 	used = saved_lo & 0x3f;
  

@@ -14,10 +14,6 @@ if(POLICY CMP0076)
 	cmake_policy(SET CMP0076 OLD)
 endif()
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # options
 option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built." OFF)
 
@@ -115,7 +111,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	target_link_libraries(Util PRIVATE rt)
 endif()
 
+#set c++ standard to c++17
+target_compile_features(Util PUBLIC cxx_std_17)
+
 if(MSVC)
+	target_compile_definitions(Util PRIVATE NOMINMAX)
 	target_compile_definitions(Util PRIVATE "UTILAPI=__declspec(dllexport)")
 	target_compile_definitions(Util INTERFACE "UTILAPI=__declspec(dllimport)")
 else()

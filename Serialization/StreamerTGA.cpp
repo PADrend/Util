@@ -18,7 +18,7 @@
 #include <cstddef>
 #include <istream>
 
-#if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
+#if defined(UTIL_HAVE_LIB_SDL2) && defined(UTIL_HAVE_LIB_SDL2_IMAGE)
 COMPILER_WARN_PUSH
 COMPILER_WARN_OFF_GCC(-Wswitch-default)
 #include <SDL.h>
@@ -29,7 +29,7 @@ COMPILER_WARN_POP
 namespace Util {
 namespace Serialization {
 
-#if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
+#if defined(UTIL_HAVE_LIB_SDL2) && defined(UTIL_HAVE_LIB_SDL2_IMAGE)
 
 Reference<Bitmap> StreamerTGA::loadBitmap(std::istream & input) {
 	input.seekg(0, std::ios::end);
@@ -53,7 +53,7 @@ Reference<Bitmap> StreamerTGA::loadBitmap(std::istream & input) {
 #endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
 
 bool StreamerTGA::init() {
-#if defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE)
+#if defined(UTIL_HAVE_LIB_SDL2) && defined(UTIL_HAVE_LIB_SDL2_IMAGE)
 	Serialization::registerBitmapLoader("tga", ObjectCreator<StreamerTGA>());
 #endif /* defined(UTIL_HAVE_LIB_SDL2) and defined(UTIL_HAVE_LIB_SDL2_IMAGE) */
 	return true;

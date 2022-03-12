@@ -24,7 +24,7 @@
 #include <cstddef>
 #include <fstream>
 
-#if defined(UTIL_HAVE_LIB_STB) and not defined(UTIL_PREFER_SDL_IMAGE)
+#if defined(UTIL_HAVE_LIB_STB) & !defined(UTIL_PREFER_SDL_IMAGE)
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image.h>
@@ -40,7 +40,7 @@ static bool libNameInitailized = [](){
 namespace Util {
 namespace Serialization {
 
-#if defined(UTIL_HAVE_LIB_STB) and not defined(UTIL_PREFER_SDL_IMAGE)
+#if defined(UTIL_HAVE_LIB_STB) && !defined(UTIL_PREFER_SDL_IMAGE)
 
 Reference<Bitmap> StreamerSTB::loadBitmap(std::istream & input) {
 	input.seekg(0, std::ios::end);
@@ -51,30 +51,31 @@ Reference<Bitmap> StreamerSTB::loadBitmap(std::istream & input) {
 	input.read(reinterpret_cast<char *>(data.data()), size);
 	
 	int width,height,components;
-	uint8_t* img = stbi_load_from_memory(data.data(), size, &width, &height, &components, 0);
+	TypeConstant type;
+	bool normalized = false;
+	uint8_t* img = nullptr;
+	if(stbi_is_16_bit_from_memory(data.data(), static_cast<int>(size))) {
+		type = TypeConstant::UINT16;
+		normalized = true;
+		img = reinterpret_cast<uint8_t*>(stbi_load_16_from_memory(data.data(), static_cast<int>(size), &width, &height, &components, 0));
+	} else if(stbi_is_hdr_from_memory(data.data(), static_cast<int>(size))) {
+		type = TypeConstant::FLOAT;
+		img = reinterpret_cast<uint8_t*>(stbi_loadf_from_memory(data.data(), static_cast<int>(size), &width, &height, &components, 0));
+	} else {
+		type = TypeConstant::UINT8;
+		normalized = true;
+		img = reinterpret_cast<uint8_t*>(stbi_load_from_memory(data.data(), static_cast<int>(size), &width, &height, &components, 0));
+	}
 	if(!img) {
 		WARN(std::string("Could not create image. ") + stbi_failure_reason());
 		return nullptr;
 	}
-	auto pixelFormat = PixelFormat::RGB;
-	switch (components) {
-		case STBI_grey:
-			pixelFormat = PixelFormat::MONO;
-			break;
-		case STBI_grey_alpha:
-			pixelFormat = PixelFormat::RG;
-			break;
-		case STBI_rgb:
-			pixelFormat = PixelFormat::RGB;
-			break;
-		case STBI_rgb_alpha:
-			pixelFormat = PixelFormat::RGBA;
-			break;
-	}
+
+	Util::AttributeFormat pixelFormat({"rgba"}, type, components, normalized);
 
 	// Create the bitmap to store the data.
 	Reference<Bitmap> bitmap = new Bitmap(width, height, pixelFormat);
-	std::copy(img, img + width*height*components, bitmap->data());	
+	std::copy(img, img + bitmap->getDataSize(), bitmap->data());	
 	stbi_image_free(img);
 	return bitmap;
 }
@@ -95,7 +96,7 @@ bool StreamerSTB::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 	int components = bitmap.getHeight();
 	const int width = bitmap.getWidth();
 	const int height = bitmap.getHeight();
-	const int stride = pixelFormat.getBytesPerPixel() * width;
+	const int stride = pixelFormat.getDataSize() * width;
 	if(pixelFormat == PixelFormat::RGBA) {
 		components = 4;
 	} else if(pixelFormat == PixelFormat::BGRA) {
@@ -120,14 +121,31 @@ bool StreamerSTB::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 	return stbi_write_png_to_func(writeData, &context, width, height, components, bitmap.data(), stride) != 0;
 }
 
+bool StreamerHDR::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
+	WriteContext context(output);
+	const auto& pixelFormat = bitmap.getPixelFormat();
+	int components = pixelFormat.getComponentCount();
+	const int width = bitmap.getWidth();
+	const int height = bitmap.getHeight();
+	const int stride = pixelFormat.getDataSize() * width;
+	if(pixelFormat.getDataType() != TypeConstant::FLOAT) {
+		AttributeFormat newFormat(pixelFormat.getNameId(), TypeConstant::FLOAT, components, false);
+		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, newFormat);
+		return saveBitmap(*tmp.get(), output);
+	}
+
+	return stbi_write_hdr_to_func(writeData, &context, width, height, components, reinterpret_cast<const float*>(bitmap.data())) != 0;
+}
+
 #endif /* defined(UTIL_HAVE_LIB_STB) */
 
 bool StreamerSTB::init() {
-#if defined(UTIL_HAVE_LIB_STB) and not defined(UTIL_PREFER_SDL_IMAGE)
-	static const std::string fileExtensions[] = { "jpeg", "jpg", "png", "tga", "bmp", "psd", "gif", "hdr", "pic", "pnm" };
+#if defined(UTIL_HAVE_LIB_STB) && !defined(UTIL_PREFER_SDL_IMAGE)
+	static const std::string fileExtensions[] = { "jpeg", "jpg", "png", "tga", "bmp", "psd", "gif", "hdr", "pic", "pnm", "hdr" };
 	for(auto & fileExtension : fileExtensions)
 		Serialization::registerBitmapLoader(fileExtension, ObjectCreator<StreamerSTB>());
 	Serialization::registerBitmapSaver("png", ObjectCreator<StreamerSTB>());
+	Serialization::registerBitmapSaver("hdr", ObjectCreator<StreamerHDR>());
 #endif /* defined(UTIL_HAVE_LIB_STB) */
 	return true;
 }

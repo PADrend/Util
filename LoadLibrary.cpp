@@ -101,6 +101,15 @@ const StringIdentifier Util::loadLibrary(const std::string& filename) {
 	if (entry == libraryHandles.cend()) {		
 		#if defined(_WIN32) || defined(_WIN64)
 			HINSTANCE handle = LoadLibrary(filename.c_str());
+			if(!handle) {
+				DWORD errorMessageID = GetLastError();
+				LPSTR messageBuffer = nullptr;
+				size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+																		NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+				std::string message(messageBuffer, size);
+				LocalFree(messageBuffer);
+				err << message;
+			}
 		#elif defined(__APPLE__) || defined(__linux__) || defined(__unix__)
 			std::string libPath = filename;
 			if(libPath.find("/") == std::string::npos)
@@ -112,7 +121,7 @@ const StringIdentifier Util::loadLibrary(const std::string& filename) {
 		#endif
 		
 		if(!handle) {
-			WARN(std::string("Util::loadLibrary failed: " + err.str()));
+			WARN(std::string("Util::loadLibrary failed for file '" + filename + "': " + err.str()));
 			return StringIdentifier(0);
 		}
 		libraryHandles[libraryId] = {libraryId, handle};

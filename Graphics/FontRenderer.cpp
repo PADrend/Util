@@ -284,10 +284,10 @@ FontRenderer::~FontRenderer() = default;
 
 //! Copy the bitmap @p src into the bitmap given by @p dst at position (@p offX, @p offY).
 static void drawBitmap(PixelAccessor & src, PixelAccessor & dst, uint32_t w, uint32_t h, uint32_t offX, uint32_t offY) {
-	for(int y = 0; y < h; ++y) {
-		for(int x = 0; x < w; ++x) {
-			const uint32_t posX = offX + static_cast<uint32_t>(x);
-			const uint32_t posY = offY + static_cast<uint32_t>(y);
+	for(uint32_t y = 0; y < h; ++y) {
+		for(uint32_t x = 0; x < w; ++x) {
+			const uint32_t posX = offX + x;
+			const uint32_t posY = offY + y;
 			// Read the old value and write the maximum of old and new value.
 			const float oldValue = dst.readSingleValueFloat(posX, posY);
 			dst.writeSingleValueFloat(posX,posY,std::max(oldValue, src.readSingleValueFloat(x, y)));
@@ -304,28 +304,28 @@ static std::tuple<int, int, int, int> calculateRenderSizes(const stbtt_fontinfo&
 	int width = 0;
 	int ascent, descent;
 	stbtt_GetFontVMetrics(&info, &ascent, &descent, 0);    
-	int baseline = ascent * scale;
-	int height = (ascent - descent) * scale;
+	int baseline = static_cast<int>(ascent * scale);
+	int height = static_cast<int>((ascent - descent) * scale);
 	int maxWidth = 0;
 
 	// Caculate the width and height required for the bitmap.
 	for(auto it = text.cbegin(); it != text.cend(); ++it) {
 		int advance;
 		stbtt_GetCodepointHMetrics(&info, *it, &advance, 0);
-		width += advance * scale;
-		maxWidth = std::max<int>(maxWidth, advance * scale + 1);
+		width += static_cast<int>(advance * scale);
+		maxWidth = std::max<int>(maxWidth, static_cast<int>(advance * scale) + 1);
 		
 		if(it != std::prev(text.cend())) {
 			int kern;
 			kern = stbtt_GetCodepointKernAdvance(&info, *it, *std::next(it));
-			width += kern * scale;
+			width += static_cast<int>(kern * scale);
 		}
 	}
 	return std::make_tuple(width, height, baseline, maxWidth);
 }
 
 Reference<Bitmap> FontRenderer::renderText(unsigned int size, const std::u32string & text) {
-	float scale = stbtt_ScaleForPixelHeight(&impl->info, size);
+	float scale = stbtt_ScaleForPixelHeight(&impl->info, static_cast<float>(size));
 	impl->scale = scale;
 	const auto dimensions = calculateRenderSizes(impl->info, scale, text);
 	Reference<Bitmap> bitmap = new Bitmap(static_cast<uint32_t>(std::get<0>(dimensions)), 
@@ -351,12 +351,12 @@ Reference<Bitmap> FontRenderer::renderText(unsigned int size, const std::u32stri
 			
 			int advance;
 			stbtt_GetCodepointHMetrics(&impl->info, *it, &advance, 0);
-			cursorX += advance * scale;
+			cursorX += static_cast<int>(advance * scale);
 
 			if(it != std::prev(text.cend())) {
 				int kern;
 				kern = stbtt_GetCodepointKernAdvance(&impl->info, *it, *std::next(it));
-				cursorX += kern * scale;
+				cursorX += static_cast<int>(kern * scale);
 			}
 		}
 		// accessor goes out of scope here
@@ -365,12 +365,12 @@ Reference<Bitmap> FontRenderer::renderText(unsigned int size, const std::u32stri
 }
 
 std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned int size, const std::u32string& chars) {	
-	float scale = stbtt_ScaleForPixelHeight(&impl->info, size);
+	float scale = stbtt_ScaleForPixelHeight(&impl->info, static_cast<float>(size));
 	FontInfo fontInfo;
 	stbtt_GetFontVMetrics(&impl->info, &fontInfo.ascender, &fontInfo.descender, 0);
 	scale = static_cast<float>(size)/fontInfo.ascender;
-	fontInfo.ascender *= scale;
-	fontInfo.descender *= scale;
+	fontInfo.ascender *= static_cast<int>(scale);
+	fontInfo.descender *= static_cast<int>(scale);
 	fontInfo.height = fontInfo.ascender - fontInfo.descender;
 	auto& glyphMap = fontInfo.glyphMap;
 	impl->scale = scale;
@@ -382,8 +382,8 @@ std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned 
 	for(const auto& character : chars) {
 		int advance;
 		stbtt_GetCodepointHMetrics(&impl->info, character, &advance, 0);
-		width += std::ceil(static_cast<float>(advance) * scale) + padding;
-		maxWidth = std::max<int>(maxWidth, advance * scale + 2*padding);
+		width += static_cast<int>(std::ceil(static_cast<float>(advance) * scale)) + padding;
+		maxWidth = std::max<int>(maxWidth, static_cast<int>(advance * scale) + 2*padding);
 	}
 
 	Reference<Bitmap> bitmap = new Bitmap(width, fontInfo.height, PixelFormat::MONO);
@@ -417,9 +417,9 @@ std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned 
 			gInfo.position = std::make_pair(cursorX, cursorY);
 			gInfo.size = std::make_pair(w, h);
 			gInfo.offset = std::make_pair(x0, -y0);
-			gInfo.xAdvance = advance * scale;
+			gInfo.xAdvance = static_cast<int>(advance * scale);
 			glyphMap.emplace(character, gInfo);
-			cursorX += std::ceil(static_cast<float>(advance) * scale) + padding;
+			cursorX += static_cast<int>(std::ceil(static_cast<float>(advance) * scale)) + padding;
 		}
 	}
 	return std::make_pair(std::move(bitmap), fontInfo);

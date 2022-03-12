@@ -11,7 +11,7 @@
 
 static const uint8_t byteSizes[] = { 1,2,4,8,1,2,4,8,4,8,2,4 };
 	
-size_t Util::getNumBytes(TypeConstant t){
+uint8_t Util::getNumBytes(TypeConstant t){
 	const uint8_t index = static_cast<uint8_t>(t);
 	if( index>=sizeof(byteSizes) )
 		throw std::invalid_argument("getNumBytes: Invalid type constant.");
@@ -32,5 +32,6 @@ std::string Util::getTypeString(TypeConstant t) {
 		case TypeConstant::DOUBLE: return "double";
 		case TypeConstant::HALF: return "half";
 		case TypeConstant::BOOL: return "bool";
+		default: return "";
 	}
 }

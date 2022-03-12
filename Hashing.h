@@ -25,32 +25,35 @@ namespace Util {
 //! @name Hashing
 //! @{
 
-UTILAPI uint32_t calcHash(const uint8_t * ptr,size_t size);
+UTILAPI uint32_t calcHash(const uint8_t * ptr,uint64_t size);
 
 UTILAPI std::string md5(const std::string& str);
 
 template <class T>
-inline void hash_combine(std::size_t& seed, const T& v) {
-	std::hash<T> hasher;
+inline uint64_t hash_combine(uint64_t& seed, const T& v) {
+	static std::hash<T> hasher;
 	seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+	return seed;
 }
 
-inline void hash_param(size_t &seed) {}
+inline uint64_t hash_param(uint64_t &seed) { return seed; }
 
 template <typename T>
-inline void hash_param(size_t &seed, const T &value) {
+inline uint64_t hash_param(uint64_t &seed, const T &value) {
 	hash_combine(seed, value);
+	return seed;
 }
 
 template <typename T, typename... Args>
-inline void hash_param(size_t& seed, const T& first_arg, const Args& ...args) {
+inline uint64_t hash_param(uint64_t& seed, const T& first_arg, const Args& ...args) {
 	hash_combine(seed, first_arg);
 	hash_param(seed, args...);
+	return seed;
 }
 
 template <typename T>
-inline size_t hash(const T& arg) {
-	std::hash<T> hasher;
+inline uint64_t hash(const T& arg) {
+	static std::hash<T> hasher;
 	return hasher(arg);
 }
 

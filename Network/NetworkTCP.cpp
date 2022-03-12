@@ -10,6 +10,12 @@
 */
 #include "NetworkTCP.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0501
+#endif
+#endif
+
 #ifdef UTIL_HAVE_LIB_SDL2_NET
 COMPILER_WARN_PUSH
 COMPILER_WARN_OFF_GCC(-Wswitch-default)
@@ -286,7 +292,7 @@ bool TCPConnection::sendString(const std::string & s) {
 
 //! ---|> ThreadObject
 void TCPConnection::run() {
-	lastActiveTime = Timer::now();
+	lastActiveTime = static_cast<float>(Timer::now());
 	while(isOpen()) {
 		Utils::sleep(1);
 
@@ -314,7 +320,7 @@ void TCPConnection::run() {
 				std::lock_guard<std::mutex> lock(inQueueMutex);
 				inQueueDataSize += static_cast<size_t>(std::get<0>(receivedDataAndStatus).size());
 				inQueue.emplace_back( std::move( std::get<0>(receivedDataAndStatus)) );
-				lastActiveTime = Timer::now();
+				lastActiveTime = static_cast<float>(Timer::now());
 			}
 		}
 	}

@@ -36,6 +36,7 @@ struct ResizeEvent {
 	EventType_t type;
 	uint32_t width;
 	uint32_t height;
+	float contentScale;
 };
 
 enum Key : uint8_t {

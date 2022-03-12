@@ -48,7 +48,7 @@ class FSProvider : public AbstractFSProvider {
 		UTILAPI status_t dir(const FileName &path, std::list<FileName> &result, uint8_t flags) override;
 		UTILAPI bool isFile(const FileName &) override;
 		UTILAPI bool isDir(const FileName &) override;
-		UTILAPI size_t fileSize(const FileName & filename) override;
+		UTILAPI uint64_t fileSize(const FileName & filename) override;
 };
 }
 #endif	/* _FS_PROVIDER_H */

@@ -40,7 +40,7 @@ public:
 	virtual bool exists(const FileName &)       {   return false;   }
 	virtual bool isFile(const FileName &)       {   return false;   }
 	virtual bool isDir(const FileName &)        {   return false;   }
-	virtual size_t fileSize(const FileName &)   {   return 0;   }
+	virtual uint64_t fileSize(const FileName &)   {   return 0;   }
 
 	virtual status_t makeDir(const FileName &)             {   return UNSUPPORTED; }
 	virtual status_t makeDirRecursive(const FileName &)    {   return UNSUPPORTED; }

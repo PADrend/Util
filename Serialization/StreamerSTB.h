@@ -36,6 +36,14 @@ class StreamerSTB : public AbstractBitmapStreamer {
 		UTILAPI static bool init();
 };
 
+class StreamerHDR : public StreamerSTB {
+	public:
+		StreamerHDR() = default;
+		virtual ~StreamerHDR() = default;
+
+		UTILAPI bool saveBitmap(const Bitmap & bitmap, std::ostream & output) override;
+};
+
 }
 }
 

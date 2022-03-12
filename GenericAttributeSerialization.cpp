@@ -86,7 +86,7 @@ _NumberAttribute<char> * unserializeGANumber<char>(const GenericAttributeSeriali
 	short number;
 	std::istringstream stream(contentAndContext.first);
 	stream >> number;
-	return new _NumberAttribute<char>(number);
+	return new _NumberAttribute<char>(static_cast<char>(number));
 }
 
 template<> const std::string getGATypeName<unsigned char>()	{return "numberUByte";}
@@ -103,7 +103,7 @@ _NumberAttribute<unsigned char> * unserializeGANumber<unsigned char>(const Gener
 	unsigned short number;
 	std::istringstream stream(contentAndContext.first);
 	stream >> number;
-	return new _NumberAttribute<unsigned char>(number);
+	return new _NumberAttribute<unsigned char>(static_cast<unsigned char>(number));
 }
 
 template<> const std::string getGATypeName<std::string>()	{return "string";}

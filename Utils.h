@@ -184,7 +184,7 @@ inline double normalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
 template<typename T>
 inline T unnormalizeUnsigned(double value) { return static_cast<T>(clamp(value, 0.0, 1.0) * std::numeric_limits<T>::max()); }
 template<>
-inline float unnormalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
+inline float unnormalizeUnsigned(double value) { return static_cast<float>(clamp(value, 0.0, 1.0)); }
 template<>
 inline double unnormalizeUnsigned(double value) { return clamp(value, 0.0, 1.0); }
 
@@ -202,7 +202,7 @@ inline double normalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
 template<typename T>
 inline T unnormalizeSigned(double value) { return static_cast<T>(clamp(value, -1.0, 1.0) * std::numeric_limits<T>::max()); }
 template<>
-inline float unnormalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
+inline float unnormalizeSigned(double value) { return static_cast<float>(clamp(value, -1.0, 1.0)); }
 template<>
 inline double unnormalizeSigned(double value) { return clamp(value, -1.0, 1.0); }
 

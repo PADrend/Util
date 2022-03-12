@@ -79,7 +79,7 @@ struct FileUtils {
 // @{
 	UTILAPI static bool isFile(const FileName & filename);
 	UTILAPI static bool isDir (const FileName & filename);
-	UTILAPI static size_t fileSize(const FileName & filename);
+	UTILAPI static uint64_t fileSize(const FileName & filename);
 
 	/**
 	 * Search a file in different paths. The paths are checked absolute and relative to the originating file path.

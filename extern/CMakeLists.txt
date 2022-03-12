@@ -199,94 +199,16 @@ endif()
 # ------------------------------------------------------------------------------
 # CURL
 
-option(UTIL_BUILD_CURL "Defines if curl should be build from source (requires further dependencies)." OFF)
-if(UTIL_BUILD_CURL)
-  FetchContent_Declare(
-    curl
-    GIT_REPOSITORY https://github.com/curl/curl.git
-    GIT_TAG        curl-7_65_3
-  )
-
-  FetchContent_GetProperties(curl)
-  if(NOT curl_POPULATED)
-    message(STATUS "Fetching CURL...")
-    FetchContent_Populate(curl)
-    set(BUILD_CURL_EXE OFF CACHE INTERNAL "" FORCE)
-    if(WIN32)
-      set(CMAKE_USE_WINSSL ON CACHE INTERNAL "" FORCE)
-    endif()
-    add_subdirectory(${curl_SOURCE_DIR} ${curl_BINARY_DIR} EXCLUDE_FROM_ALL)
-  endif()
-  target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
-  target_link_libraries(UtilExtern INTERFACE curl)
-elseif(WIN32 AND MINGW)
-  # Use prebuild binaries for MinGW on Windows
-  FetchContent_Declare(
-    curl_mingw
-    URL       https://curl.haxx.se/windows/dl-7.65.3/curl-7.65.3-win64-mingw.zip
-    URL_HASH  SHA256=5c07b2d96aa7c7f5d3cff7657f5ebf563f7fb5aa62411300ff52189a7e2460c9
-  )
-  FetchContent_Declare(
-    curl_mingw_ssl
-    URL       https://curl.haxx.se/windows/dl-7.65.3/openssl-1.1.1c-win64-mingw.zip
-    URL_HASH  SHA256=d9da1782e3f1fb4eed8adc1e954ba2899ed8bd6302d6eb788f147b1ded99ee7c
-  )
-  FetchContent_Declare(
-    curl_mingw_brotli
-    URL       https://curl.haxx.se/windows/dl-7.65.3/brotli-1.0.7-win64-mingw.zip
-    URL_HASH  SHA256=7b536fc118e9c35c4c99006f596eed604d3d6e627b1a363099f1f5ead6054580
-  )
-  FetchContent_Declare(
-    curl_mingw_ssh
-    URL       https://curl.haxx.se/windows/dl-7.65.3/libssh2-1.9.0-win64-mingw.zip
-    URL_HASH  SHA256=ee9f3815ff46b0eb677dc3688362487c5847063a653aad923e5b283f77360af0
-  )
-  FetchContent_Declare(
-    curl_mingw_http
-    URL       https://curl.haxx.se/windows/dl-7.65.3/nghttp2-1.39.1-win64-mingw.zip
-    URL_HASH  SHA256=837927bab6d8565b03d4018bdcbb4c25c7adec8a96d745b33fc10c0ca42b83f4
-  )
-  #FetchContent_Declare(
-  #  curl_mingw_zlib
-  #  URL       https://curl.haxx.se/windows/dl-7.65.3/zlib-1.2.11-win64-mingw.zip
-  #  URL_HASH  SHA256=e7a9238c5ad59cbfd5bc33d47679b945bd41e4de3a4aec78fc8ba759cb52a0cd
-#)
-
-  FetchContent_GetProperties(curl_mingw)
-  FetchContent_GetProperties(curl_mingw_ssl)
-  FetchContent_GetProperties(curl_mingw_brotli)
-  FetchContent_GetProperties(curl_mingw_ssh)
-  FetchContent_GetProperties(curl_mingw_http)
-  #FetchContent_GetProperties(curl_mingw_zlib)
-  message(STATUS "Fetching prebuild CURL...")
-  if(NOT curl_mingw_POPULATED)
-    FetchContent_Populate(curl_mingw)
-    FetchContent_Populate(curl_mingw_ssl)
-    FetchContent_Populate(curl_mingw_brotli)
-    FetchContent_Populate(curl_mingw_ssh)
-    FetchContent_Populate(curl_mingw_http)
-    #FetchContent_Populate(curl_mingw_zlib)
-  endif()
-  target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
-  target_compile_definitions(UtilExtern INTERFACE CURL_STATICLIB)
-  target_include_directories(UtilExtern INTERFACE ${curl_mingw_SOURCE_DIR}/include)
-  target_link_libraries(UtilExtern INTERFACE
-    ${curl_mingw_SOURCE_DIR}/lib/libcurl.a
-    ${curl_mingw_ssl_SOURCE_DIR}/lib/libssl.a
-    ${curl_mingw_ssl_SOURCE_DIR}/lib/libcrypto.a
-    ${curl_mingw_ssh_SOURCE_DIR}/lib/libssh2.a
-    ${curl_mingw_brotli_SOURCE_DIR}/lib/libbrotlidec-static.a
-    ${curl_mingw_brotli_SOURCE_DIR}/lib/libbrotlienc-static.a
-    ${curl_mingw_brotli_SOURCE_DIR}/lib/libbrotlicommon-static.a
-    ${curl_mingw_http_SOURCE_DIR}/lib/libnghttp2.a
-    #${curl_mingw_zlib_SOURCE_DIR}/libz.a
-  )
-else()
+option(UTIL_USE_CURL "Use the cURL library (optional; used for http/https/ftp file system support)." ON)
+if(UTIL_USE_CURL)
+  message(STATUS "Checking cURL...")
   find_package(CURL)
   if(CURL_FOUND)
     target_compile_definitions(UtilExtern INTERFACE UTIL_HAVE_LIB_CURL)
     target_include_directories(UtilExtern INTERFACE ${CURL_INCLUDE_DIRS})
     target_link_libraries(UtilExtern INTERFACE ${CURL_LIBRARIES})
+  else()
+    message(WARNING "Could not find cURL development libraries. If you want to have http/https/ftp file system support, please make sure it is installed on your system.")
   endif()
 endif()
 
@@ -438,6 +360,23 @@ if(UTIL_BUILD_SQLITE)
   target_link_libraries(UtilExtern INTERFACE sqlite3)
   target_include_directories(UtilExtern INTERFACE ${sqlite3_SOURCE_DIR})
 endif()
+
+# ------------------------------------------------------------------------------
+# rang (console/terminal colors)
+
+FetchContent_Declare(
+  rang
+  GIT_REPOSITORY https://github.com/agauniyal/rang.git
+  GIT_TAG        v3.2
+)
+
+FetchContent_GetProperties(rang)
+if(NOT rang_POPULATED)
+  message(STATUS "Fetching rang...")
+  FetchContent_Populate(rang)
+  add_subdirectory(${rang_SOURCE_DIR} ${rang_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+target_link_libraries(UtilExtern INTERFACE rang)
 
 # ------------------------------------------------------------------------------
 

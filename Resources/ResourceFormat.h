@@ -31,7 +31,7 @@ public:
 	using Attribute = AttributeFormat;	
 	using AttributeContainer_t = std::deque<Attribute>;
 		
-	ResourceFormat(size_t _attributeAlignment=0) : attributeAlignment(_attributeAlignment) {}
+	ResourceFormat(uint64_t _attributeAlignment=0) : attributeAlignment(_attributeAlignment) {}
 	virtual ~ResourceFormat() = default;
 	
 	/*! Create and add a new attribute to the ResourceFormat.
@@ -49,7 +49,7 @@ public:
 	UTILAPI const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized=false, uint32_t internalType=0);
 
 	//! directly appends the attribute without recalculating offsets
-	UTILAPI const Attribute& _appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized, uint32_t internalType, size_t offset);
+	UTILAPI const Attribute& _appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized, uint32_t internalType, uint64_t offset);
 		
 	//! Add an attribute with the given name and the given number of float values.
 	const Attribute & appendFloat(const Util::StringIdentifier& nameId, uint32_t numValues, bool normalized=false) {
@@ -113,10 +113,10 @@ public:
 	 * 
 	 * @param value The size.
 	 */ 
-	void setSize(size_t value) { size = value; }
-	size_t getSize() const { return size; }
+	void setSize(uint64_t value) { size = value; }
+	uint64_t getSize() const { return size; }
 
-	size_t getAlignment() const { return attributeAlignment; }
+	uint64_t getAlignment() const { return attributeAlignment; }
 
 	UTILAPI std::string toString(bool formatted=false) const;
 	UTILAPI bool operator==(const ResourceFormat& other) const;
@@ -124,16 +124,16 @@ public:
 	UTILAPI bool operator<(const ResourceFormat& other) const;
 private:
 	AttributeContainer_t attributes;
-	size_t size = 0;
-	size_t attributeAlignment;
+	uint64_t size = 0;
+	uint64_t attributeAlignment;
 };
 
 } /* Util */
 
 
 template <> struct std::hash<Util::ResourceFormat> {
-	std::size_t operator()(const Util::ResourceFormat& format) const {
-		std::size_t result = 0;
+	std::uint64_t operator()(const Util::ResourceFormat& format) const {
+		std::uint64_t result = 0;
 		Util::hash_combine(result, format.getSize());
 		Util::hash_combine(result, format.getAlignment());
 		for(const auto& attr : format.getAttributes())

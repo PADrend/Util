@@ -20,13 +20,13 @@ namespace Util {
 class ResourceAllocator {
 public:
 	struct Allocation {
-		const size_t offset;
-		const size_t size;
+		const uint64_t offset;
+		const uint64_t size;
 		const uint64_t handle;
 	};
 
-	virtual Allocation allocate(size_t size) = 0;
-	virtual Allocation allocate(const Util::ResourceFormat& format, size_t count) {
+	virtual Allocation allocate(uint64_t size) = 0;
+	virtual Allocation allocate(const Util::ResourceFormat& format, uint64_t count) {
 		return allocate(format.getSize()*count);
 	}
 	virtual void free(Allocation&& allocation) = 0;

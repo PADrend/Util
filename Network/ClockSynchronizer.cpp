@@ -56,7 +56,7 @@ ClockSynchronizer::~ClockSynchronizer(){
 }
 
 float ClockSynchronizer::getClockSec()const{
-	return Timer::now()+diff;
+	return static_cast<float>(Timer::now())+diff;
 }
 
 //! (internal)
@@ -79,7 +79,7 @@ void ClockSynchronizer::runServer(){
 		}
 //        std::cout << "Send answer "<<getClock()<<"\n";
 
-		*(reinterpret_cast<float *> (answer.data() + 6)) = Timer::now();
+		*(reinterpret_cast<float *> (answer.data() + 6)) = static_cast<float>(Timer::now());
 		mySocket->sendData(answer.data(), answer.size(), p->source);
 
 //        mySocket->addTarget(p->source);
@@ -98,7 +98,7 @@ void ClockSynchronizer::runClient(){
 	while(isRunning()) {
 		Utils::sleep(453); // todo: adjust later...
 
-		const float startTime=Timer::now();
+		const float startTime=static_cast<float>(Timer::now());
 		mySocket->sendData(request.data(), request.size());
 //        std::cout << "Send Request"<< mySocket<<" "<<getClock()<<" \n";
 
@@ -116,11 +116,11 @@ void ClockSynchronizer::runClient(){
 			WARN( std::string("Unknown answer: ")+p->getString());
 			continue;
 		}
-		const float latency = (Timer::now() - startTime) * 0.5;
+		const float latency = (static_cast<float>(Timer::now()) - startTime) * 0.5f;
 		float serverTime = (*(reinterpret_cast<float *> (p->packetData.data() + 6)) + latency);
 
-		float newDiff = serverTime - Timer::now();
-		diff= diff==0 ? newDiff : (diff*4.0 +newDiff)/5.0;
+		float newDiff = serverTime - static_cast<float>(Timer::now());
+		diff = (diff==0) ? newDiff : (diff*4.0f +newDiff)/5.0f;
 
 //        std::cout << "Latency:"<<latency <<"\tDiff: "<<newDiff<<"\tsmoothed:"<<diff<<"\n";
 	}

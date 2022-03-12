@@ -82,34 +82,36 @@ static float fromFloat10(uint32_t float10Bits) {
 
 class R11G11B10FloatAccessor : public AttributeAccessor {
 public:
-	R11G11B10FloatAccessor(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) : AttributeAccessor(ptr, size, attr, stride) {}
+	R11G11B10FloatAccessor(uint8_t* ptr, uint64_t size, const AttributeFormat& attr, uint64_t stride) : AttributeAccessor(ptr, size, attr, stride) {}
 		
-	static Reference<AttributeAccessor> create(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) {
+	static Reference<AttributeAccessor> create(uint8_t* ptr, uint64_t size, const AttributeFormat& attr, uint64_t stride) {
 		return new R11G11B10FloatAccessor(ptr, size, attr, stride);
 	}
 		
 	template<typename S>
-	void _readValues(size_t index, S* values, size_t count) const {	
+	void _readValues(uint64_t index, S* values, uint64_t count) const {
 		std::vector<float> floatValues(count);
 		readValues(index, floatValues.data(), count);
-		std::copy(floatValues.begin(), floatValues.end(), values);
+		std::transform(floatValues.begin(), floatValues.end(), values, [](float v) { return static_cast<S>(v);});
+		//std::copy(floatValues.begin(), floatValues.end(), values);
 	}
 	
 	template<typename S>
-	void _writeValues(size_t index, const S* values, size_t count) const {
-		std::vector<float> floatValues(values, values + count);
+	void _writeValues(uint64_t index, const S* values, uint64_t count) const {
+		std::vector<float> floatValues(count);
+		std::transform(values, values + count, floatValues.begin(), [](S v) { return static_cast<float>(v);});
 		writeValues(index, floatValues.data(), count);
 	}
 	
-	virtual void readValues(size_t index, int8_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, int16_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, int32_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, int64_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, uint8_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, uint16_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, uint32_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, uint64_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, float* values, size_t count) const {
+	virtual void readValues(uint64_t index, int8_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, int16_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, int32_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, int64_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, uint8_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, uint16_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, uint32_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, uint64_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, float* values, uint64_t count) const {
 		assertRange(index);
 		uint32_t v = *_ptr<const uint32_t>(index);
 		if(count >= 0) *(values+0) = fromFloat11(v);
@@ -117,16 +119,16 @@ public:
 		if(count >= 2) *(values+2) = fromFloat10(v >> 22);
 	}
 	
-	virtual void readValues(size_t index, double* values, size_t count) const { _readValues(index, values, count); }
-	virtual void writeValues(size_t index, const int8_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const int16_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const int32_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const int64_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const uint8_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const uint16_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const uint32_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const uint64_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const float* values, size_t count) const {
+	virtual void readValues(uint64_t index, double* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const int8_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const int16_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const int32_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const int64_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const uint8_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const uint16_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const uint32_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const uint64_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const float* values, uint64_t count) const {
 		assertRange(index);
 		uint32_t r = count >= 0 ? toFloat11(*(values+0)) : 0;
 		uint32_t g = count >= 1 ? toFloat11(*(values+1)) : 0;
@@ -134,7 +136,7 @@ public:
 		*_ptr<uint32_t>(index) = r | (g << 11) | (b << 22);
 	}
 	
-	virtual void writeValues(size_t index, const double* values, size_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const double* values, uint64_t count) const { _writeValues(index, values, count); }
 };
 
 static const bool R11G11B10FloatAccRegistered = AttributeAccessor::registerAccessor(PixelFormat::INTERNAL_TYPE_R11G11B10_FLOAT, R11G11B10FloatAccessor::create);
@@ -147,48 +149,48 @@ static const bool R11G11B10FloatAccRegistered = AttributeAccessor::registerAcces
 class BgraAccessor : public AttributeAccessor {
 private:
 	Reference<AttributeAccessor> acc;
-	BgraAccessor(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) : 
+	BgraAccessor(uint8_t* ptr, uint64_t size, const AttributeFormat& attr, uint64_t stride) : 
 		AttributeAccessor(ptr, size, attr, stride),
 		acc(AttributeAccessor::create(ptr, size, {attr.getName(), attr.getDataType(), attr.getComponentCount(), attr.isNormalized(), 0, attr.getOffset()}, stride)) { }
 public:
 		
-	static Reference<AttributeAccessor> create(uint8_t* ptr, size_t size, const AttributeFormat& attr, size_t stride) {
+	static Reference<AttributeAccessor> create(uint8_t* ptr, uint64_t size, const AttributeFormat& attr, uint64_t stride) {
 		return new BgraAccessor(ptr, size, attr, stride);
 	}
 		
 	template<typename S>
-	void _readValues(size_t index, S* values, size_t count) const {	
+	void _readValues(uint64_t index, S* values, uint64_t count) const {	
 		acc->readValues(index, values, count);
 		if(count >= 3) std::swap(*values, *(values+2));
 	}
 	
 	template<typename S>
-	void _writeValues(size_t index, const S* values, size_t count) const {
+	void _writeValues(uint64_t index, const S* values, uint64_t count) const {
 		std::vector<S> tmp(values, values+count);
 		if(count >= 3) std::iter_swap(tmp.begin(), tmp.begin()+2);
 		acc->writeValues(index, tmp.data(), count);
 	}
 	
-	virtual void readValues(size_t index, int8_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, int16_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, int32_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, int64_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, uint8_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, uint16_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, uint32_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, uint64_t* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, float* values, size_t count) const { _readValues(index, values, count); }
-	virtual void readValues(size_t index, double* values, size_t count) const { _readValues(index, values, count); }
-	virtual void writeValues(size_t index, const int8_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const int16_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const int32_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const int64_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const uint8_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const uint16_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const uint32_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const uint64_t* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const float* values, size_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(size_t index, const double* values, size_t count) const { _writeValues(index, values, count); }
+	virtual void readValues(uint64_t index, int8_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, int16_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, int32_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, int64_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, uint8_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, uint16_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, uint32_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, uint64_t* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, float* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, double* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const int8_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const int16_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const int32_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const int64_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const uint8_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const uint16_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const uint32_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const uint64_t* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const float* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const double* values, uint64_t count) const { _writeValues(index, values, count); }
 };
 
 static const bool BgraAccRegistered = AttributeAccessor::registerAccessor(PixelFormat::INTERNAL_TYPE_BGRA, BgraAccessor::create);

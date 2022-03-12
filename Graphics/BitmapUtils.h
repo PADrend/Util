@@ -70,8 +70,18 @@ UTILAPI Reference<Bitmap> combineInterleaved(const AttributeFormat & targetForma
  * @param newFormat the Pixelformat into which the bitmap schould be converted
  * @return a new bitmap of the specified format with the content of the given bitmap
  */
-UTILAPI Reference<Bitmap> convertBitmap(const Bitmap & source, 
-									   const AttributeFormat & newFormat);
+UTILAPI Reference<Bitmap> convertBitmap(const Bitmap & source, const AttributeFormat & newFormat);
+
+/**
+ * internal method, used for expanding the number of channels of a bitmap to 4,
+ * e.g., converting RGB to RGBA. The new channels are filled with the last available channel
+ * (except the alpha channel, which is set to 1)
+ *
+ * @param source the bitmap to be converted
+ * @param desiredChannels the number of new channels
+ * @return a new bitmap of the specified format with the content of the given bitmap
+ */
+UTILAPI Reference<Bitmap> expandChannels(const Bitmap & source, uint32_t desiredChannels);
 
 /**
  * Create a black/transparent - white bitmap with the given format based on a 

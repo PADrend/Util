@@ -85,8 +85,8 @@ class ArchiveEntry {
 			return entry;
 		}
 
-		size_t getSize() const {
-			return static_cast<size_t>(archive_entry_size(entry));
+		uint64_t getSize() const {
+			return static_cast<uint64_t>(archive_entry_size(entry));
 		}
 
 		bool isFile() const {
@@ -199,7 +199,7 @@ class Archive {
 			return it->second.isDir();
 		}
 
-		size_t fileSize(const std::string & file) {
+		uint64_t fileSize(const std::string & file) {
 			const auto it = entries.find(file);
 			if(it == entries.end()) {
 				return 0;
@@ -227,7 +227,7 @@ class WritableArchive {
 			}
 		}
 
-		~WritableArchive() {
+		~WritableArchive() noexcept(false) {
 			assert(readArchiveFileName != writeArchiveFileName);
 			assert(readHandle != nullptr || writeHandle != nullptr);
 			const bool needCopy = (readHandle != nullptr) && (writeHandle != nullptr);
@@ -447,17 +447,17 @@ COMPILER_WARN_POP
 		}
 
 		static void copyEntry(archive * readHandle, archive * writeHandle, archive_entry * entry) {
-			const size_t entrySize = static_cast<size_t>(archive_entry_size(entry));
+			const uint64_t entrySize = static_cast<uint64_t>(archive_entry_size(entry));
 			archive_write_header(writeHandle, entry);
 			if (entrySize > 0) {
 				std::vector<uint8_t> buffer(entrySize);
 				const auto resultRead = archive_read_data(readHandle, buffer.data(), buffer.size());
-				if (static_cast<size_t>(resultRead) != buffer.size()) {
+				if (static_cast<uint64_t>(resultRead) != buffer.size()) {
 					throw std::runtime_error("Error reading data. " 
 							+ StringUtils::toString(archive_errno(readHandle)) + " " + archive_error_string(readHandle));
 				}
 				const auto resultWrite = archive_write_data(writeHandle, buffer.data(), buffer.size());
-				if (static_cast<size_t>(resultWrite) != buffer.size()) {
+				if (static_cast<uint64_t>(resultWrite) != buffer.size()) {
 					throw std::runtime_error("Error writing data. " 
 							+ StringUtils::toString(archive_errno(writeHandle)) + " " + archive_error_string(writeHandle));
 				}
@@ -497,7 +497,7 @@ AbstractFSProvider::status_t ArchiveProvider::readFile(const FileName & url, std
 		const FileName entryFileName(archive_entry_pathname(entry));
 		if(file.getPath() == entryFileName.getPath()) {
 			const auto entrySize = archive_entry_size(entry);
-			data.resize(static_cast<size_t>(entrySize));
+			data.resize(static_cast<uint64_t>(entrySize));
 			if(entrySize > 0) {
 				const auto bytesRead = archive_read_data(readHandle, data.data(), data.size());
 				if (bytesRead != entrySize) {
@@ -585,7 +585,7 @@ bool ArchiveProvider::isDir(const FileName & url) {
 	return handle->isDir(file.getPath());
 }
 
-size_t ArchiveProvider::fileSize(const FileName & url) {
+uint64_t ArchiveProvider::fileSize(const FileName & url) {
 	std::string archiveFileName;
 	FileName file;
 	decomposeURL(url, archiveFileName, file);
@@ -620,7 +620,7 @@ AbstractFSProvider::status_t ArchiveProvider::makeDirRecursive(const FileName & 
 
 	const std::string path = file.getPath();
 	// Split path into directory components
-	size_t pos = 0;
+	uint64_t pos = 0;
 	while(pos != path.size()) {
 		pos = path.find('/', pos);
 		if(pos == std::string::npos) {
@@ -674,7 +674,7 @@ Archive * ArchiveProvider::getHandle(const std::string & archiveFileName) {
 void ArchiveProvider::decomposeURL(const FileName & url,
 								std::string & archiveFileName, FileName & localPath) {
 	const std::string path = url.getPath();
-	const std::size_t splitPos = path.find('$');
+	const std::uint64_t splitPos = path.find('$');
 	if (splitPos == std::string::npos) {
 		archiveFileName = path;
 		localPath = std::string("");

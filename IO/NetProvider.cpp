@@ -60,8 +60,8 @@ NetProvider::~NetProvider() {
 	curl_global_cleanup();
 }
 
-static size_t NetProviderWriteCallback(void * ptr, size_t size, size_t nmemb, void * data) {
-	const size_t overallSize = size * nmemb;
+static uint64_t NetProviderWriteCallback(void * ptr, uint64_t size, uint64_t nmemb, void * data) {
+	const uint64_t overallSize = size * nmemb;
 	const uint8_t * src = static_cast<const uint8_t *>(ptr);
 
 	std::vector<uint8_t> * binData = static_cast<std::vector<uint8_t> *>(data);

@@ -53,6 +53,7 @@ class Window : public Util::ReferenceCounter<Window> {
 			uint32_t multisamples;			//! (if multisampled == true) Number of samples used for multisampling; default is 4.
 			uint32_t contextVersionMajor; //! The major rendering API version that the created context must be compatible with.
 			uint32_t contextVersionMinor; //! The minor rendering API version that the created context must be compatible with.
+			int32_t monitor; //! The monitor index to start the window in, when fullscreen is enabled, or -1 for the primary monitor.
 
 			std::string title;				//! The title string commonly displayed in the title bar of the window.
 			enum RenderingAPI {
@@ -65,7 +66,7 @@ class Window : public Util::ReferenceCounter<Window> {
 			Properties() : borderless(false),debug(false),compatibilityProfile(false),
 					fullscreen(false),multisampled(false),positioned(false),resizable(false),
 					clientAreaWidth(0),clientAreaHeight(0),posX(0),posY(0),multisamples(4),
-					contextVersionMajor(1), contextVersionMinor(0), renderingAPI(VULKAN){}
+					contextVersionMajor(1), contextVersionMinor(0), monitor(-1), renderingAPI(GL){}
 		};
 		
 		//! Destroy the window and free the allocated resources.
@@ -83,6 +84,11 @@ class Window : public Util::ReferenceCounter<Window> {
 		//! Return the width of the client area of the window.
 		uint32_t getWidth() const {
 			return width;
+		}
+		
+		//! Return the ratio between the current DPI and the platform's default DPI.
+		float getContentScale() const {
+			return contentScale;
 		}
 
 		//! Swap front and back buffer of the window.
@@ -148,6 +154,7 @@ class Window : public Util::ReferenceCounter<Window> {
 	protected:
 		//! Stores the size of the window's client area.
 		uint32_t width,height;
+		float contentScale;
 		bool shareContext;
 		Properties properties;
 
@@ -155,7 +162,7 @@ class Window : public Util::ReferenceCounter<Window> {
 		 * Create the window and initialize a rendering context.
 		 */
 		Window(const Properties & properties) :
-			 width(properties.clientAreaWidth), height(properties.clientAreaHeight),shareContext(properties.shareContext),properties(properties),cursorHidden(false),activeCursor(nullptr) {
+			 width(properties.clientAreaWidth), height(properties.clientAreaHeight), contentScale(1.0f),shareContext(properties.shareContext),properties(properties),cursorHidden(false),activeCursor(nullptr) {
 		}
 
 		//! Allow access to members from factory.

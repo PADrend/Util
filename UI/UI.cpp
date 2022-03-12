@@ -21,7 +21,7 @@
 #include "SplashScreenWin.h"
 #endif
 
-#if defined(UTIL_PREFER_SDL_CONTEXT) and defined(UTIL_HAVE_LIB_SDL2)
+#if defined(UTIL_PREFER_SDL_CONTEXT) && defined(UTIL_HAVE_LIB_SDL2)
 #include "WindowSDL.h"
 #elif defined(UTIL_HAVE_LIB_GLFW)
 #include "WindowGLFW.h"
@@ -53,7 +53,7 @@ std::unique_ptr<SplashScreen> createSplashScreen(const std::string & splashTitle
 Util::Reference<Window> createWindow(const Window::Properties & properties) {
 	Util::Reference<Window> window;
 	try {
-#if defined(UTIL_PREFER_SDL_CONTEXT) and defined(UTIL_HAVE_LIB_SDL2)
+#if defined(UTIL_PREFER_SDL_CONTEXT) && defined(UTIL_HAVE_LIB_SDL2)
 		window = new WindowSDL(properties);
 #elif defined(UTIL_HAVE_LIB_GLFW)
 		window = new WindowGLFW(properties);
