@@ -12,6 +12,7 @@
 #include "AttributeFormat.h"
 #include "../ReferenceCounter.h"
 #include "../StringIdentifier.h"
+#include "../extern/half.hpp"
 
 #include <vector>
 #include <cstdlib>
@@ -63,6 +64,7 @@ public:
 	virtual void readValues(uint64_t index, uint64_t* values, uint64_t count) const = 0;
 	virtual void readValues(uint64_t index, float* values, uint64_t count) const = 0;
 	virtual void readValues(uint64_t index, double* values, uint64_t count) const = 0;
+	virtual void readValues(uint64_t index, half_t* values, uint64_t count) const = 0;
 	
 	/**
 	* Reads a single value of any primitive type from the resource, starting at the given index.
@@ -97,6 +99,7 @@ public:
 	virtual void writeValues(uint64_t index, const uint64_t* values, uint64_t count) const = 0;
 	virtual void writeValues(uint64_t index, const float* values, uint64_t count) const = 0;
 	virtual void writeValues(uint64_t index, const double* values, uint64_t count) const = 0;
+	virtual void writeValues(uint64_t index, const half_t* values, uint64_t count) const = 0;
 	
 	/**
 	* Writes a single value of any primitive type into the resource, starting at the given index. 

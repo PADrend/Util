@@ -120,6 +120,8 @@ public:
 	}
 	
 	virtual void readValues(uint64_t index, double* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, half_t* values, uint64_t count) const { _readValues(index, values, count); }
+
 	virtual void writeValues(uint64_t index, const int8_t* values, uint64_t count) const { _writeValues(index, values, count); }
 	virtual void writeValues(uint64_t index, const int16_t* values, uint64_t count) const { _writeValues(index, values, count); }
 	virtual void writeValues(uint64_t index, const int32_t* values, uint64_t count) const { _writeValues(index, values, count); }
@@ -137,6 +139,7 @@ public:
 	}
 	
 	virtual void writeValues(uint64_t index, const double* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const half_t* values, uint64_t count) const { _writeValues(index, values, count); }
 };
 
 static const bool R11G11B10FloatAccRegistered = AttributeAccessor::registerAccessor(PixelFormat::INTERNAL_TYPE_R11G11B10_FLOAT, R11G11B10FloatAccessor::create);
@@ -181,6 +184,8 @@ public:
 	virtual void readValues(uint64_t index, uint64_t* values, uint64_t count) const { _readValues(index, values, count); }
 	virtual void readValues(uint64_t index, float* values, uint64_t count) const { _readValues(index, values, count); }
 	virtual void readValues(uint64_t index, double* values, uint64_t count) const { _readValues(index, values, count); }
+	virtual void readValues(uint64_t index, half_t* values, uint64_t count) const { _readValues(index, values, count); }
+	
 	virtual void writeValues(uint64_t index, const int8_t* values, uint64_t count) const { _writeValues(index, values, count); }
 	virtual void writeValues(uint64_t index, const int16_t* values, uint64_t count) const { _writeValues(index, values, count); }
 	virtual void writeValues(uint64_t index, const int32_t* values, uint64_t count) const { _writeValues(index, values, count); }
@@ -191,6 +196,7 @@ public:
 	virtual void writeValues(uint64_t index, const uint64_t* values, uint64_t count) const { _writeValues(index, values, count); }
 	virtual void writeValues(uint64_t index, const float* values, uint64_t count) const { _writeValues(index, values, count); }
 	virtual void writeValues(uint64_t index, const double* values, uint64_t count) const { _writeValues(index, values, count); }
+	virtual void writeValues(uint64_t index, const half_t* values, uint64_t count) const { _writeValues(index, values, count); }
 };
 
 static const bool BgraAccRegistered = AttributeAccessor::registerAccessor(PixelFormat::INTERNAL_TYPE_BGRA, BgraAccessor::create);

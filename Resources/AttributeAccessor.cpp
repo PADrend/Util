@@ -19,10 +19,40 @@
 #include <unordered_map>
 #include <algorithm>
 
+#ifdef _MSC_VER
+#	pragma warning(disable : 4244) // 4244 - 'argument' : conversion from 'type1' to 'type2', possible loss of data
+#endif
+
 namespace Util {
 
-static std::unordered_map<uint8_t, AttributeAccessor::AccessorFactory_t>& getAccessorRegistry() {
-	static std::unordered_map<uint8_t, AttributeAccessor::AccessorFactory_t> registry;
+#define OVERRIDE_READ_VALUES(function) \
+void readValues(uint64_t index, int8_t* values, uint64_t count) const override { function(index, values, count); } \
+void readValues(uint64_t index, int16_t* values, uint64_t count) const override { function(index, values, count); } \
+void readValues(uint64_t index, int32_t* values, uint64_t count) const override { function(index, values, count); } \
+void readValues(uint64_t index, int64_t* values, uint64_t count) const override { function(index, values, count); } \
+void readValues(uint64_t index, uint8_t* values, uint64_t count) const override { function(index, values, count); } \
+void readValues(uint64_t index, uint16_t* values, uint64_t count) const override { function(index, values, count); } \
+void readValues(uint64_t index, uint32_t* values, uint64_t count) const override { function(index, values, count); } \
+void readValues(uint64_t index, uint64_t* values, uint64_t count) const override { function(index, values, count); } \
+void readValues(uint64_t index, float* values, uint64_t count) const override { function(index, values, count); } \
+void readValues(uint64_t index, double* values, uint64_t count) const override { function(index, values, count); } \
+void readValues(uint64_t index, half_t* values, uint64_t count) const override { function(index, values, count); }
+
+#define OVERRIDE_WRITE_VALUES(function) \
+void writeValues(uint64_t index, const int8_t* values, uint64_t count) const override { function(index, values, count); } \
+void writeValues(uint64_t index, const int16_t* values, uint64_t count) const override { function(index, values, count); } \
+void writeValues(uint64_t index, const int32_t* values, uint64_t count) const override { function(index, values, count); } \
+void writeValues(uint64_t index, const int64_t* values, uint64_t count) const override { function(index, values, count); } \
+void writeValues(uint64_t index, const uint8_t* values, uint64_t count) const override { function(index, values, count); } \
+void writeValues(uint64_t index, const uint16_t* values, uint64_t count) const override { function(index, values, count); } \
+void writeValues(uint64_t index, const uint32_t* values, uint64_t count) const override { function(index, values, count); } \
+void writeValues(uint64_t index, const uint64_t* values, uint64_t count) const override { function(index, values, count); } \
+void writeValues(uint64_t index, const float* values, uint64_t count) const override { function(index, values, count); } \
+void writeValues(uint64_t index, const double* values, uint64_t count) const override { function(index, values, count); } \
+void writeValues(uint64_t index, const half_t* values, uint64_t count) const override { function(index, values, count); }
+
+static std::unordered_map<uint32_t, AttributeAccessor::AccessorFactory_t>& getAccessorRegistry() {
+	static std::unordered_map<uint32_t, AttributeAccessor::AccessorFactory_t> registry;
 	return registry;
 }
 
@@ -50,27 +80,9 @@ public:
 		T* v = _ptr<T>(index);
 		std::transform(values, values + count, v, [](S v) { return static_cast<T>(v);});
 	}
-	
-	virtual void readValues(uint64_t index, int8_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, int16_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, int32_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, int64_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint8_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint16_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint32_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint64_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, float* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, double* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int8_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int16_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int32_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int64_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint8_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint16_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint32_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint64_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const float* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const double* values, uint64_t count) const { _writeValues(index, values, count); }
+
+	OVERRIDE_READ_VALUES(_readValues)
+	OVERRIDE_WRITE_VALUES(_writeValues)
 };
 
 //-------------------------------------------------------------
@@ -100,26 +112,8 @@ public:
 			*(v+i) = unnormalizeUnsigned<T>(normalizeUnsigned<S>(*(values+i)));
 	}
 		
-	virtual void readValues(uint64_t index, int8_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, int16_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, int32_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, int64_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint8_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint16_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint32_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint64_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, float* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, double* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int8_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int16_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int32_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int64_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint8_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint16_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint32_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint64_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const float* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const double* values, uint64_t count) const { _writeValues(index, values, count); }
+	OVERRIDE_READ_VALUES(_readValues)
+	OVERRIDE_WRITE_VALUES(_writeValues)
 };
 
 //-------------------------------------------------------------
@@ -148,27 +142,9 @@ public:
 		for(uint64_t i=0; i<count; ++i)
 			*(v+i) = unnormalizeSigned<T>(normalizeSigned<S>(*(values+i)));
 	}
-		
-	virtual void readValues(uint64_t index, int8_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, int16_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, int32_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, int64_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint8_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint16_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint32_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, uint64_t* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, float* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void readValues(uint64_t index, double* values, uint64_t count) const { _readValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int8_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int16_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int32_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const int64_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint8_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint16_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint32_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const uint64_t* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const float* values, uint64_t count) const { _writeValues(index, values, count); }
-	virtual void writeValues(uint64_t index, const double* values, uint64_t count) const { _writeValues(index, values, count); }
+
+	OVERRIDE_READ_VALUES(_readValues)
+	OVERRIDE_WRITE_VALUES(_writeValues)
 };
 
 //-------------------------------------------------------------

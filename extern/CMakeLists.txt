@@ -338,3 +338,10 @@ if(MINGW)
 endif()
 
 set(BUILD_SHARED_LIBS ${OLD_BUILD_SHARED_LIBS} CACHE INTERNAL "" FORCE)
+
+# Install the header files
+install(FILES
+	half.hpp
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/extern
+	COMPONENT headers
+)
