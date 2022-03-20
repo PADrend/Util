@@ -18,56 +18,21 @@ namespace Util {
 
 //------------------
 
-AttributeFormat::AttributeFormat() : nameId(0), dataType(TypeConstant::UINT8), dataSize(0), offset(0), components(0), normalized(false), internalType(0) { }
-
-//------------------
-
-AttributeFormat::AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint32_t _components, bool _normalized, uint32_t _internalType, uint64_t _offset) :
-	nameId(_nameId), dataType(_dataType), dataSize(static_cast<uint16_t>(getNumBytes(_dataType)*_components)), 
-	offset(_offset), components(_components), normalized(_normalized), internalType(_internalType) { }
-
-//------------------
-
-AttributeFormat::AttributeFormat(const StringIdentifier& _nameId, TypeConstant _dataType, uint16_t _dataSize, uint32_t _components, bool _normalized, uint32_t _internalType, uint64_t _offset) :
-	nameId(_nameId), dataType(_dataType), dataSize(_dataSize), 
-	offset(_offset), components(_components), normalized(_normalized), internalType(_internalType) { }
-
-//------------------
-
-bool AttributeFormat::operator==(const AttributeFormat& o) const {
-	return nameId == o.nameId && dataType == o.dataType && dataSize == o.dataSize && offset == o.offset && components == o.components && normalized == o.normalized && internalType == o.internalType;
-}
-
-//------------------
-
-bool AttributeFormat::operator<(const AttributeFormat& other) const {
-	if(offset!=other.offset) {
-		return offset<other.offset;
-	} else if(components!=other.components) {
-		return components<other.components;
-	} else if(dataSize!=other.dataSize) {
-		return dataSize<other.dataSize;
-	} else if(dataType!=other.dataType) {
-		return dataType<other.dataType;
-	} else if(nameId!=other.nameId) {
-		return nameId<other.nameId;
-	} else if(normalized!=other.normalized) {
-		return normalized<other.normalized;
-	} else if(internalType!=other.internalType) {
-		return internalType<other.internalType;
-	} else return false;
-}
-
-//------------------
-
 std::string AttributeFormat::toString() const {
 	std::ostringstream s;
-	s << nameId.toString() << " (off " << offset << "): ";	
-	s << static_cast<unsigned int>(components) << " " << getTypeString(dataType) << " (" << dataSize << " bytes)";	
-	if(normalized)
-		s << " (normalized)";	
-	if(internalType>0)
-		s << " (internalType: " << internalType << ")";	
+	s << nameId.toString() << " (off " << offset << "): ";
+	auto pixelFormat = Util::toString(getPixelFormat());
+	if(pixelFormat == "Unknown") {
+		s << static_cast<uint32_t>(components) << "x" << getTypeString(baseType);
+		if(normalized)
+			s << "n";	
+		if(normalized)
+			s << "s";	
+		if(internalType>0)
+			s << "(" << internalType << ")";	
+	} else {
+		s << pixelFormat;
+	}
 	return s.str();
 }
 

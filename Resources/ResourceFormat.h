@@ -46,24 +46,26 @@ public:
 		@note When @p internalType is set, the @p type and @p numValues are still used for size calculation, 
 		e.g., if a R10G10B10A2 attribute is packed into a single 32 bit integer, the numValues should be 1.
 	*/
-	UTILAPI const Attribute& appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized=false, uint32_t internalType=0);
+	UTILAPI const Attribute& appendAttribute(const StringIdentifier& nameId, BaseType type, uint32_t numValues, bool normalized=false, bool sRGB=false, uint32_t internalType=0);
+	UTILAPI const Attribute& appendAttribute(const StringIdentifier& nameId, PixelFormat format);
 
 	//! directly appends the attribute without recalculating offsets
-	UTILAPI const Attribute& _appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t numValues, bool normalized, uint32_t internalType, uint64_t offset);
+	UTILAPI const Attribute& _appendAttribute(const StringIdentifier& nameId, BaseType type, uint32_t numValues, bool normalized, bool sRGB, uint32_t internalType, uint64_t offset);
 		
+
 	//! Add an attribute with the given name and the given number of float values.
-	const Attribute & appendFloat(const Util::StringIdentifier& nameId, uint32_t numValues, bool normalized=false) {
-		return appendAttribute(nameId, TypeConstant::FLOAT, numValues, normalized);
+	const Attribute & appendFloat(const Util::StringIdentifier& nameId, uint32_t numValues) {
+		return appendAttribute(nameId, BaseType::Float32, numValues);
 	}
 
 	//! Add an attribute with the given name and the given number of unsigned int values.
 	const Attribute & appendUInt(const Util::StringIdentifier& nameId, uint32_t numValues) {
-		return appendAttribute(nameId, TypeConstant::UINT32, numValues, false);
+		return appendAttribute(nameId, BaseType::UInt32, numValues);
 	}
 
 	//! Add an attribute with the given name and the given number of int values.
 	const Attribute & appendInt(const Util::StringIdentifier& nameId, uint32_t numValues) {
-		return appendAttribute(nameId, TypeConstant::INT32, numValues, false);
+		return appendAttribute(nameId, BaseType::Int32, numValues);
 	}
 		
 	/*! Get a reference to the attribute with the corresponding name.

@@ -231,8 +231,8 @@ static GLFWcursor * convertBitmapToglfwCursor(const Reference<Bitmap> & image, u
 	if(image == nullptr)
 		throw std::invalid_argument("No bitmap given.");	
 	Reference<Bitmap> converted = image;
-	if(image->getPixelFormat() != PixelFormat::RGBA)
-		converted = BitmapUtils::convertBitmap(*image.get(), PixelFormat::RGBA);	
+	if(image->getPixelFormat() != PixelFormat::RGBA8UInt)
+		converted = BitmapUtils::convertBitmap(*image.get(), PixelFormat::RGBA8UInt);	
 	GLFWimage glfwImage;
 	glfwImage.width = static_cast<int>(image->getWidth());
 	glfwImage.height = static_cast<int>(image->getHeight());
@@ -690,7 +690,7 @@ std::deque<Event> WindowGLFW::fetchEvents() {
 //------------
 
 void WindowGLFW::setIcon(const Bitmap & icon) {
-	Reference<Bitmap> converted = BitmapUtils::convertBitmap(icon, PixelFormat::RGBA);	
+	Reference<Bitmap> converted = BitmapUtils::convertBitmap(icon, PixelFormat::RGBA8UInt);
 	GLFWimage glfwImage;
 	glfwImage.width = static_cast<int>(converted->getWidth());
 	glfwImage.height = static_cast<int>(converted->getHeight());

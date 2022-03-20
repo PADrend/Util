@@ -142,7 +142,7 @@ public:
 	virtual void writeValues(uint64_t index, const half_t* values, uint64_t count) const { _writeValues(index, values, count); }
 };
 
-static const bool R11G11B10FloatAccRegistered = AttributeAccessor::registerAccessor(PixelFormat::INTERNAL_TYPE_R11G11B10_FLOAT, R11G11B10FloatAccessor::create);
+static const bool R11G11B10FloatAccRegistered = AttributeAccessor::registerAccessor(getInternalTypeId(PixelFormat::R11G11B10SFloat), R11G11B10FloatAccessor::create);
 
 // ------------------------------------
 
@@ -154,7 +154,7 @@ private:
 	Reference<AttributeAccessor> acc;
 	BgraAccessor(uint8_t* ptr, uint64_t size, const AttributeFormat& attr, uint64_t stride) : 
 		AttributeAccessor(ptr, size, attr, stride),
-		acc(AttributeAccessor::create(ptr, size, {attr.getName(), attr.getDataType(), attr.getComponentCount(), attr.isNormalized(), 0, attr.getOffset()}, stride)) { }
+		acc(AttributeAccessor::create(ptr, size, {attr.nameId, attr.baseType, attr.components, attr.normalized, attr.sRGB, 0, attr.offset}, stride)) { }
 public:
 		
 	static Reference<AttributeAccessor> create(uint8_t* ptr, uint64_t size, const AttributeFormat& attr, uint64_t stride) {
@@ -199,7 +199,7 @@ public:
 	virtual void writeValues(uint64_t index, const half_t* values, uint64_t count) const { _writeValues(index, values, count); }
 };
 
-static const bool BgraAccRegistered = AttributeAccessor::registerAccessor(PixelFormat::INTERNAL_TYPE_BGRA, BgraAccessor::create);
+static const bool BgraAccRegistered = AttributeAccessor::registerAccessor(getInternalTypeId(PixelFormat::BGRA8UInt), BgraAccessor::create);
 
 // ------------------------------------
 

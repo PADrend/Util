@@ -51,7 +51,7 @@ class PixelAccessor : public ReferenceCounter<PixelAccessor> {
 
 		virtual ~PixelAccessor() = default;
 
-		const AttributeFormat& getPixelFormat() const { return myBitmap->getPixelFormat(); }
+		PixelFormat getPixelFormat() const { return myBitmap->getPixelFormat(); }
 		const Reference<Bitmap>& getBitmap() const { return myBitmap; }
 		uint32_t getWidth() const { return myBitmap->getWidth(); }
 		uint32_t getHeight() const { return myBitmap->getHeight(); }

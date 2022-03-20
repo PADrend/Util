@@ -29,7 +29,7 @@ class ResourceFormat;
 class AttributeAccessor : public ReferenceCounter<AttributeAccessor> {
 protected:
 	AttributeAccessor(uint8_t* ptr, uint64_t size, const AttributeFormat& attr, uint64_t stride=0) :
-		dataPtr(ptr + attr.getOffset()), dataSize(size), attribute(attr), stride(stride == 0 ? attr.getDataSize() : stride) {}
+		dataPtr(ptr + attr.offset), dataSize(size), attribute(attr), stride(stride == 0 ? attr.dataSize : stride) {}
 		
 	inline void assertRange(uint64_t index) const { 
 		if(!checkRange(index)) {

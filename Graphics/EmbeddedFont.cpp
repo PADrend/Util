@@ -502,7 +502,7 @@ std::pair<Reference<Bitmap>, FontInfo> getFont() {
 		255, 255, 255, 42, 0, 0, 0, 0, 0
 	};
 
-	Reference<Bitmap> bitmap = new Bitmap(width, height,PixelFormat::MONO);
+	Reference<Bitmap> bitmap = new Bitmap(width, height,PixelFormat::R8UInt);
 	std::copy(std::begin(data), std::end(data), bitmap->data());
 
 	return std::make_pair(std::move(bitmap), fontInfo);

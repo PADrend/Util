@@ -18,7 +18,7 @@ ResourceAccessor::ResourceAccessor(uint8_t* ptr, uint64_t size, ResourceFormat f
 	const auto& attributes = format.getAttributes();
 	accessors.resize(attributes.size());
 	for(uint32_t i=0; i<attributes.size(); ++i) {
-		locations[attributes[i].getNameId()] = i;
+		locations[attributes[i].nameId] = i;
 		accessors[i] = AttributeAccessor::create(dataPtr, size, attributes[i], format.getSize());
 	}
 }

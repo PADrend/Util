@@ -12,6 +12,7 @@
 #define BITMAPUTILS_H_
 
 #include "../References.h"
+#include "PixelFormat.h"
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -52,14 +53,14 @@ UTILAPI void alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op);
 
 
 //! Blend all given images into one having the given format.
-UTILAPI Reference<Bitmap> blendTogether(const AttributeFormat & targetFormat, 
+UTILAPI Reference<Bitmap> blendTogether(PixelFormat targetFormat, 
 									   const std::vector<Reference<Bitmap> > & sources);
 
 /**
  * Combines all given images into one having the given format.
  * \note first pixel of first bitmap, first pixel of second bitmap, etc...
  */
-UTILAPI Reference<Bitmap> combineInterleaved(const AttributeFormat & targetFormat, 
+UTILAPI Reference<Bitmap> combineInterleaved(PixelFormat targetFormat, 
 											const std::vector<Reference<Bitmap> > & sources);
 
 /**
@@ -70,7 +71,7 @@ UTILAPI Reference<Bitmap> combineInterleaved(const AttributeFormat & targetForma
  * @param newFormat the Pixelformat into which the bitmap schould be converted
  * @return a new bitmap of the specified format with the content of the given bitmap
  */
-UTILAPI Reference<Bitmap> convertBitmap(const Bitmap & source, const AttributeFormat & newFormat);
+UTILAPI Reference<Bitmap> convertBitmap(const Bitmap & source, PixelFormat newFormat);
 
 /**
  * internal method, used for expanding the number of channels of a bitmap to 4,
@@ -90,7 +91,7 @@ UTILAPI Reference<Bitmap> expandChannels(const Bitmap & source, uint32_t desired
  */
 UTILAPI Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
 												 const uint32_t height,
-												 const AttributeFormat & format,
+												 PixelFormat format,
 												 const size_t dataSize,
 												 const uint8_t * data);
 

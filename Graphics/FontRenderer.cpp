@@ -330,12 +330,12 @@ Reference<Bitmap> FontRenderer::renderText(unsigned int size, const std::u32stri
 	const auto dimensions = calculateRenderSizes(impl->info, scale, text);
 	Reference<Bitmap> bitmap = new Bitmap(static_cast<uint32_t>(std::get<0>(dimensions)), 
 											static_cast<uint32_t>(std::get<1>(dimensions)), 
-											PixelFormat::MONO);
+											PixelFormat::R8UInt);
 	{
 		int32_t cursorX = 0;
 		const int32_t cursorY = 0;//std::get<2>(dimensions);
 		const int32_t maxWidth = std::get<3>(dimensions);
-		Reference<Bitmap> tmpBitmap = new Bitmap(maxWidth, static_cast<uint32_t>(std::get<1>(dimensions)), PixelFormat::MONO);
+		Reference<Bitmap> tmpBitmap = new Bitmap(maxWidth, static_cast<uint32_t>(std::get<1>(dimensions)), PixelFormat::R8UInt);
 		
 		Reference<PixelAccessor> accessor = PixelAccessor::create(bitmap.get());
 		Reference<PixelAccessor> tmpAcc = PixelAccessor::create(tmpBitmap.get());
@@ -386,12 +386,12 @@ std::pair<Reference<Bitmap>, FontInfo> FontRenderer::createGlyphBitmap(unsigned 
 		maxWidth = std::max<int>(maxWidth, static_cast<int>(advance * scale) + 2*padding);
 	}
 
-	Reference<Bitmap> bitmap = new Bitmap(width, fontInfo.height, PixelFormat::MONO);
+	Reference<Bitmap> bitmap = new Bitmap(width, fontInfo.height, PixelFormat::R8UInt);
 
 	{
 		int cursorX = 0;
 		int cursorY = 0;
-		Reference<Bitmap> tmpBitmap = new Bitmap(maxWidth, fontInfo.height, PixelFormat::MONO);
+		Reference<Bitmap> tmpBitmap = new Bitmap(maxWidth, fontInfo.height, PixelFormat::R8UInt);
 		Reference<PixelAccessor> accessor = PixelAccessor::create(bitmap.get());
 		Reference<PixelAccessor> tmpAcc = PixelAccessor::create(tmpBitmap.get());
 		

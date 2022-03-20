@@ -51,18 +51,18 @@ Reference<Bitmap> StreamerSTB::loadBitmap(std::istream & input) {
 	input.read(reinterpret_cast<char *>(data.data()), size);
 	
 	int width,height,components;
-	TypeConstant type;
+	BaseType type;
 	bool normalized = false;
 	uint8_t* img = nullptr;
 	if(stbi_is_16_bit_from_memory(data.data(), static_cast<int>(size))) {
-		type = TypeConstant::UINT16;
+		type = BaseType::UInt16;
 		normalized = true;
 		img = reinterpret_cast<uint8_t*>(stbi_load_16_from_memory(data.data(), static_cast<int>(size), &width, &height, &components, 0));
 	} else if(stbi_is_hdr_from_memory(data.data(), static_cast<int>(size))) {
-		type = TypeConstant::FLOAT;
+		type = BaseType::Float32;
 		img = reinterpret_cast<uint8_t*>(stbi_loadf_from_memory(data.data(), static_cast<int>(size), &width, &height, &components, 0));
 	} else {
-		type = TypeConstant::UINT8;
+		type = BaseType::UInt8;
 		normalized = true;
 		img = reinterpret_cast<uint8_t*>(stbi_load_from_memory(data.data(), static_cast<int>(size), &width, &height, &components, 0));
 	}
@@ -71,10 +71,8 @@ Reference<Bitmap> StreamerSTB::loadBitmap(std::istream & input) {
 		return nullptr;
 	}
 
-	Util::AttributeFormat pixelFormat({"rgba"}, type, components, normalized);
-
 	// Create the bitmap to store the data.
-	Reference<Bitmap> bitmap = new Bitmap(width, height, pixelFormat);
+	Reference<Bitmap> bitmap = new Bitmap(width, height, getPixelFormat(type, components, normalized));
 	std::copy(img, img + bitmap->getDataSize(), bitmap->data());	
 	stbi_image_free(img);
 	return bitmap;
@@ -92,44 +90,40 @@ static void writeData(void* ctx, void* data, int size) {
 
 bool StreamerSTB::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 	WriteContext context(output);
-	const auto& pixelFormat = bitmap.getPixelFormat();
-	int components = bitmap.getHeight();
+	const auto pixelFormat = bitmap.getPixelFormat();
+	int components = getChannelCount(pixelFormat);
 	const int width = bitmap.getWidth();
 	const int height = bitmap.getHeight();
-	const int stride = pixelFormat.getDataSize() * width;
-	if(pixelFormat == PixelFormat::RGBA) {
-		components = 4;
-	} else if(pixelFormat == PixelFormat::BGRA) {
-		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, PixelFormat::RGBA);
+	const int bpp = getBlockSizeBytes(pixelFormat);
+	const int stride = bpp * width;
+	auto internalType = getInternalType(pixelFormat);
+	if(internalType == InternalType::BGRA) {
+		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, updateInternalType(pixelFormat, 0));
 		return saveBitmap(*tmp.get(), output);
-	} else if(pixelFormat == PixelFormat::RGB) {
-		components = 3;
-	} else if(pixelFormat == PixelFormat::BGR) {
-		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, PixelFormat::RGB);
-		return saveBitmap(*tmp.get(), output);
-	} else if(pixelFormat == PixelFormat::RG) {
-		components =2;
-	} else if(pixelFormat == PixelFormat::MONO) {
-		components = 1;
-	} else if(pixelFormat == PixelFormat::MONO_FLOAT) {
-		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, PixelFormat::MONO);
-		return saveBitmap(*tmp.get(), output);
-	} else {
-		WARN("Unable to save PNG file. Unsupported color format.");
+	} else if(internalType != InternalType::Standard) {
+		WARN("Unable to save PNG file. Unsupported color format: " + toString(pixelFormat));
 		return false;
+	} else if(bpp > 1) {
+		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, updateBaseType(pixelFormat, BaseType::UInt8));
+		return saveBitmap(*tmp.get(), output);
 	}
+
 	return stbi_write_png_to_func(writeData, &context, width, height, components, bitmap.data(), stride) != 0;
 }
 
 bool StreamerHDR::saveBitmap(const Bitmap & bitmap, std::ostream & output) {
 	WriteContext context(output);
-	const auto& pixelFormat = bitmap.getPixelFormat();
-	int components = pixelFormat.getComponentCount();
+	const auto pixelFormat = bitmap.getPixelFormat();
+	int components = getChannelCount(pixelFormat);
 	const int width = bitmap.getWidth();
 	const int height = bitmap.getHeight();
-	const int stride = pixelFormat.getDataSize() * width;
-	if(pixelFormat.getDataType() != TypeConstant::FLOAT) {
-		AttributeFormat newFormat(pixelFormat.getNameId(), TypeConstant::FLOAT, components, false);
+	const int bpp = getBlockSizeBytes(pixelFormat);
+	const int stride = bpp * width;
+	if(getInternalType(pixelFormat) != InternalType::Standard) {
+		WARN("Unable to save HDR file. Unsupported color format: " + toString(pixelFormat));
+		return false;
+	} else if(getBaseType(pixelFormat) != BaseType::Float32) {
+		PixelFormat newFormat = getPixelFormat(BaseType::Float32, components, false, false, 0);
 		Reference<Bitmap> tmp = BitmapUtils::convertBitmap(bitmap, newFormat);
 		return saveBitmap(*tmp.get(), output);
 	}

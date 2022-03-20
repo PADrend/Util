@@ -68,7 +68,7 @@ public:
 	template<typename S>
 	void _readValues(uint64_t index, S* values, uint64_t count) const {	
 		assertRange(index);
-		count = std::min<uint64_t>(count, getAttribute().getComponentCount());
+		count = std::min<uint64_t>(count, getAttribute().components);
 		const T* v = _ptr<const T>(index);
 		std::transform(v, v + count, values, [](T v) { return static_cast<S>(v);});
 	}
@@ -76,7 +76,7 @@ public:
 	template<typename S>
 	void _writeValues(uint64_t index, const S* values, uint64_t count) const {
 		assertRange(index);
-		count = std::min<uint64_t>(count, getAttribute().getComponentCount());
+		count = std::min<uint64_t>(count, getAttribute().components);
 		T* v = _ptr<T>(index);
 		std::transform(values, values + count, v, [](S v) { return static_cast<T>(v);});
 	}
@@ -97,7 +97,7 @@ public:
 	template<typename S>
 	void _readValues(uint64_t index, S* values, uint64_t count) const {
 		assertRange(index);
-		count = std::min<uint64_t>(count, getAttribute().getComponentCount());
+		count = std::min<uint64_t>(count, getAttribute().components);
 		const T* v = _ptr<const T>(index);
 		for(uint64_t i=0; i<count; ++i)
 			*(values+i) = unnormalizeUnsigned<S>(normalizeUnsigned<T>(*(v+i)));
@@ -106,7 +106,7 @@ public:
 	template<typename S>
 	void _writeValues(uint64_t index, const S* values, uint64_t count) const {
 		assertRange(index);
-		count = std::min<uint64_t>(count, getAttribute().getComponentCount());
+		count = std::min<uint64_t>(count, getAttribute().components);
 		T* v = _ptr<T>(index);
 		for(uint64_t i=0; i<count; ++i)
 			*(v+i) = unnormalizeUnsigned<T>(normalizeUnsigned<S>(*(values+i)));
@@ -128,7 +128,7 @@ public:
 	template<typename S>
 	void _readValues(uint64_t index, S* values, uint64_t count) const {
 		assertRange(index);
-		count = std::min<uint64_t>(count, getAttribute().getComponentCount());
+		count = std::min<uint64_t>(count, getAttribute().components);
 		const T* v = _ptr<const T>(index);
 		for(uint64_t i=0; i<count; ++i)
 			*(values+i) = unnormalizeSigned<S>(normalizeSigned<T>(*(v+i)));
@@ -137,7 +137,7 @@ public:
 	template<typename S>
 	void _writeValues(uint64_t index, const S* values, uint64_t count) const {
 		assertRange(index);
-		count = std::min<uint64_t>(count, getAttribute().getComponentCount());
+		count = std::min<uint64_t>(count, getAttribute().components);
 		T* v = _ptr<T>(index);
 		for(uint64_t i=0; i<count; ++i)
 			*(v+i) = unnormalizeSigned<T>(normalizeSigned<S>(*(values+i)));
@@ -152,41 +152,43 @@ public:
 
 Reference<AttributeAccessor> AttributeAccessor::create(uint8_t* ptr, uint64_t size, const AttributeFormat& attr, uint64_t stride) {
 	
-	if(attr.getInternalType() != 0) {
+	if(attr.internalType != 0) {
 		const auto& registry = getAccessorRegistry();
-		auto factory = registry.find(attr.getInternalType());
+		auto factory = registry.find(attr.internalType);
 		if(factory != registry.end()) {
 			return factory->second(ptr, size, attr, stride);
 		}
-		WARN("AttributeAccessor: No accessor found for internal type " + StringUtils::toString(attr.getInternalType()) + ". Using default accessor.");
+		WARN("AttributeAccessor: No accessor found for attribue " + attr.toString() + ". Using default accessor.");
 	}
 
-	if(attr.isNormalized()) {
-		switch (attr.getDataType()) {
-			case TypeConstant::UINT8: return new UnsignedNormalizedAttributeAccessor<uint8_t>(ptr, size, attr, stride);
-			case TypeConstant::UINT16: return new UnsignedNormalizedAttributeAccessor<uint16_t>(ptr, size, attr, stride);
-			case TypeConstant::UINT32: return new UnsignedNormalizedAttributeAccessor<uint32_t>(ptr, size, attr, stride);
-			case TypeConstant::UINT64: return new UnsignedNormalizedAttributeAccessor<uint64_t>(ptr, size, attr, stride);
-			case TypeConstant::INT8: return new SignedNormalizedAttributeAccessor<int8_t>(ptr, size, attr, stride);
-			case TypeConstant::INT16: return new SignedNormalizedAttributeAccessor<int16_t>(ptr, size, attr, stride);
-			case TypeConstant::INT32: return new SignedNormalizedAttributeAccessor<int32_t>(ptr, size, attr, stride);
-			case TypeConstant::INT64: return new SignedNormalizedAttributeAccessor<int64_t>(ptr, size, attr, stride);
-			case TypeConstant::FLOAT: return new SignedNormalizedAttributeAccessor<float>(ptr, size, attr, stride);
-			case TypeConstant::DOUBLE: return new SignedNormalizedAttributeAccessor<double>(ptr, size, attr, stride);
+	if(attr.normalized) {
+		switch (attr.baseType) {
+			case BaseType::UInt8: return new UnsignedNormalizedAttributeAccessor<uint8_t>(ptr, size, attr, stride);
+			case BaseType::UInt16: return new UnsignedNormalizedAttributeAccessor<uint16_t>(ptr, size, attr, stride);
+			case BaseType::UInt32: return new UnsignedNormalizedAttributeAccessor<uint32_t>(ptr, size, attr, stride);
+			case BaseType::UInt64: return new UnsignedNormalizedAttributeAccessor<uint64_t>(ptr, size, attr, stride);
+			case BaseType::Int8: return new SignedNormalizedAttributeAccessor<int8_t>(ptr, size, attr, stride);
+			case BaseType::Int16: return new SignedNormalizedAttributeAccessor<int16_t>(ptr, size, attr, stride);
+			case BaseType::Int32: return new SignedNormalizedAttributeAccessor<int32_t>(ptr, size, attr, stride);
+			case BaseType::Int64: return new SignedNormalizedAttributeAccessor<int64_t>(ptr, size, attr, stride);
+			case BaseType::Float16: return new SignedNormalizedAttributeAccessor<half_t>(ptr, size, attr, stride);
+			case BaseType::Float32: return new SignedNormalizedAttributeAccessor<float>(ptr, size, attr, stride);
+			case BaseType::Float64: return new SignedNormalizedAttributeAccessor<double>(ptr, size, attr, stride);
 			default: break;
 		}
 	} else {
-		switch (attr.getDataType()) {
-			case TypeConstant::UINT8: return new StandardAttributeAccessor<uint8_t>(ptr, size, attr, stride);
-			case TypeConstant::UINT16: return new StandardAttributeAccessor<uint16_t>(ptr, size, attr, stride);
-			case TypeConstant::UINT32: return new StandardAttributeAccessor<uint32_t>(ptr, size, attr, stride);
-			case TypeConstant::UINT64: return new StandardAttributeAccessor<uint64_t>(ptr, size, attr, stride);
-			case TypeConstant::INT8: return new StandardAttributeAccessor<int8_t>(ptr, size, attr, stride);
-			case TypeConstant::INT16: return new StandardAttributeAccessor<int16_t>(ptr, size, attr, stride);
-			case TypeConstant::INT32: return new StandardAttributeAccessor<int32_t>(ptr, size, attr, stride);
-			case TypeConstant::INT64: return new StandardAttributeAccessor<int64_t>(ptr, size, attr, stride);
-			case TypeConstant::FLOAT: return new StandardAttributeAccessor<float>(ptr, size, attr, stride);
-			case TypeConstant::DOUBLE: return new StandardAttributeAccessor<double>(ptr, size, attr, stride);
+		switch (attr.baseType) {
+			case BaseType::UInt8: return new StandardAttributeAccessor<uint8_t>(ptr, size, attr, stride);
+			case BaseType::UInt16: return new StandardAttributeAccessor<uint16_t>(ptr, size, attr, stride);
+			case BaseType::UInt32: return new StandardAttributeAccessor<uint32_t>(ptr, size, attr, stride);
+			case BaseType::UInt64: return new StandardAttributeAccessor<uint64_t>(ptr, size, attr, stride);
+			case BaseType::Int8: return new StandardAttributeAccessor<int8_t>(ptr, size, attr, stride);
+			case BaseType::Int16: return new StandardAttributeAccessor<int16_t>(ptr, size, attr, stride);
+			case BaseType::Int32: return new StandardAttributeAccessor<int32_t>(ptr, size, attr, stride);
+			case BaseType::Int64: return new StandardAttributeAccessor<int64_t>(ptr, size, attr, stride);
+			case BaseType::Float16: return new StandardAttributeAccessor<half_t>(ptr, size, attr, stride);
+			case BaseType::Float32: return new StandardAttributeAccessor<float>(ptr, size, attr, stride);
+			case BaseType::Float64: return new StandardAttributeAccessor<double>(ptr, size, attr, stride);
 			default: break;
 		}
 	}
@@ -211,12 +213,11 @@ bool AttributeAccessor::registerAccessor(uint32_t type, const AccessorFactory_t&
 //-------------
 
 bool AttributeAccessor::hasAccessor(const AttributeFormat& attr) {
-	if(attr.getInternalType() != 0) {
+	if(attr.internalType != 0) {
 		const auto& registry = getAccessorRegistry();
-		return registry.find(attr.getInternalType()) != registry.end();
-	} else {
-		return attr.getDataType() != TypeConstant::HALF;
+		return registry.find(attr.internalType) != registry.end();
 	}
+	return false;
 }
 
 
@@ -224,7 +225,7 @@ bool AttributeAccessor::hasAccessor(const AttributeFormat& attr) {
 
 void AttributeAccessor::readRaw(uint64_t index, uint8_t* data, uint64_t size) const {
 	assertRange(index);
-	size = std::min<uint64_t>(size, getAttribute().getDataSize());
+	size = std::min<uint64_t>(size, getAttribute().dataSize);
 	const uint8_t* ptr = _ptr<const uint8_t>(index);
 	std::copy(ptr, ptr + size, data);
 }
@@ -233,7 +234,7 @@ void AttributeAccessor::readRaw(uint64_t index, uint8_t* data, uint64_t size) co
 	
 void AttributeAccessor::writeRaw(uint64_t index, const uint8_t* data, uint64_t size) const {
 	assertRange(index);
-	size = std::min<uint64_t>(size, getAttribute().getDataSize());
+	size = std::min<uint64_t>(size, getAttribute().dataSize);
 	uint8_t* ptr = _ptr<uint8_t>(index);
 	std::copy(data, data + size, ptr);
 }

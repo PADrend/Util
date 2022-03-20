@@ -132,7 +132,7 @@ SDL_Surface * createSDLSurfaceFromBitmap(const Bitmap & bitmap) {
 }
 #endif /* UTIL_HAVE_LIB_SDL2 */
 
-Reference<Bitmap> blendTogether(const AttributeFormat & targetFormat, 
+Reference<Bitmap> blendTogether(PixelFormat targetFormat, 
 								const std::vector<Reference<Bitmap>> & sources) {
 	if(sources.empty()){
 		throw std::invalid_argument("blendTogether: 'sources' may not be empty.");
@@ -165,7 +165,7 @@ Reference<Bitmap> blendTogether(const AttributeFormat & targetFormat,
 	return target;
 }
 
-Reference<Bitmap> combineInterleaved(const AttributeFormat & targetFormat, 
+Reference<Bitmap> combineInterleaved(PixelFormat targetFormat, 
 									 const std::vector<Reference<Bitmap>> & sourceBitmaps) {
 	if(sourceBitmaps.empty()){
 		throw std::invalid_argument("blendTogether: 'sources' may not be empty.");
@@ -193,7 +193,7 @@ Reference<Bitmap> combineInterleaved(const AttributeFormat & targetFormat,
 }
 
 Reference<Bitmap> convertBitmap(const Bitmap & source, 
-								const AttributeFormat & newFormat) {
+								PixelFormat newFormat) {
 	const uint32_t width = source.getWidth();
 	const uint32_t height = source.getHeight();
 
@@ -213,9 +213,9 @@ Reference<Bitmap> expandChannels(const Bitmap & source, uint32_t desiredChannels
 	desiredChannels = clamp(desiredChannels, 1u, 4u);
 	const uint32_t width = source.getWidth();
 	const uint32_t height = source.getHeight();
-	const AttributeFormat& f = source.getPixelFormat();
-	const AttributeFormat newFormat(f.getNameId(), f.getDataType(), desiredChannels, f.isNormalized());
-	const uint32_t channels = f.getComponentCount();
+	PixelFormat f = source.getPixelFormat();
+	PixelFormat newFormat = getPixelFormat(getBaseType(f), desiredChannels, isNormalized(f), isSRGB(f), getInternalTypeId(f));
+	const uint32_t channels = getChannelCount(f);
 
 	Reference<Bitmap> target(new Bitmap(width,height,newFormat));
 	{
@@ -252,7 +252,7 @@ void alterBitmap(Bitmap & bitmap, const BitmapAlteringFunction & op) {
 
 Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
 										  const uint32_t height,
-										  const AttributeFormat & format,
+										  PixelFormat format,
 										  const size_t dataSize,
 										  const uint8_t * data) {
 	if(width*height!=dataSize*8 || width%8!=0){

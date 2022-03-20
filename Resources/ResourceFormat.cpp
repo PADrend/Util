@@ -15,12 +15,32 @@
 #include <sstream>
 
 namespace Util {
+namespace {
+
+ResourceFormat initByteFormat() {
+	ResourceFormat format;
+	format.appendAttribute({"byte"}, PixelFormat::R8UInt);
+	return format;
+};
+
+} //
+
+const ResourceFormat ResourceFormat::BYTES = initByteFormat();
 
 //------------------
 
-const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t components, bool normalized, uint32_t internalType) {
+const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& nameId, BaseType type, uint32_t components, bool normalized, bool sRGB, uint32_t internalType) {
 	uint64_t offset = align(size, attributeAlignment);
-	attributes.emplace_back(std::move(AttributeFormat(nameId, type, components, normalized, internalType, offset)));
+	attributes.emplace_back(nameId, type, components, normalized, sRGB, internalType, offset);
+	size = align(offset + attributes.back().dataSize, attributeAlignment);
+	return attributes.back();
+}
+
+//------------------
+
+const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& nameId, PixelFormat format) {
+	uint64_t offset = align(size, attributeAlignment);
+	attributes.emplace_back(nameId, format, offset);
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 	return attributes.back();
 }
@@ -28,8 +48,8 @@ const AttributeFormat& ResourceFormat::appendAttribute(const StringIdentifier& n
 //------------------
 
 
-const AttributeFormat& ResourceFormat::_appendAttribute(const StringIdentifier& nameId, TypeConstant type, uint32_t components, bool normalized, uint32_t internalType, uint64_t offset) {
-	attributes.emplace_back(std::move(AttributeFormat(nameId, type, components, normalized, internalType, offset)));
+const AttributeFormat& ResourceFormat::_appendAttribute(const StringIdentifier& nameId, BaseType type, uint32_t components, bool normalized, bool sRGB, uint32_t internalType, uint64_t offset) {
+	attributes.emplace_back(nameId, type, components, normalized, sRGB, internalType, offset);
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 	return attributes.back();
 }
@@ -40,7 +60,7 @@ const AttributeFormat& ResourceFormat::_appendAttribute(const StringIdentifier& 
 const AttributeFormat& ResourceFormat::getAttribute(const StringIdentifier& nameId) const {
 	static const AttributeFormat emptyAttribute;
 	for(const auto & attr : attributes) {
-		if(attr.getNameId() == nameId) {
+		if(attr.nameId == nameId) {
 			return attr;
 		}
 	}
@@ -75,9 +95,9 @@ void ResourceFormat::updateAttribute(const AttributeFormat& attr) {
 	// Find existing attribute
 	for(auto it = attributes.begin(); it != attributes.end(); ++it) {
 		AttributeFormat& currentAttr = *it;
-		if(currentAttr.getNameId() == attr.getNameId()) {
-			currentAttr = AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.components, attr.normalized, attr.internalType, currentAttr.offset);
-			size = static_cast<std::uint64_t>(currentAttr.getOffset() + currentAttr.getDataSize());
+		if(currentAttr.nameId == attr.nameId) {
+			currentAttr = AttributeFormat(attr.nameId, attr.baseType, attr.dataSize, attr.components, attr.normalized, attr.sRGB, attr.internalType, currentAttr.offset);
+			size = static_cast<std::uint64_t>(currentAttr.offset + currentAttr.dataSize);
 
 			// Update the offsets.
 			auto toUpdateIt = it;
@@ -85,14 +105,14 @@ void ResourceFormat::updateAttribute(const AttributeFormat& attr) {
 			for(; toUpdateIt != attributes.end(); ++toUpdateIt) {
 				AttributeFormat & toUpdateAttr = *toUpdateIt;
 				toUpdateAttr.offset = size;
-				size += toUpdateAttr.getDataSize();
+				size += toUpdateAttr.dataSize;
 			}
 			return;
 		}
 	}
 	// AttributeFormat was not found.
 	uint64_t offset = align(size, attributeAlignment);
-	attributes.emplace_back(std::move(AttributeFormat(attr.nameId, attr.dataType, attr.dataSize, attr.components, attr.normalized, attr.internalType, offset)));
+	attributes.emplace_back(attr.nameId, attr.baseType, attr.dataSize, attr.components, attr.normalized, attr.sRGB, attr.internalType, offset);
 	size = align(offset + attributes.back().dataSize, attributeAlignment);
 }
 
