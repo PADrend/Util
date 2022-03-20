@@ -22,6 +22,7 @@ void output(output_priority_t priority, const std::string & message) {
 	int androidPriority = ANDROID_LOG_UNKNOWN;
 	switch(priority) {
 		case OUTPUT_DEBUG:
+		case OUTPUT_INFO:
 			androidPriority = ANDROID_LOG_DEBUG;
 			break;
 		case OUTPUT_WARNING:
@@ -36,6 +37,9 @@ void output(output_priority_t priority, const std::string & message) {
 	switch(priority) {
 		case OUTPUT_DEBUG:
 			std::cerr << rang::style::italic << "Debug" << rang::style::reset << rang::style::reset << ": ";
+			break;
+		case OUTPUT_INFO:
+			std::cerr << rang::style::bold << "Info" << rang::style::reset << rang::style::reset << ": ";
 			break;
 		case OUTPUT_WARNING:
 			std::cerr << rang::fgB::yellow << "Warning" << rang::style::reset << rang::style::reset << ": ";

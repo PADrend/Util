@@ -21,6 +21,7 @@ namespace Util {
 
 enum output_priority_t {
 	OUTPUT_DEBUG,
+	OUTPUT_INFO,
 	OUTPUT_WARNING,
 	OUTPUT_ERROR
 };
@@ -36,6 +37,12 @@ UTILAPI std::string composeDebugMessage(const std::string & message,const char *
 #else
 #define DEBUG(M)
 #endif
+
+#define INFO(M) \
+	Util::output(Util::OUTPUT_INFO, M)
+
+#define ERROR(M) \
+	Util::output(Util::OUTPUT_ERROR, Util::composeDebugMessage(M, __FILE__, __LINE__))
 
 #define WARN(M) \
 	Util::output(Util::OUTPUT_WARNING, Util::composeDebugMessage(M, __FILE__, __LINE__))
