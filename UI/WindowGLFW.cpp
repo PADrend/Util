@@ -565,15 +565,6 @@ VkSurfaceKHR WindowGLFW::createSurface(VkInstance instance) {
 
 //------------
 
-std::vector<const char*> WindowGLFW::getRequiredApiExtensions() {
-	uint32_t extensionCount;	
-	const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
-	std::vector<const char*> extensionNames(extensions, extensions + extensionCount);
-	return extensionNames;
-}
-
-//------------
-
 //! ---|> Window
 void WindowGLFW::doSetCursor(const Cursor * cursor) {
 	if(data->cursor) {

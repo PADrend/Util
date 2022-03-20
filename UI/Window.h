@@ -21,6 +21,7 @@
 // forward declaration of vulkan handles
 typedef struct VkInstance_T* VkInstance;
 typedef struct VkSurfaceKHR_T* VkSurfaceKHR;
+typedef struct VkPhysicalDevice_T* VkPhysicalDevice;
 
 namespace Util {
 class Bitmap;
@@ -142,12 +143,6 @@ class Window : public Util::ReferenceCounter<Window> {
 		 */
 		virtual VkSurfaceKHR createSurface(VkInstance instance) = 0;
 		
-		/**
-		 * Returns the extensions needed to create a surface from an API handle.
-		 * 
-		 * @return A list of extension names.
-		 */
-		virtual std::vector<const char*> getRequiredApiExtensions() = 0;
 	protected:
 		//! Stores the size of the window's client area.
 		uint32_t width,height;

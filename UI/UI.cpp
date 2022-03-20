@@ -23,6 +23,8 @@
 
 #if defined(UTIL_HAVE_LIB_GLFW)
 #include "WindowGLFW.h"
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #endif
 
 namespace Util {
@@ -61,6 +63,33 @@ Util::Reference<Window> createWindow(const Window::Properties & properties) {
 		window = nullptr;
 	}
 	return window;
+}
+
+UTILAPI bool isVulkanSupported() {
+#if defined(UTIL_HAVE_LIB_GLFW)
+	return glfwVulkanSupported() == GLFW_TRUE;
+#else
+	return false;
+#endif
+}
+
+UTILAPI bool getPhysicalDevicePresentationSupport(VkInstance instance, VkPhysicalDevice device, int32_t queueFamily) {
+#if defined(UTIL_HAVE_LIB_GLFW)
+	return glfwGetPhysicalDevicePresentationSupport(instance, device, queueFamily) == GLFW_TRUE;
+#else
+	return false;
+#endif
+}
+
+std::vector<const char*> getRequiredInstanceExtensions() {
+#if defined(UTIL_HAVE_LIB_GLFW)
+	uint32_t extensionCount;	
+	const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
+	std::vector<const char*> extensionNames(extensions, extensions + extensionCount);
+	return extensionNames;
+#else
+		return {};
+#endif
 }
 
 }

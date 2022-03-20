@@ -51,6 +51,21 @@ UTILAPI std::unique_ptr<SplashScreen> createSplashScreen(const std::string & spl
  */
 UTILAPI Util::Reference<Window> createWindow(const Window::Properties & properties);
 
+/**
+ * Checks if Vulkan rendering is supported.
+ */
+UTILAPI bool isVulkanSupported();
+
+/**
+ * Checks if the given given queue family on a physical device supports presenting to a surface (Vulkan only).
+ */
+UTILAPI bool getPhysicalDevicePresentationSupport(VkInstance instance, VkPhysicalDevice device, int32_t queueFamily);
+
+/**
+ * Returns the extensions needed to create a surface from an API instance (e.g., Vulkan).
+ * @return A list of extension names.
+ */
+UTILAPI std::vector<const char*> getRequiredInstanceExtensions();
 }
 }
 
