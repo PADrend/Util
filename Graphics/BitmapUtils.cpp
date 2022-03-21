@@ -14,123 +14,12 @@
 #include "../Macros.h"
 #include "../References.h"
 
-#ifdef UTIL_HAVE_LIB_SDL2
-COMPILER_WARN_PUSH
-COMPILER_WARN_OFF_GCC(-Wswitch-default)
-#include <SDL.h>
-COMPILER_WARN_POP
-#endif /* UTIL_HAVE_LIB_SDL2 */
-
 #include <cmath>
 #include <stdexcept>
 #include <vector>
 
 namespace Util {
 namespace BitmapUtils {
-
-#ifdef UTIL_HAVE_LIB_SDL2
-Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface) {
-	SDL_PixelFormat * sdlFormat = surface->format;
-	const uint8_t & bytes = sdlFormat->BytesPerPixel;
-
-	Reference<Bitmap> bitmap(new Bitmap(static_cast<uint32_t>(surface->w), 
-										static_cast<uint32_t>(surface->h), 
-										bytes > 3 ? PixelFormat::RGBA : PixelFormat::RGB));
-
-	SDL_LockSurface(surface);
-
-	const uint8_t * source = reinterpret_cast<const uint8_t *>(surface->pixels);
-	uint8_t * pixels = bitmap->data();
-
-	for (uint_fast16_t y = 0; y < static_cast<uint_fast16_t>(surface->h); ++y) {
-		for (uint_fast16_t x = 0; x < static_cast<uint_fast16_t>(surface->w); ++x) {
-			if (bytes == 1) {
-				// Use color palette to retrieve colors.
-				uint8_t index = source[x];
-				const SDL_Color & color = sdlFormat->palette->colors[index];
-				*pixels = color.r;
-				++pixels;
-				*pixels = color.g;
-				++pixels;
-				*pixels = color.b;
-				++pixels;
-			} else {
-				const uint8_t * sourcePixel = source + bytes * x;
-				uint8_t r;
-				uint8_t g;
-				uint8_t b;
-				if (bytes > 3) {
-					uint8_t a;
-					SDL_GetRGBA(*reinterpret_cast<const uint32_t *>(sourcePixel), sdlFormat, &r, &g, &b, &a);
-					*pixels = r;
-					++pixels;
-					*pixels = g;
-					++pixels;
-					*pixels = b;
-					++pixels;
-					*pixels = a;
-					++pixels;
-				} else {
-					// Make sure only 24 bits are read here.
-					const uint32_t pixel = static_cast<uint32_t>(sourcePixel[2] << 16) | static_cast<uint32_t>(sourcePixel[1] << 8) | static_cast<uint32_t>(sourcePixel[0]);
-					SDL_GetRGB(pixel, sdlFormat, &r, &g, &b);
-					*pixels = r;
-					++pixels;
-					*pixels = g;
-					++pixels;
-					*pixels = b;
-					++pixels;
-				}
-			}
-		}
-		source += surface->pitch;
-	}
-
-	SDL_UnlockSurface(surface);
-
-	return bitmap;
-}
-
-SDL_Surface * createSDLSurfaceFromBitmap(const Bitmap & bitmap) {
-	uint32_t rMask=0x00;
-	uint32_t gMask=0x00;
-	uint32_t bMask=0x00;
-	uint32_t aMask=0x00;
-
-	const auto & f = bitmap.getPixelFormat();
-	if(f==PixelFormat::RGBA){ /// \note assumes little endianess!!!
-		rMask = 0x000000ff;
-		gMask = 0x0000ff00;
-		bMask = 0x00ff0000;
-		aMask = 0xff000000;
-	}else if(f==PixelFormat::BGRA){
-		rMask = 0x00ff0000;
-		gMask = 0x0000ff00;
-		bMask = 0x000000ff;
-		aMask = 0xff000000;
-	}else if(f==PixelFormat::RGB){
-		rMask = 0x000000ff;
-		gMask = 0x0000ff00;
-		bMask = 0x00ff0000;
-	}else if(f==PixelFormat::BGR){
-		rMask = 0x00ff0000;
-		gMask = 0x0000ff00;
-		bMask = 0x000000ff;
-	}else if(f==PixelFormat::MONO){
-		rMask = 0xff;
-	}else{
-		WARN("createSDLSurfaceFromBitmap: Unsupported color format: ");
-		return nullptr;
-	}
-
-	int depth = 8 * f.getBytesPerPixel();
-	int pitch = static_cast<int>(bitmap.getWidth()) * f.getBytesPerPixel();
-	return SDL_CreateRGBSurfaceFrom(const_cast<void *>(reinterpret_cast<const void *>(bitmap.data())), 
-									static_cast<int>(bitmap.getWidth()), 
-									static_cast<int>(bitmap.getHeight()), 
-									depth, pitch, rMask, gMask, bMask, aMask);
-}
-#endif /* UTIL_HAVE_LIB_SDL2 */
 
 Reference<Bitmap> blendTogether(PixelFormat targetFormat, 
 								const std::vector<Reference<Bitmap>> & sources) {

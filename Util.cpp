@@ -15,10 +15,6 @@
 #include "IO/NetProvider.h"
 #include "IO/SerialProvider.h"
 #include "IO/ZIPProvider.h"
-#include "Serialization/StreamerPNG.h"
-#include "Serialization/StreamerSDL.h"
-#include "Serialization/StreamerSDLImage.h"
-#include "Serialization/StreamerTGA.h"
 #include "Serialization/StreamerSTB.h"
 #include "GenericAttributeSerialization.h"
 
@@ -64,18 +60,6 @@ bool init() {
 		}
 		{
 			// Initialize bitmap streamers
-			if(!StreamerPNG::init()) {
-				result = false;
-			}
-			if(!StreamerSDL::init()) {
-				result = false;
-			}
-			if(!StreamerSDLImage::init()) {
-				result = false;
-			}
-			if(!StreamerTGA::init()) {
-				result = false;
-			}
 			if(!StreamerSTB::init()) {
 				result = false;
 			}

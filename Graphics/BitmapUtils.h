@@ -18,10 +18,6 @@
 #include <functional>
 #include <vector>
 
-#ifdef UTIL_HAVE_LIB_SDL2
-struct SDL_Surface;
-#endif /* UTIL_HAVE_LIB_SDL2 */
-
 namespace Util {
 class Bitmap;
 class Color4f;
@@ -97,13 +93,6 @@ UTILAPI Reference<Bitmap> createBitmapFromBitMask(const uint32_t width,
 
 //! Normalizes each pixel to the range [0,1]
 UTILAPI void normalizeBitmap(Bitmap & bitmap);
-
-#ifdef UTIL_HAVE_LIB_SDL2
-//! Conversion between Bitmap and SDL_Surface
-UTILAPI Reference<Bitmap> createBitmapFromSDLSurface(SDL_Surface * surface);
-//! Conversion between SDL_Surface and Bitmap
-UTILAPI SDL_Surface * createSDLSurfaceFromBitmap(const Bitmap & bitmap);
-#endif /* UTIL_HAVE_LIB_SDL2 */
 
 }
 
