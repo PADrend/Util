@@ -22,6 +22,7 @@ if(UTIL_BUILD_TESTS)
 		GenericTest.cpp
 		NetProviderTest.cpp
 		NetworkTest.cpp
+		ReferenceTest.cpp
 		RegistryTest.cpp
 		StringUtilsTest.cpp
 		TimerTest.cpp
@@ -99,7 +100,7 @@ if(UTIL_BUILD_TESTS)
 		target_include_directories(UtilTest PRIVATE ${Vulkan_INCLUDE_DIRS})
 		target_link_libraries(UtilTest LINK_PRIVATE ${Vulkan_LIBRARIES})
 	endif()
-
+	
 	install(TARGETS UtilTest
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT tests
 		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT tests
