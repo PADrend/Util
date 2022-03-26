@@ -41,7 +41,7 @@ UTILAPI std::string composeDebugMessage(const std::string & message,const char *
 #define INFO(M) \
 	Util::output(Util::OUTPUT_INFO, M)
 
-#define ERROR(M) \
+#define ERROR_NO_THROW(M) \
 	Util::output(Util::OUTPUT_ERROR, Util::composeDebugMessage(M, __FILE__, __LINE__))
 
 #define WARN(M) \
