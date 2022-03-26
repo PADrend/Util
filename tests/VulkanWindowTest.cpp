@@ -6,7 +6,7 @@
 	You should have received a copy of the MPL along with this library; see the 
 	file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 */
-#ifdef UTIL_HAVE_LIB_VULKAN
+//#ifdef UTIL_HAVE_LIB_VULKAN
 
 #include <catch2/catch.hpp>
 
@@ -17,8 +17,11 @@
 #include "../IO/FileUtils.h"
 #include "../IO/FileName.h"
 
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include <vulkan/vulkan.hpp>
 #include <iostream>
+
+VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 using namespace Util;
 using namespace Util::UI;
@@ -36,6 +39,11 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 
 TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	std::cout << std::endl;
+
+	// init dynamic loader
+	const vk::DynamicLoader dl;
+	const PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
 
 	// create window
 	Util::UI::Window::Properties properties;
@@ -57,7 +65,7 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 		VK_API_VERSION_1_3
 	);
 	std::vector<const char*> layerNames = {"VK_LAYER_KHRONOS_validation"};
-	std::vector<const char*> requiredExtensions = window->getRequiredApiExtensions();
+	std::vector<const char*> requiredExtensions = getRequiredInstanceExtensions();
 	requiredExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 	auto instance = vk::createInstanceUnique({{},
 		&appInfo,
@@ -80,8 +88,7 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	}
 	
 	// setup debug callback
-	vk::DispatchLoaderDynamic dldy(vkGetInstanceProcAddr);
-	dldy.init(*instance);
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(*instance);
 	
 	auto debugMessenger = instance->createDebugUtilsMessengerEXTUnique({ {},
 		//vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
@@ -92,11 +99,11 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 		vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
 		vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance,
 		debugCallback
-	}, nullptr, dldy);
+	});
 	
 	// create surface
 	vk::SurfaceKHR tmpSurface(window->createSurface(*instance));
-	vk::UniqueSurfaceKHR surface(tmpSurface, {*instance, nullptr, VULKAN_HPP_DEFAULT_DISPATCHER});	
+	vk::UniqueSurfaceKHR surface(tmpSurface, {*instance});	
 	
 	// create physical device
 	auto physicalDevices = instance->enumeratePhysicalDevices();
@@ -132,9 +139,9 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 		static_cast<uint32_t>(queueCreateInfos.size()), queueCreateInfos.data(), 
 		0, nullptr, 
 		static_cast<uint32_t>(deviceExtensions.size()), deviceExtensions.data()
-	}, nullptr, dldy);
+	});
 	
-	dldy.init(*instance, *device);
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(*instance, *device);
 	auto graphicsQueueIndex = familyIndices.front();
 	//auto presentQueueIndex = familyIndices.back();
 	auto graphicsQueue = device->getQueue(familyIndices.front(), 0);
@@ -331,4 +338,4 @@ TEST_CASE("VulkanWindowTest_test", "[VulkanWindowTest]") {
 	device->waitIdle();
 }
 
-#endif /* UTIL_HAVE_LIB_VULKAN */
+//#endif /* UTIL_HAVE_LIB_VULKAN */
