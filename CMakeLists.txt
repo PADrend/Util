@@ -7,8 +7,8 @@
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-cmake_minimum_required(VERSION 3.13.0)
-project(Util VERSION 1.2.0)
+cmake_minimum_required(VERSION 3.14.0)
+project(Util VERSION 2.0.0)
 
 # options
 option(UTIL_BUILD_TESTS "Defines if CppUnit tests for the Util library are built." OFF)
@@ -130,8 +130,6 @@ else()
 	target_compile_definitions(Util INTERFACE "UTILAPI=")
 endif()
 
-#target_compile_definitions(Util PUBLIC UtilExtern)
-#target_include_directories(Util PRIVATE UtilExtern)
 target_link_libraries(Util PRIVATE UtilExtern)
 
 # Dependency to pthread
