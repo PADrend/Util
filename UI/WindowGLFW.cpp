@@ -537,6 +537,14 @@ WindowGLFW::~WindowGLFW() {
 
 //------------
 
+std::pair<uint32_t,uint32_t> WindowGLFW::getFramebufferSize() const {
+	int w=0, h=0;
+	glfwGetFramebufferSize(data->window, &w, &h);
+	return {static_cast<uint32_t>(w), static_cast<uint32_t>(h)};
+}
+
+//------------
+
 void WindowGLFW::swapBuffers() {	
 	if(properties.renderingAPI != Properties::VULKAN)
 		glfwSwapBuffers(data->window);

@@ -89,6 +89,9 @@ class Window : public Util::ReferenceCounter<Window> {
 			return contentScale;
 		}
 
+		//! returns the size of the framebuffer used for the window. This does not have to match the window size.
+		virtual std::pair<uint32_t,uint32_t> getFramebufferSize() const { return {width, height}; }
+
 		//! Swap front and back buffer of the window.
 		virtual void swapBuffers() = 0;
 

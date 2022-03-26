@@ -29,6 +29,8 @@ class WindowGLFW : public Window {
 		//! Destroy the window and free the allocated resources.
 		UTILAPI virtual ~WindowGLFW();
 
+		UTILAPI std::pair<uint32_t,uint32_t> getFramebufferSize() const override;
+
 		//! Swap front and back buffer of the window.
 		UTILAPI void swapBuffers() override;
 
