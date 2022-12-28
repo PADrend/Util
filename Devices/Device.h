@@ -33,14 +33,18 @@ namespace Util {
 class Device : public ReferenceCounter<Device> {
 	PROVIDES_TYPE_NAME(Device)
 protected:
-	Device();
+	UTILAPI Device();
 public:
-	virtual ~Device();
+	UTILAPI virtual ~Device();
+
+	//! Returns the unique id of the device
+	uint64_t getId() const { return id; }
 
 	//! shuts down the device and releases all resources
-	virtual void shutdown();
+	UTILAPI virtual void shutdown();
 
-	uint64_t getId() const { return id; }
+	//! waits until all commands running on this device have finished executing.
+	virtual void waitIdle() {}
 
 	//! @name Resources
 	// @{
@@ -68,9 +72,9 @@ protected:
 	//! releases the internal representation
 	virtual void releaseResource(InternalResource* resource) = 0;
 	//! takes ownership of the resource.
-	void takeOwnership(ResourceHandle resource, std::unique_ptr<InternalResource>&& internal);
+	UTILAPI void takeOwnership(ResourceHandle resource, std::unique_ptr<InternalResource>&& internal);
 	//! returns the internal representation of the resource or nullptr if not available
-	InternalResource* getInternalRepresentation(const ResourceHandle& resource) const;
+	UTILAPI InternalResource* getInternalRepresentation(const ResourceHandle& resource) const;
 private:
 	//! stores resources with their unique id
 	std::unordered_map<uint64_t, std::unique_ptr<InternalResource>> resources;

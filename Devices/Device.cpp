@@ -31,13 +31,12 @@ Device::Device() : id(generateDeviceId(this)) {
 
 //---------------
 
-Device::~Device() {
-	shutdown();
-}
+Device::~Device() = default;
 
 //---------------
 
 void Device::shutdown() {
+	waitIdle();
 	releaseAllResources();
 }
 
