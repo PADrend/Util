@@ -84,11 +84,13 @@ install(FILES
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util
 	COMPONENT headers
 )
+add_subdirectory(Devices)
 add_subdirectory(Factory)
 add_subdirectory(Graphics)
 add_subdirectory(IO)
 add_subdirectory(Network)
 add_subdirectory(Profiling)
+add_subdirectory(ResourceGraph)
 add_subdirectory(Resources)
 add_subdirectory(Serialization)
 add_subdirectory(UI)

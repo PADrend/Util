@@ -7,12 +7,13 @@
 # You should have received a copy of the MPL along with this library; see the 
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
-cmake_minimum_required(VERSION 3.13.0)
+cmake_minimum_required(VERSION 3.14.0)
 project(UtilTest)
 
 if(UTIL_BUILD_TESTS)
 	add_executable(UtilTest 
 		BidirectionalMapTest.cpp
+		DeviceTest.cpp
 		EncodingTest.cpp
 		FactoryTest.cpp
 		FileUtilsTest.cpp
@@ -108,6 +109,7 @@ if(UTIL_BUILD_TESTS)
 	
 	enable_testing()
 	add_test(NAME BidirectionalMapTest COMMAND UtilTest [BidirectionalMapTest])
+	add_test(NAME DeviceTest COMMAND UtilTest [DeviceTest])
 	add_test(NAME EncodingTest COMMAND UtilTest [EncodingTest])
 	add_test(NAME FactoryTest COMMAND UtilTest [FactoryTest])
 	add_test(NAME FileUtilsTest COMMAND UtilTest [FileUtilsTest])

@@ -8,25 +8,16 @@
 # file LICENSE. If not, you can obtain one at http://mozilla.org/MPL/2.0/.
 #
 target_sources(Util PRIVATE
-	AttributeAccessor.cpp
-	AttributeFormat.cpp
-	Buffer.cpp
-	Image.cpp
-	Resource.cpp
-	ResourceAccessor.cpp
-	ResourceFormat.cpp
+	Device.cpp
+	FileSystemDevice.cpp
+	LocalDevice.cpp
 )
 
 # Install the header files
 install(FILES
-	AttributeAccessor.h
-	AttributeFormat.h
-	Buffer.h
-	Image.h
-	Resource.h
-	ResourceAccessor.h
-	ResourceFormat.h
-	StructuredAccessor.h
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Resources
+	Device.h
+	FileSystemDevice.h
+	LocalDevice.h
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Devices
 	COMPONENT headers
 )
