@@ -88,7 +88,7 @@ public:
 		return values;
 	}
 	
-	void writeRaw(uint64_t index, const uint8_t* data, uint64_t size) const;
+	UTILAPI void writeRaw(uint64_t index, const uint8_t* data, uint64_t size) const;
 	virtual void writeValues(uint64_t index, const int8_t* values, uint64_t count) const = 0;
 	virtual void writeValues(uint64_t index, const int16_t* values, uint64_t count) const = 0;
 	virtual void writeValues(uint64_t index, const int32_t* values, uint64_t count) const = 0;

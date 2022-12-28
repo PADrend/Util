@@ -28,7 +28,8 @@ namespace Util {
  */
 class ResourceFormat {
 public:
-	using Attribute = AttributeFormat;	
+	UTILAPI static const ResourceFormat BYTES;
+	using Attribute = AttributeFormat;
 	using AttributeContainer_t = std::deque<Attribute>;
 		
 	ResourceFormat(uint64_t _attributeAlignment=0) : attributeAlignment(_attributeAlignment) {}

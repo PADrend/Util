@@ -10,20 +10,16 @@
 target_sources(Util PRIVATE
 	AttributeAccessor.cpp
 	AttributeFormat.cpp
-	GraphBuilder.cpp
 	ResourceAccessor.cpp
 	ResourceFormat.cpp
-	ResourcePass.cpp
 )
 
 # Install the header files
 install(FILES
 	AttributeAccessor.h
 	AttributeFormat.h
-	GraphBuilder.h
 	ResourceAccessor.h
 	ResourceFormat.h
-	ResourcePass.h
 	StructuredAccessor.h
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Util/Resources
 	COMPONENT headers

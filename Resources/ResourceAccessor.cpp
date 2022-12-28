@@ -14,7 +14,7 @@ namespace Util {
 
 //-------------------
 
-ResourceAccessor::ResourceAccessor(uint8_t* ptr, uint64_t size, ResourceFormat format) : resource(nullptr), format(format), dataPtr(ptr), dataSize(size), elementCount(size / format.getSize()) {
+ResourceAccessor::ResourceAccessor(uint8_t* ptr, uint64_t size, ResourceFormat format) : format(format), dataPtr(ptr), dataSize(size), elementCount(size / format.getSize()) {
 	const auto& attributes = format.getAttributes();
 	accessors.resize(attributes.size());
 	for(uint32_t i=0; i<attributes.size(); ++i) {
@@ -24,18 +24,18 @@ ResourceAccessor::ResourceAccessor(uint8_t* ptr, uint64_t size, ResourceFormat f
 }
 
 //-------------------
-
+/*
 ResourceAccessor::ResourceAccessor(const ResourceRef& _resource) : ResourceAccessor(_resource->map(), _resource->getSize(), _resource->getFormat()) {
 	resource = _resource;
 }
-
+*/
 
 //-------------------
 
 ResourceAccessor::~ResourceAccessor() {
-	if(resource) {
+	/*if(resource) {
 		resource->unmap();
-	}
+	}*/
 };
 
 //-------------------

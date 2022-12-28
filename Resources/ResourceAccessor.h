@@ -20,8 +20,8 @@
 #include <sstream>
 
 namespace Util {
-class Resource;
-using ResourceRef = Util::Reference<Resource>;
+//class Resource;
+//using ResourceRef = Util::Reference<Resource>;
 
 /** ResourceAccessor
 	@ingroup resources
@@ -33,10 +33,10 @@ protected:
 public:
 	using Ref = Util::Reference<ResourceAccessor>;
 	static Ref create(uint8_t* ptr, uint64_t size, ResourceFormat format) { return new ResourceAccessor(ptr, size, format); }
-	static Ref create(const ResourceRef& resource) { return new ResourceAccessor(resource); }
+	//static Ref create(const ResourceRef& resource) { return new ResourceAccessor(resource); }
 
 	UTILAPI explicit ResourceAccessor(uint8_t* ptr, uint64_t size, ResourceFormat format);
-	UTILAPI explicit ResourceAccessor(const ResourceRef& resource);
+	//UTILAPI explicit ResourceAccessor(const ResourceRef& resource);
 	UTILAPI virtual ~ResourceAccessor();
 	
 	/** Reads one or more elements without any conversion
@@ -145,7 +145,7 @@ public:
 	uint64_t getElementCount() const { return elementCount; }
 	uint32_t getAttributeLocation(const StringIdentifier& id) const { return format.getAttributeLocation(id); }
 private:
-	ResourceRef resource;
+	//ResourceRef resource;
 	const ResourceFormat format;
 	uint8_t* const dataPtr;
 	const uint64_t dataSize;
