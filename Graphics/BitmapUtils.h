@@ -22,7 +22,7 @@ namespace Util {
 class Bitmap;
 class Color4f;
 class PixelAccessor;
-class AttributeFormat;
+struct AttributeFormat;
 
 /**
  * Collection of Bitmap related operations.

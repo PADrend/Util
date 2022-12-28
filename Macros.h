@@ -89,7 +89,10 @@ UTILAPI std::string composeDebugMessage(const std::string & message,const char *
 #define COMPILER_WARN_POP GCC_DIAG_PRAGMA(pop)
 #define COMPILER_WARN_OFF_CLANG(x) GCC_DIAG_PRAGMA(ignored GCC_DIAG_STR(x))
 #define COMPILER_WARN_OFF_GCC(x)
+#define COMPILER_WARN_OFF_MSVC(x)
 #define COMPILER_WARN_OFF(x) COMPILER_WARN_OFF_CLANG(x)
+
+#define COMPILER_WARN_OFF_DEPRECATED COMPILER_WARN_OFF_CLANG(-Wdeprecated-declarations)
 
 #elif __GNUC__
 
@@ -97,7 +100,21 @@ UTILAPI std::string composeDebugMessage(const std::string & message,const char *
 #define COMPILER_WARN_POP GCC_DIAG_PRAGMA(pop)
 #define COMPILER_WARN_OFF_CLANG(x)
 #define COMPILER_WARN_OFF_GCC(x) GCC_DIAG_PRAGMA(ignored GCC_DIAG_STR(x))
+#define COMPILER_WARN_OFF_MSVC(x)
 #define COMPILER_WARN_OFF(x) COMPILER_WARN_OFF_GCC(x)
+
+#define COMPILER_WARN_OFF_DEPRECATED COMPILER_WARN_OFF_GCC(-Wdeprecated-declarations)
+
+#elif _MSC_VER
+
+#define COMPILER_WARN_PUSH __pragma(warning( push ))
+#define COMPILER_WARN_POP __pragma(warning( pop ))
+#define COMPILER_WARN_OFF_GCC(x)
+#define COMPILER_WARN_OFF_CLANG(x)
+#define COMPILER_WARN_OFF_MSVC(x) __pragma(warning( disable : x ))
+#define COMPILER_WARN_OFF(x) COMPILER_WARN_OFF_MSVC(x)
+
+#define COMPILER_WARN_OFF_DEPRECATED COMPILER_WARN_OFF_MSVC(4996)
 
 #else
 
@@ -106,6 +123,9 @@ UTILAPI std::string composeDebugMessage(const std::string & message,const char *
 #define COMPILER_WARN_OFF(x)
 #define COMPILER_WARN_OFF_GCC(x)
 #define COMPILER_WARN_OFF_CLANG(x)
+#define COMPILER_WARN_OFF_MSVC(x)
+
+#define COMPILER_WARN_OFF_DEPRECATED
 
 #endif
 

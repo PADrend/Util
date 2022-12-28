@@ -32,8 +32,6 @@ set(HEADERS
 	GenericAttributeSerialization.h
 	GenericConversion.h
 	Generic.h
-	Handle.h
-	HandleLookupTable.h
 	Hashing.h
 	JSON_Parser.h
 	LibRegistry.h
