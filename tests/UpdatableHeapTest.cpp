@@ -141,7 +141,7 @@ TEST_CASE("UpdatableHeapTest_testDeleteUpdate", "[UpdatableHeapTest]") {
 	heap.pop();
 	while (heap.size() > 0) {
 		const int32_t currentKey = heap.top()->getCost();
-		const std::pair<float, float> currentData = heap.top()->data;
+		const auto currentData = heap.top()->data;
 		heap.pop();
 		REQUIRE((currentData.first >= 100 && currentData.first <= 200));
 		REQUIRE((currentData.second >= 300 && currentData.second <= 400));

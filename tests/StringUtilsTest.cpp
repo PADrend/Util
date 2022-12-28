@@ -12,6 +12,11 @@
 #include <cstdint>
 #include <string>
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4146) // unary minus operator applied to unsigned type, result still unsigned
+#endif
+
 #define NUMBER_TEST(_TYPE, _VALUE) \
 {\
 	const _TYPE number = _VALUE;\
@@ -83,3 +88,7 @@ TEST_CASE("StringUtilsTest", "[StringUtilsTest]") {
 	NUMBER_TEST(int8_t, 100)
 	NUMBER_TEST(int8_t, 127)
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif

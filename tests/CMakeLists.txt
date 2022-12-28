@@ -25,12 +25,12 @@ if(UTIL_BUILD_TESTS)
 		ReferenceTest.cpp
 		RegistryTest.cpp
 		StringUtilsTest.cpp
-		TimerTest.cpp
+		#TimerTest.cpp
 		TriStateTest.cpp
 		UpdatableHeapTest.cpp
 		VulkanWindowTest.cpp
 		WrapperFactoryTest.cpp
-		ZIPTest.cpp
+		#ZIPTest.cpp
 		UtilTestMain.cpp
 	)
 		

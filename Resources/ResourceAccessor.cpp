@@ -8,7 +8,7 @@
 */
 
 #include "ResourceAccessor.h"
-#include "Resource.h"
+//#include "Resource.h"
 
 namespace Util {
 

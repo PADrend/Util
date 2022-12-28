@@ -93,6 +93,7 @@ UTILAPI std::string composeDebugMessage(const std::string & message,const char *
 #define COMPILER_WARN_OFF(x) COMPILER_WARN_OFF_CLANG(x)
 
 #define COMPILER_WARN_OFF_DEPRECATED COMPILER_WARN_OFF_CLANG(-Wdeprecated-declarations)
+#define COMPILER_WARN_OFF_CONVERSION COMPILER_WARN_OFF_CLANG(-Wconversion)
 
 #elif __GNUC__
 
@@ -104,6 +105,7 @@ UTILAPI std::string composeDebugMessage(const std::string & message,const char *
 #define COMPILER_WARN_OFF(x) COMPILER_WARN_OFF_GCC(x)
 
 #define COMPILER_WARN_OFF_DEPRECATED COMPILER_WARN_OFF_GCC(-Wdeprecated-declarations)
+#define COMPILER_WARN_OFF_CONVERSION COMPILER_WARN_OFF_GCC(-Wconversion)
 
 #elif _MSC_VER
 
@@ -115,6 +117,7 @@ UTILAPI std::string composeDebugMessage(const std::string & message,const char *
 #define COMPILER_WARN_OFF(x) COMPILER_WARN_OFF_MSVC(x)
 
 #define COMPILER_WARN_OFF_DEPRECATED COMPILER_WARN_OFF_MSVC(4996)
+#define COMPILER_WARN_OFF_CONVERSION COMPILER_WARN_OFF_MSVC(4244)
 
 #else
 
@@ -126,6 +129,7 @@ UTILAPI std::string composeDebugMessage(const std::string & message,const char *
 #define COMPILER_WARN_OFF_MSVC(x)
 
 #define COMPILER_WARN_OFF_DEPRECATED
+#define COMPILER_WARN_OFF_CONVERSION
 
 #endif
 

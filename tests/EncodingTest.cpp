@@ -18,6 +18,11 @@
 #include <random>
 #include <vector>
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4244) // disable possible loss of data warning on windows
+#endif
+
 TEST_CASE("EncodingTest", "[EncodingTest]") {
 	std::default_random_engine engine;
 	std::uniform_int_distribution<uint16_t> distribution(0, 255);
@@ -37,3 +42,7 @@ TEST_CASE("EncodingTest", "[EncodingTest]") {
 		}
 	}
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif

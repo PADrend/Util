@@ -14,6 +14,7 @@
 #include "Network/NetworkUDP.h"
 #include "StringIdentifier.h"
 #include "Utils.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -23,6 +24,11 @@
 #include <iostream>
 
 using namespace Util::Network;
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4244) // disable possible loss of data warning on windows
+#endif
 
 TEST_CASE("NetworkTest_testTCP", "[NetworkTest]") {
 	uint_fast8_t tryCount;
@@ -470,3 +476,7 @@ TEST_CASE("NetworkTest_testTCPClientExit", "[NetworkTest]") {
 		}
 	}
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
