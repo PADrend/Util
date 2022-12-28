@@ -43,7 +43,7 @@ struct ImageConfig {
 	uint32_t mipLevels = 1;
 	uint32_t sampleCount = 1;
 	ImageDimensions dimensions = ImageDimensions::Image2D;
-	AttributeFormat format = PixelFormat::RGBA;
+	PixelFormat format = PixelFormat::RGBA8UNorm;
 	std::string debugName;
 };
 
@@ -73,12 +73,20 @@ struct ImageRegion {
 	constexpr static ImageRegion resolve(const ImageConfig& config, uint32_t arraySlice=0, uint32_t mipLevel=0) { return ImageRegion{0,0,0,config.width>>mipLevel,config.height>>mipLevel,config.depth>>mipLevel,0,0}; }
 	static ImageRegion resolve(const ImageHandle& image, uint32_t arraySlice=0, uint32_t mipLevel=0);
 	
-	inline uint64_t getByteSize(const ImageConfig& config) const {
-		return (width == ~0ul ? (config.width>>mipLevel)-x : width) * (height == ~0ul ? (config.height>>mipLevel)-y : height) * (depth == ~0ul ? (config.depth>>mipLevel)-z : depth) * config.sampleCount * config.format.getDataSize();
+	uint64_t getByteSize(const ImageConfig& config) const {
+		const auto w = (width == ~0ul ? (config.width>>mipLevel)-x : width);
+		const auto h = (height == ~0ul ? (config.height>>mipLevel)-y : height);
+		const auto d = (depth == ~0ul ? (config.depth>>mipLevel)-z : depth);
+		return computeImageSizeBytes(config.format, w, h, d) * config.sampleCount;
 	}
-	inline bool isValid(const ImageConfig& config) const {
-		uint32_t iw = config.width>>mipLevel; uint32_t ih = config.height>>mipLevel; uint32_t id = config.depth>>mipLevel;
-		uint32_t w = (width == ~0ul ? iw-x : width); uint32_t h = (height == ~0ul ? ih-y : height); uint32_t d = (depth == ~0ul ? id-z : depth);
+
+	bool isValid(const ImageConfig& config) const {
+		const uint32_t iw = config.width>>mipLevel;
+		const uint32_t ih = config.height>>mipLevel;
+		const uint32_t id = config.depth>>mipLevel;
+		const uint32_t w = (width == ~0ul ? iw-x : width);
+		const uint32_t h = (height == ~0ul ? ih-y : height);
+		const uint32_t d = (depth == ~0ul ? id-z : depth);
 		return (x+w <= iw) && (x+h <= ih) && (x+d <= id) && mipLevel < config.mipLevels && arraySlice < config.arraySize;
 	}
 };

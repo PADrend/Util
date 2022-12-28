@@ -13,6 +13,7 @@
 #include "LocalDevice.h"
 #include "../Resources/Buffer.h"
 #include "../Graphics/Bitmap.h"
+#include "../Graphics/PixelAccessor.h"
 #include "../Macros.h"
 #include "../StringUtils.h"
 
@@ -141,7 +142,8 @@ bool LocalDevice::uploadImage(ImageHandle image, const ImageRegion& region, Refe
 		resource->mips[region.mipLevel] = new Bitmap(width, height, image->config.format);
 	}
 	auto tgtBitmap = resource->mips[region.mipLevel];
-	uint32_t pixelByteSize = config.format.getDataSize();
+	
+	uint32_t pixelByteSize = getBlockSizeBytes(config.format); // TODO: handle compressed images
 	uint32_t startSlice = region.z * config.sampleCount + region.arraySlice * std::max(1u, config.depth>>region.mipLevel);
 	uint64_t tgtRowByteSize = std::max(1u, config.width>>region.mipLevel) * pixelByteSize;
 	uint64_t tgtSliceByteSize = std::max(1u, config.height>>region.mipLevel) * tgtRowByteSize;
@@ -182,7 +184,7 @@ bool LocalDevice::downloadImage(ImageHandle image, const ImageRegion& region, Re
 	// TODO: handle compressed images
 
 	auto srcBitmap = resource->mips[region.mipLevel];
-	uint32_t pixelByteSize = config.format.getDataSize();
+	uint32_t pixelByteSize = getBlockSizeBytes(config.format); // TODO: handle compressed images
 	uint32_t startSlice = region.z * config.sampleCount + region.arraySlice * std::max(1u, config.depth>>region.mipLevel);
 	uint64_t srcRowByteSize = std::max(1u, config.width>>region.mipLevel) * pixelByteSize;
 	uint64_t srcSliceByteSize = std::max(1u, config.height>>region.mipLevel) * srcRowByteSize;
