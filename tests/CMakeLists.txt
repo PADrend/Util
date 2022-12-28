@@ -93,13 +93,6 @@ if(UTIL_BUILD_TESTS)
 	set(Vulkan_INCLUDE_DIR ${vulkan-headers_SOURCE_DIR}/include CACHE STRING "" FORCE)
 
 	# ------------------------------------------------------------------------------
-	# Dependency to Vulkan
-	find_package(Vulkan)
-	if(Vulkan_FOUND)
-		target_compile_definitions(UtilTest PRIVATE UTIL_HAVE_LIB_VULKAN)
-		target_include_directories(UtilTest PRIVATE ${Vulkan_INCLUDE_DIRS})
-		target_link_libraries(UtilTest LINK_PRIVATE ${Vulkan_LIBRARIES})
-	endif()
 	
 	install(TARGETS UtilTest
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT tests
